@@ -8,7 +8,6 @@ class Validator(object):
 	def __init__(self):
 		self.config = Configurator(config_path=os.path.join(root_, "config.ini"))
 
-		#self.config.set_current_preset()
 
 def main():
 	Validator()
