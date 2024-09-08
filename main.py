@@ -1,4 +1,4 @@
-from MSL_MayaRename.core.config import Configurator
+from MSL_MayaRename.core.resources import Resources
 import os
 
 root_ = os.path.dirname(__file__)
@@ -6,11 +6,12 @@ root_ = os.path.dirname(__file__)
 
 class Validator(object):
 	def __init__(self):
-		self.config = Configurator(config_path=os.path.join(root_, "config.ini"))
+		self.resource = Resources()
+
 
 
 def main():
-	Validator()
+	v = Validator()
 
 
 if __name__ == '__main__':

@@ -13,7 +13,6 @@ class Configurator(object):
 		self.config_path = config_path
 		self.config = ConfigParser()
 		self.config.read(self.config_path)
-		self.init_config()
 
 	def set_variable(self, section=None, var_name=None, value=None):
 
