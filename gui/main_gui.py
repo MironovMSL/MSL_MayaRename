@@ -13,10 +13,12 @@ except:
 
 from MSL_MayaRename.core.resources import Resources
 from MSL_MayaRename.core.common import log
+from MSL_MayaRename.gui.ruleWidget.ruleWidget import RuleWidget
 from maya.app.general.mayaMixin import MayaQWidgetDockableMixin
 import sys
 import os
 import maya.cmds as cmds
+
 
 
 class ValidatorGui(MayaQWidgetDockableMixin, QtWidgets.QDockWidget):
@@ -96,7 +98,7 @@ class ValidatorGui(MayaQWidgetDockableMixin, QtWidgets.QDockWidget):
 
 		# test
 		for i in range(20):
-			b = QtWidgets.QPushButton("test {}".format(i))
+			b = RuleWidget()
 			self.scroll_layout.addWidget(b)
 
 	def save_config_preset(self, text):
