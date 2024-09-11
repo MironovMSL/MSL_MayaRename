@@ -20,8 +20,8 @@ root_ = os.path.dirname(__file__)
 class RuleTopPanel(QtWidgets.QWidget):
 
 	signal_ListVisibility = QtCore.Signal()
-	signal_RuleRun = QtCore.Signal()
-	signal_RuleFix = QtCore.Signal()
+	signal_RuleRun = QtCore.Signal(str)
+	signal_RuleFix = QtCore.Signal(str)
 
 	def __init__(self, label="Test label"):
 		super(RuleTopPanel, self).__init__()
@@ -64,10 +64,10 @@ class RuleTopPanel(QtWidgets.QWidget):
 		self.main_layout.addWidget(self.btn_fix)
 
 	def on_button_run_clicked(self):
-		self.signal_RuleRun.emit()
+		self.signal_RuleRun.emit(self.rule_label)
 
 	def on_button_fix_clicked(self):
-		self.signal_RuleFix.emit()
+		self.signal_RuleFix.emit(self.rule_label)
 
 	def set_label(self, text="test"):
 		self.rule_label = text

@@ -18,14 +18,15 @@ from .ruleListPanel import RuleListPanel
 
 class RuleWidget(QtWidgets.QWidget):
 
-	signal_validator_run = QtCore.Signal()
-	signal_validator_fix = QtCore.Signal()
+	signal_validator_run = QtCore.Signal(str)
+	signal_validator_fix = QtCore.Signal(str)
 
-	def __init__(self, rule_name="name", rule_description="description"):
+	def __init__(self, rule_name="name", rule_description="description", rule_instance=None):
 		super(RuleWidget, self).__init__()
 
 		self.rule_name = rule_name
 		self.rule_description = rule_description
+		self.rule_instance = rule_instance
 
 		self.setup_ui()
 
@@ -49,25 +50,42 @@ class RuleWidget(QtWidgets.QWidget):
 		self.list_panel.setSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Fixed)
 		self.main_layout.addWidget(self.list_panel)
 
+	def rule_run_fix(self):
+		self.rule_instance.fix()
+
+	def rule_run_check(self):
+		result = self.rule_instance.check()
+		return result
+
+	def recreate_list(self, new_list=[]):
+		self.list_panel.clear_list()
+		if new_list:
+			for i in new_list:
+				self.add_invalid_object(i)
+
 	def get_rule_name(self):
 		return self.rule_name
 
 	def set_rule_name(self, name):
 		self.rule_name = name
-		# todo set this name to top panel
+		self.top_panel.set_label(name)
 
 	def get_rule_description(self):
 		return self.rule_description
 
 	def set_rule_description(self, descrioption):
 		self.rule_description = descrioption
-		# todo set this discription to bottom panel label
+		self.list_panel.set_description(descrioption)
+
+	def add_invalid_object(self, obj):
+		self.list_panel.add_item(obj)
+
 
 	def toggle_list_panel_visibility(self):
 		self.list_panel.toggle_visibility()
 
 	def on_rule_run(self):
-		self.signal_validator_run.emit()
+		self.signal_validator_run.emit(self.rule_name)
 
 	def on_rule_fix(self):
-		self.signal_validator_fix.emit()
+		self.signal_validator_fix.emit(self.rule_name)
