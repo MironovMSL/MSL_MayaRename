@@ -73,6 +73,15 @@ class Resources(object):
 		json_data = read_json(self.preset_current_path)
 		return json_data
 
+	def get_preset_rule(self, preset_name=None):
+		if not preset_name:
+			return []
+		for i in self.preset_paths:
+			file_with_extension = os.path.split(i)[1]
+			file_name = os.path.splitext(file_with_extension)[0]
+			if preset_name in file_name:
+				return read_json(i)
+
 	def save_current_preset(self, preset=None):
 		assert preset is not None, "preset is None"
 		self.config.set_current_preset(preset=preset)
