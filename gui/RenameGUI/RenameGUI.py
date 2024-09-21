@@ -23,13 +23,12 @@ class RenameGUI(QtWidgets.QWidget):
 		self.main_layout.setSpacing(0)
 
 		# content
-
-
 		self.conten = QtWidgets.QWidget()
 		self.conten.setStyleSheet("background-color: #555555; border-radius: 10px;")
 		self.conten.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
 		# self.conten.setFixedHeight(self.FixedHeigt)
 
+		# --------------------- LineEditorWidget---------------------
 		self.conten2 = LineEditorWidget()
 		# self.conten2.setStyleSheet("background-color: #555580; border-radius: 10px;")
 		self.conten2.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)

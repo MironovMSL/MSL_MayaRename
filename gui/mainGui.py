@@ -25,7 +25,7 @@ class MainToolWindow(QtWidgets.QDialog):
 
 		self.setWindowTitle("MSL Rename")
 		self.setObjectName("MainToolWindowID")
-		self.setWindowIcon(QtGui.QIcon(os.path.join(root_,"resources", "earth-svgrepo-com.svg")))  # crab-svgrepo-com  pen-svgrepo-com earth-svgrepo-com
+		self.setWindowIcon(QtGui.QIcon(os.path.join(root_,"resources", "icon", "earth-svgrepo-com.svg")))  # crab-svgrepo-com  pen-svgrepo-com earth-svgrepo-com
 		self.setMinimumWidth(300)
 		self.setMinimumHeight(300)
 
@@ -41,6 +41,7 @@ class MainToolWindow(QtWidgets.QDialog):
 		self.main_layout = QtWidgets.QVBoxLayout(self)
 		self.main_layout.setContentsMargins(0, 0, 0, 0)
 		self.main_layout.setSpacing(0)
+		self.main_layout.setAlignment(QtCore.Qt.AlignTop)
 		# self.setFixedSize(300, 300)
 
 		# content
@@ -81,80 +82,6 @@ class MainToolWindow(QtWidgets.QDialog):
 		self.main_layout.addWidget(self.conten3)
 		self.main_layout.addWidget(self.conten4)
 		self.main_layout.addWidget(self.conten5)
-
-		self.comlited = AutoCompleteWindow()
-		self.main_layout.addWidget(self.comlited)
-
-
-class CustomCompleter(QtWidgets.QCompleter):
-	def __init__(self, words, parent=None):
-		QtWidgets.QCompleter.__init__(self, parent)
-		self.words = words
-
-	def update_completer(self, text):
-		parts = text.split('_')
-		if len(parts) > 1:
-			prefix = parts[-1]  # Используем часть после последнего '_'
-			if not prefix:  # Если после '_' ничего нет, не показываем предложения
-				self.model().setStringList([])
-				return
-		else:
-			prefix = text  # Если '_' нет, используем весь текст
-
-		# Фильтруем слова на основе префикса
-		filtered_words = [word for word in self.words if word.startswith(prefix)]
-		self.model().setStringList(filtered_words)
-
-	def pathFromIndex(self, index):
-		print(f"INDEX {0}".format(index))
-		path = QtWidgets.QCompleter.pathFromIndex(self, index)
-		print(path+" pathFromIndex index")
-		lst = str(self.widget().text()).split('_')
-		print("list {}".format(lst))
-		if len(lst) > 1:
-			print(lst)
-			path = '%s_%s' % ('_'.join(lst[:-1]), path)
-			print(path + "  retur")
-
-		return path
-
-	def splitPath(self, path):
-		path_ = path
-		print(path_)
-		path_ = str(path.split('_')[-1]).lstrip(' ')
-		print(path_+" SplitPath")
-		return [path_]
-
-class AutoCompleteWindow(QtWidgets.QWidget):
-	def __init__(self, parent=None):
-		super(AutoCompleteWindow, self).__init__(parent)
-
-		# Создаем строку ввода (QLineEdit) с автодополнением
-		self.line_edit = QtWidgets.QLineEdit(self)
-		model = QtCore.QStringListModel()
-		# Список слов для автодополнения
-		word_list = ["prefix", "name", "suffix", "maya", "node", "scene"]
-		model.setStringList(word_list)
-		# Создаем комплитер
-		self.completer = CustomCompleter(word_list)
-		self.line_edit.setCompleter(self.completer)
-
-		self.completer.setModel(model)
-		self.completer.setCaseSensitivity(QtCore.Qt.CaseInsensitive)
-		self.completer.setCompletionMode(QtWidgets.QCompleter.InlineCompletion) #PopupCompletion , InlineCompletion , UnfilteredPopupCompletion
-		self.completer.setWrapAround(False)
-
-		# Устанавливаем вертикальный layout
-		layout = QtWidgets.QVBoxLayout(self)
-		layout.addWidget(self.line_edit)
-		self.setLayout(layout)
-
-		self.line_edit.textEdited.connect(self.on_text_edited)
-
-	def on_text_edited(self, text):
-		print(text)
-		# Обновляем комплитер при изменении текста
-		self.completer.update_completer(text)
 
 def creat_gui():
 	if cmds.window("MainToolWindowID", exists=True):

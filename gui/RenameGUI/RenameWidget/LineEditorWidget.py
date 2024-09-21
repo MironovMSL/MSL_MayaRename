@@ -1,18 +1,21 @@
 try:
-	from PySide6 import QtWidgets, QtGui, QtCore
-except:
 	from PySide2 import QtWidgets, QtGui, QtCore
+except:
+	from PySide6 import QtWidgets, QtGui, QtCore
 
-
+from MSL_MayaRename.core.common import all_list_itemJSON
 import os
 import maya.cmds as cmds
 
+
+root_ = os.path.dirname(__file__)
+new_root = os.path.abspath(os.path.join(root_, '..', '..'))
 
 class LineEditorWidget(QtWidgets.QWidget):
 	def __init__(self, parent=None):
 		super(LineEditorWidget, self).__init__(parent)
 
-		word_list = ["prefix", "name", "suffix", "maya", "node", "scene"]
+		word_list = all_list_itemJSON()
 
 		# ---------------------Create completer---------------------
 		self.completer = CustomCompleter(word_list)
@@ -106,11 +109,5 @@ class CustomCompleter(QtWidgets.QCompleter):
 		return path
 
 	def splitPath(self, path):
-		path_ = path
-		print(path_)
-		path_ = str(path.split('_')[-1]).lstrip(' ') # get the last word after '_' [prefix_name_se] ---> [se]
-		return [path_]
-
-
-
-
+		PATH = str(path.split('_')[-1]).lstrip(' ') # get the last word after '_' [prefix_name_se] ---> [se]
+		return [PATH]
