@@ -17,22 +17,18 @@ class LineEditorWidget(QtWidgets.QWidget):
 
 		word_list = all_list_itemJSON()
 
-		# ---------------------Create completer---------------------
+		# ---------------------Create widget---------------------
 		self.completer = CustomCompleter(word_list)
+		self.AutoComplete_line_edit = AutoCompleteLineEdit(self.completer, self)
 		model = QtCore.QStringListModel()
 		# ---------------------List of words for autocompletion---------------------
 		model.setStringList(word_list)
 		self.completer.setModel(model)
-
-		# ---------------------QLineEdit with autocompletion---------------------
-		self.AutoComplete_line_edit = AutoCompleteLineEdit(self.completer, self)
-
 		# ---------------------main Layout---------------------
 		self.main_layout = QtWidgets.QVBoxLayout(self)
 		self.main_layout.setContentsMargins(0, 0, 0, 0)
 		self.main_layout.setSpacing(0)
 		self.setLayout(self.main_layout)
-
 		# ---------------------add widget---------------------
 		self.main_layout.addWidget(self.AutoComplete_line_edit)
 
@@ -48,7 +44,8 @@ class AutoCompleteLineEdit(QtWidgets.QLineEdit):
 		self.completer = completer
 
 		# ---------------------Setting---------------------
-		self.setFixedSize(Width, Height)
+		self.setFixedHeight(Height)
+		self.setMinimumWidth(Width)
 		self.setPlaceholderText(NameHolder)
 		self.setFont(QtGui.QFont("Calibri", 11, QtGui.QFont.Normal))
 		self.setCompleter(self.completer)

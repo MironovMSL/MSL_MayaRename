@@ -47,7 +47,8 @@ class MainToolWindow(QtWidgets.QDialog):
 		# content
 		FixedHeigt = 25
 
-		self.RenameGUI = RenameGUI(FixedHeigt=FixedHeigt)
+
+		self.RenameGUI = RenameGUI()
 
 		self.conten = QtWidgets.QWidget()
 		self.conten.setStyleSheet("background-color: #555555; border-radius: 10px;")
