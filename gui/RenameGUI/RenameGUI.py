@@ -6,6 +6,8 @@ except:
 from MSL_MayaRename.gui.RenameGUI.RenameWidget.RenameWidget import RenameWidget
 from MSL_MayaRename.gui.RenameGUI.NumberWidget.NumberWidget import NumberWidget
 from MSL_MayaRename.gui.RenameGUI.LetterWidget.LetterWidget import LetterWidget
+from MSL_MayaRename.gui.RenameGUI.SuffixPrefixWidget.SuffixPrefixWidget import SuffixPrefixWidget
+from MSL_MayaRename.gui.RenameGUI.LabelWidget.LabelWidget import LabelWidget
 
 import os
 import maya.cmds as cmds
@@ -16,7 +18,7 @@ class RenameGUI(QtWidgets.QWidget):
 	def __init__(self, parent=None):
 		super(RenameGUI, self).__init__(parent)
 
-		self.FixedHeigt = 75
+		self.FixedHeigt = 200
 
 		self.setFixedHeight(self.FixedHeigt)
 
@@ -26,11 +28,13 @@ class RenameGUI(QtWidgets.QWidget):
 
 	def create_Widgets(self):
 
-		self.RenameWidget = RenameWidget()
+		self.LabelWidget = LabelWidget()
 		self.RenameButton = QtWidgets.QPushButton("Rename")
 		self.RenameButton.setFixedSize(50, 75)
+		self.RenameWidget = RenameWidget()
 		self.NumberWidget = NumberWidget()
 		self.LetterWidget = LetterWidget()
+		self.SuffixPrefixWidget = SuffixPrefixWidget()
 
 		# content
 		self.conten = QtWidgets.QWidget()
@@ -50,11 +54,15 @@ class RenameGUI(QtWidgets.QWidget):
 
 	def create_layouts(self):
 		# main layout
-		self.main_layout = QtWidgets.QHBoxLayout(self)
+		self.main_layout = QtWidgets.QVBoxLayout(self)
 		self.main_layout.setContentsMargins(0, 0, 0, 0)
 		self.main_layout.setSpacing(0)
 
-		# left and Right layout for widgets
+		# left and Right layout for widgets ---> RenameWidget, NumberWidget, LetterWidget,
+		self.main_rename_layout = QtWidgets.QHBoxLayout()
+		self.main_rename_layout.setContentsMargins(0, 0, 0, 0)
+		self.main_rename_layout.setSpacing(0)
+
 		self.left_layout = QtWidgets.QVBoxLayout()
 		self.left_layout.setContentsMargins(0, 0, 0, 0)
 		self.left_layout.setSpacing(0)
@@ -62,14 +70,21 @@ class RenameGUI(QtWidgets.QWidget):
 		self.Right_lyout.setContentsMargins(0, 0, 0, 0)
 		self.Right_lyout.setSpacing(0)
 
-		self.main_layout.addLayout(self.left_layout)
-		self.main_layout.addLayout(self.Right_lyout)
+		self.main_layout.addWidget(self.LabelWidget)
+
+		self.main_rename_layout.addLayout(self.left_layout)
+		self.main_rename_layout.addLayout(self.Right_lyout)
+		self.main_layout.addLayout(self.main_rename_layout)
 
 		self.left_layout.addWidget(self.RenameWidget)
 		self.left_layout.addWidget(self.NumberWidget)
 		self.left_layout.addWidget(self.LetterWidget)
 
 		self.Right_lyout.addWidget(self.RenameButton)
+
+		# layout for widgets SuffixPrefixWidget
+		self.main_layout.addWidget(self.SuffixPrefixWidget)
+		self.main_layout.addWidget(self.conten)
 
 	def create_connections(self):
 		pass
