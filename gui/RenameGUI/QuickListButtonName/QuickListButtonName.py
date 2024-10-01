@@ -34,7 +34,7 @@ class QuickListButtonName(QtWidgets.QWidget):
         self.main_layout.setContentsMargins(0, 0, 0, 0)
         self.main_layout.setSpacing(0)
 
-        list_BTN = get_list_itemJSON(dictionary_name="fast_access")
+        list_BTN = get_list_itemJSON("fast_access")
         for i in list_BTN:
             self.fast_access_BTN = QtWidgets.QPushButton(i)
             self.fast_access_BTN.setMaximumSize(40, 25)
