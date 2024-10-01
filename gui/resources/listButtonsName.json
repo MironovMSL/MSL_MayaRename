@@ -170,11 +170,12 @@
         "end"
     ],
     "fast_access": [
-        "_",
+        "loc",
         "geo",
         "grp",
         "jnt",
         "ctrl",
+        "crv",
         "end"
     ]
 }

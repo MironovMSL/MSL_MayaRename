@@ -13,14 +13,11 @@ class LabelWidget(QtWidgets.QWidget):
     def __init__(self, parent=None):
         super(LabelWidget, self).__init__(parent)
 
-        self.setObjectName("LabelWidget")
-
         self.FixedHeight = 25
-        self.name_label_empty = "  selected"
-        self.SuffixHolder = "_suffix"
+        self.name_label_empty = "selected object"
 
+        self.setObjectName("LabelWidget")
         self.setFixedHeight(self.FixedHeight)
-
 
         self.create_Widgets()
         self.create_layouts()
@@ -35,6 +32,7 @@ class LabelWidget(QtWidgets.QWidget):
 
         # label
         self.label_name = QtWidgets.QLabel(self.name_label_empty)
+        self.label_name.setAlignment(QtCore.Qt.AlignCenter)
 
         # button mode
         self.number_mode = QtWidgets.QPushButton("01")

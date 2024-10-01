@@ -3,11 +3,13 @@ try:
 except:
 	from PySide6 import QtWidgets, QtGui, QtCore
 
+from MSL_MayaRename.gui.RenameGUI.FunctionWidget.FunctionWidget import FunctionWidget
 from MSL_MayaRename.gui.RenameGUI.RenameWidget.RenameWidget import RenameWidget
 from MSL_MayaRename.gui.RenameGUI.NumberWidget.NumberWidget import NumberWidget
 from MSL_MayaRename.gui.RenameGUI.LetterWidget.LetterWidget import LetterWidget
 from MSL_MayaRename.gui.RenameGUI.SuffixPrefixWidget.SuffixPrefixWidget import SuffixPrefixWidget
 from MSL_MayaRename.gui.RenameGUI.LabelWidget.LabelWidget import LabelWidget
+from MSL_MayaRename.gui.RenameGUI.QuickListButtonName.QuickListButtonName import QuickListButtonName
 
 import os
 import maya.cmds as cmds
@@ -28,6 +30,7 @@ class RenameGUI(QtWidgets.QWidget):
 
 	def create_Widgets(self):
 
+		self.FunctionWidget = FunctionWidget()
 		self.LabelWidget = LabelWidget()
 		self.RenameButton = QtWidgets.QPushButton("Rename")
 		self.RenameButton.setFixedSize(50, 75)
@@ -35,22 +38,7 @@ class RenameGUI(QtWidgets.QWidget):
 		self.NumberWidget = NumberWidget()
 		self.LetterWidget = LetterWidget()
 		self.SuffixPrefixWidget = SuffixPrefixWidget()
-
-		# content
-		self.conten = QtWidgets.QWidget()
-		self.conten.setStyleSheet("background-color: #555555; border-radius: 10px;")
-		self.conten.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
-		# self.conten.setFixedHeight(self.FixedHeigt)
-
-		self.conten3 = QtWidgets.QWidget()
-		self.conten3.setStyleSheet("background-color: #925590; border-radius: 10px;")
-		self.conten3.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
-		# self.conten3.setFixedHeight(self.FixedHeigt)
-
-		self.conten4 = QtWidgets.QWidget()
-		self.conten4.setStyleSheet("background-color: #55aaff; border-radius: 10px;")
-		self.conten4.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
-		# self.conten4.setFixedHeight(self.FixedHeigt)
+		self.QuickListButtonName = QuickListButtonName()
 
 	def create_layouts(self):
 		# main layout
@@ -70,21 +58,22 @@ class RenameGUI(QtWidgets.QWidget):
 		self.Right_lyout.setContentsMargins(0, 0, 0, 0)
 		self.Right_lyout.setSpacing(0)
 
-		self.main_layout.addWidget(self.LabelWidget)
-
 		self.main_rename_layout.addLayout(self.left_layout)
 		self.main_rename_layout.addLayout(self.Right_lyout)
-		self.main_layout.addLayout(self.main_rename_layout)
 
+		# add LabelWidget RenameWidget, NumberWidget, LetterWidget, RenameButton, SuffixPrefixWidget, QuickListButtonName
+
+		self.main_layout.addWidget(self.FunctionWidget)
+		self.main_layout.addWidget(self.LabelWidget)
+		self.main_layout.addLayout(self.main_rename_layout)
 		self.left_layout.addWidget(self.RenameWidget)
 		self.left_layout.addWidget(self.NumberWidget)
 		self.left_layout.addWidget(self.LetterWidget)
-
 		self.Right_lyout.addWidget(self.RenameButton)
-
-		# layout for widgets SuffixPrefixWidget
 		self.main_layout.addWidget(self.SuffixPrefixWidget)
-		self.main_layout.addWidget(self.conten)
+		self.main_layout.addWidget(self.QuickListButtonName)
+
+		self.main_layout.addStretch()
 
 	def create_connections(self):
 		pass

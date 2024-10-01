@@ -77,7 +77,7 @@ class MainToolWindow(QtWidgets.QDialog):
 
 
 
-		self.main_layout.addWidget(self.conten)
+		# self.main_layout.addWidget(self.conten)
 		self.main_layout.addWidget(self.RenameGUI)
 		self.main_layout.addWidget(self.conten2)
 		self.main_layout.addWidget(self.conten3)

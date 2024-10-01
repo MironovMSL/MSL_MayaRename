@@ -64,12 +64,12 @@ class SuffixPrefixWidget(QtWidgets.QWidget):
         self.suffix_Editline.setPlaceholderText(self.SuffixHolder)
         self.suffix_Editline.setMinimumWidth(Width)
 
-        # button functions
-        self.Auto_suffix = QtWidgets.QPushButton("AS")
-        self.Auto_suffix.setFixedWidth(25)
-        # lt_ rt_ mid_
-        self.Auto_pref = QtWidgets.QPushButton("AP")
-        self.Auto_pref.setFixedWidth(25)
+        # # button functions
+        # self.Auto_suffix = QtWidgets.QPushButton("AS")
+        # self.Auto_suffix.setFixedWidth(25)
+        # # lt_ rt_ mid_
+        # self.Auto_pref = QtWidgets.QPushButton("AP")
+        # self.Auto_pref.setFixedWidth(25)
 
 
     def create_layouts(self):
@@ -82,8 +82,8 @@ class SuffixPrefixWidget(QtWidgets.QWidget):
         self.main_layout.addWidget(self.typeSelection)
         self.main_layout.addWidget(self.suffix_Editline)
         self.main_layout.addWidget(self.suffix_add_btn)
-        self.main_layout.addWidget(self.Auto_suffix)
-        self.main_layout.addWidget(self.Auto_pref)
+        # self.main_layout.addWidget(self.Auto_suffix)
+        # self.main_layout.addWidget(self.Auto_pref)
 
     def create_connections(self):
         pass
