@@ -14,7 +14,7 @@ class LabelWidget(QtWidgets.QWidget):
         super(LabelWidget, self).__init__(parent)
 
         self.FixedHeight = 25
-        self.name_label_empty = "selected object"
+        self.name_label_empty = '<font color="red">selected</font> and <font color="blue">object</font>.'
 
         self.setObjectName("LabelWidget")
         self.setFixedHeight(self.FixedHeight)

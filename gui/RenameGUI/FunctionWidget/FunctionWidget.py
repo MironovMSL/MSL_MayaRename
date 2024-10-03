@@ -45,6 +45,14 @@ class FunctionWidget(QtWidgets.QWidget):
         self.AP_BTN = QtWidgets.QPushButton("AP")
         self.AP_BTN.setFixedWidth(25)
 
+        # button RP remove pref_  --> pref_Name --> Name
+        self.RP_BTN = QtWidgets.QPushButton("RP")
+        self.RP_BTN.setFixedWidth(25)
+
+        # button RS remove _suffix  --> Name_suffix --> Name
+        self.RS_BTN = QtWidgets.QPushButton("RS")
+        self.RS_BTN.setFixedWidth(25)
+
         # button DE delet end number --> Name01 --> Name
         self.DE_BTN = QtWidgets.QPushButton("DE")
         self.DE_BTN.setFixedWidth(25)
@@ -52,6 +60,8 @@ class FunctionWidget(QtWidgets.QWidget):
         # button DA delet all number --> 01Name01 --> Name
         self.DA_BTN = QtWidgets.QPushButton("DA")
         self.DA_BTN.setFixedWidth(25)
+
+
 
 
 
@@ -66,6 +76,8 @@ class FunctionWidget(QtWidgets.QWidget):
         self.main_layout.addWidget(self.AS_BTN)
         self.main_layout.addWidget(self.AP_BTN)
         self.main_layout.addStretch()
+        self.main_layout.addWidget(self.RP_BTN)
+        self.main_layout.addWidget(self.RS_BTN)
         self.main_layout.addWidget(self.DE_BTN)
         self.main_layout.addWidget(self.DA_BTN)
 

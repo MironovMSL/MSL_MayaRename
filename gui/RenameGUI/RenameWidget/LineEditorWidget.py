@@ -3,57 +3,73 @@ try:
 except:
 	from PySide6 import QtWidgets, QtGui, QtCore
 
-from MSL_MayaRename.core.common import all_list_itemJSON
+from MSL_MayaRename.core.common import *
 import os
-import maya.cmds as cmds
 
 
-root_ = os.path.dirname(__file__)
-new_root = os.path.abspath(os.path.join(root_, '..', '..'))
+root_ = os.path.dirname(__file__) # ...MSL_MayaRename\gui\RenameGUI\RenameWidget
+new_root = os.path.abspath(os.path.join(root_, '..', '..')) #...MSL_MayaRename\gui
+
 
 class LineEditorWidget(QtWidgets.QWidget):
 	def __init__(self, parent=None):
 		super(LineEditorWidget, self).__init__(parent)
 
-		word_list = all_list_itemJSON()
+		# Attribute---------------------------
+		self.word_list = all_list_itemJSON() # list of all words library.
 
-		# ---------------------Create widget---------------------
-		self.completer = CustomCompleter(word_list)
+		# Run function---------------------------
+		self.create_widgets()
+		self.create_layouts()
+		print("root:", root_)
+		print("project_root_:", project_root_)
+
+	def create_widgets(self):
+
+		self.completer = CustomCompleter(self.word_list)
 		self.AutoComplete_line_edit = AutoCompleteLineEdit(self.completer, self)
-		model = QtCore.QStringListModel()
-		# ---------------------List of words for autocompletion---------------------
-		model.setStringList(word_list)
-		self.completer.setModel(model)
-		# ---------------------main Layout---------------------
+		self.model = QtCore.QStringListModel()  # model for list name.
+
+		# List of words for autocompletion
+		self.completer.setModel(self.model)
+		self.model.setStringList(self.word_list)
+
+	def create_layouts(self):
+
+		# main Layout
 		self.main_layout = QtWidgets.QVBoxLayout(self)
 		self.main_layout.setContentsMargins(0, 0, 0, 0)
 		self.main_layout.setSpacing(0)
-		self.setLayout(self.main_layout)
-		# ---------------------add widget---------------------
+
+		# add widget
 		self.main_layout.addWidget(self.AutoComplete_line_edit)
+
 
 class AutoCompleteLineEdit(QtWidgets.QLineEdit):
 
 	def __init__(self, completer, parent=None):
 		super().__init__(parent)
 
-		# ---------------------Attribute ---------------------
-		Width = 200
-		Height = 25
-		NameHolder = "Name"
+		# Attribute---------------------------
+		Width          = 200
+		Height         = 25
+		NameHolder     = "Name"
+		Font           = QtGui.QFont("Calibri", 11, QtGui.QFont.Normal)
 		self.completer = completer
 
-		# ---------------------Setting---------------------
+		# Setting---------------------------
 		self.setFixedHeight(Height)
 		self.setMinimumWidth(Width)
 		self.setPlaceholderText(NameHolder)
-		self.setFont(QtGui.QFont("Calibri", 11, QtGui.QFont.Normal))
+		self.setFont(Font)
 		self.setCompleter(self.completer)
 		self.setAttribute(QtCore.Qt.WA_InputMethodEnabled)
 		self.setClearButtonEnabled(True)
 		self.installEventFilter(self)
 
-		# ---------------------connect---------------------
+		self.create_connections()
+
+	def create_connections(self):
 		self.textEdited.connect(self.on_text_edited)
 
 	def on_text_edited(self, text):
@@ -61,26 +77,32 @@ class AutoCompleteLineEdit(QtWidgets.QLineEdit):
 
 	def keyPressEvent(self, event):
 		if event.key() == QtCore.Qt.Key_Tab:  # Checking the TAB key press
-			filtered_words = self.completer.model().stringList()  # We get a list of words []
+
+			filtered_words = self.completer.model().stringList()  # We get a list of words (w..) -->[wrist, wing]
 			if filtered_words:  # If there are matches
-				completion = filtered_words[0]  # We take the first match
-				cursor_pos = self.cursorPosition()
-				text = self.text()
-				new_text = text[:text.rfind('_') + 1] + completion # Replace part of the text with autocomplete
-				self.setText(new_text)
-				self.setCursorPosition(len(new_text))  # Place the cursor at the end
-				event.accept()  # Stop further processing TAB
-				return
+				current_index = self.completer.popup().currentIndex()
+				if not current_index.isValid():
+					completion = filtered_words[0]  # We take the first match
+					cursor_pos = self.cursorPosition()
+					text = self.text()
+					new_text = text[:text.rfind('_') + 1] + completion # Replace part of the text with autocomplete
+					self.setText(new_text)
+					self.setCursorPosition(len(new_text))  # Place the cursor at the end
+			self.completer.popup().hide()
+			event.accept()  # Stop further processing TAB
+			return
 		super().keyPressEvent(event)
 
 	def focusNextPrevChild(self, next): # Intercept focusNextPrevChild to prevent focus switching
 		return False # Stop focus switching when pressing TAB
+
 
 class CustomCompleter(QtWidgets.QCompleter):
 	def __init__(self, words, parent=None):
 		QtWidgets.QCompleter.__init__(self, parent)
 
 		self.words = words
+
 		self.setCompletionMode(QtWidgets.QCompleter.PopupCompletion)  # PopupCompletion , InlineCompletion , UnfilteredPopupCompletion
 		self.setCaseSensitivity(QtCore.Qt.CaseInsensitive)
 		self.setWrapAround(False)
@@ -102,7 +124,7 @@ class CustomCompleter(QtWidgets.QCompleter):
 		path = QtWidgets.QCompleter.pathFromIndex(self, index) # Get the selected word [name]
 		lst = str(self.widget().text()).split('_') # We get a list of words split by '_' [name, prefix, name]
 		if len(lst) > 1:
-			path = '%s_%s' % ('_'.join(lst[:-1]), path) # Replace part of the word on the selected word in autocomplete
+			path = f"{'_'.join(lst[:-1])}_{path}" # Replace part of the word on the selected word in autocomplete
 		return path
 
 	def splitPath(self, path):

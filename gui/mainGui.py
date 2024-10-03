@@ -27,7 +27,7 @@ class MainToolWindow(QtWidgets.QDialog):
 		self.setObjectName("MainToolWindowID")
 		self.setWindowIcon(QtGui.QIcon(os.path.join(root_,"resources", "icon", "earth-svgrepo-com.svg")))  # crab-svgrepo-com  pen-svgrepo-com earth-svgrepo-com
 		self.setMinimumWidth(300)
-		self.setMinimumHeight(300)
+		self.setMinimumHeight(250)
 
 		# On macOS make the window a Tool to keep it on top of Maya
 		if sys.platform == "darwin":
@@ -42,7 +42,7 @@ class MainToolWindow(QtWidgets.QDialog):
 		self.main_layout.setContentsMargins(0, 0, 0, 0)
 		self.main_layout.setSpacing(0)
 		self.main_layout.setAlignment(QtCore.Qt.AlignTop)
-		# self.setFixedSize(300, 300)
+		# self.setFixedSize(300, 250)
 
 		# content
 		FixedHeigt = 25
@@ -81,8 +81,8 @@ class MainToolWindow(QtWidgets.QDialog):
 		self.main_layout.addWidget(self.RenameGUI)
 		self.main_layout.addWidget(self.conten2)
 		self.main_layout.addWidget(self.conten3)
-		self.main_layout.addWidget(self.conten4)
-		self.main_layout.addWidget(self.conten5)
+		# # self.main_layout.addWidget(self.conten4)
+		# # self.main_layout.addWidget(self.conten5)
 
 def creat_gui():
 	if cmds.window("MainToolWindowID", exists=True):

@@ -17,11 +17,11 @@ class RenameWidget(QtWidgets.QWidget):
 
 		self.setFixedHeight(self.FixedHeight)
 
-		self.create_Widgets()
+		self.create_widgets()
 		self.create_layouts()
 		self.create_connections()
 
-	def create_Widgets(self):
+	def create_widgets(self):
 
 		# create buttons
 		self.LeftRemoveButton = QtWidgets.QPushButton(">|")
@@ -33,6 +33,7 @@ class RenameWidget(QtWidgets.QWidget):
 		self.LineEditor.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
 
 	def create_layouts(self):
+
 		self.main_layout = QtWidgets.QHBoxLayout(self)
 		self.main_layout.setContentsMargins(0, 0, 0, 0)
 		self.main_layout.setSpacing(0)

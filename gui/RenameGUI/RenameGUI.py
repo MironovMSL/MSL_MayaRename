@@ -10,6 +10,7 @@ from MSL_MayaRename.gui.RenameGUI.LetterWidget.LetterWidget import LetterWidget
 from MSL_MayaRename.gui.RenameGUI.SuffixPrefixWidget.SuffixPrefixWidget import SuffixPrefixWidget
 from MSL_MayaRename.gui.RenameGUI.LabelWidget.LabelWidget import LabelWidget
 from MSL_MayaRename.gui.RenameGUI.QuickListButtonName.QuickListButtonName import QuickListButtonName
+from MSL_MayaRename.gui.RenameGUI.CasheNameWidget.CasheNameWidget import CasheNameWidget
 
 import os
 import maya.cmds as cmds
@@ -39,6 +40,7 @@ class RenameGUI(QtWidgets.QWidget):
 		self.LetterWidget = LetterWidget()
 		self.SuffixPrefixWidget = SuffixPrefixWidget()
 		self.QuickListButtonName = QuickListButtonName()
+		self.CasheNameWidget = CasheNameWidget()
 
 	def create_layouts(self):
 		# main layout
@@ -67,11 +69,12 @@ class RenameGUI(QtWidgets.QWidget):
 		self.main_layout.addWidget(self.LabelWidget)
 		self.main_layout.addLayout(self.main_rename_layout)
 		self.left_layout.addWidget(self.RenameWidget)
-		self.left_layout.addWidget(self.NumberWidget)
 		self.left_layout.addWidget(self.LetterWidget)
+		self.left_layout.addWidget(self.NumberWidget)
 		self.Right_lyout.addWidget(self.RenameButton)
 		self.main_layout.addWidget(self.SuffixPrefixWidget)
 		self.main_layout.addWidget(self.QuickListButtonName)
+		self.main_layout.addWidget(self.CasheNameWidget)
 
 		self.main_layout.addStretch()
 
