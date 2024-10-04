@@ -18,7 +18,7 @@ def log(message="", category=""):
 	:return: None
 	"""
 
-	print ("[VALIDATOR {0}] {1}".format(category, message))
+	print ("[MSL: {0}] {1}".format(category, message))
 
 
 def read_json(path=None):

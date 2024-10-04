@@ -1,78 +1,73 @@
-from configparser import ConfigParser
+try:
+	from PySide2 import QtWidgets, QtGui, QtCore
+except:
+	from PySide6 import QtWidgets, QtGui, QtCore
+from MSL_MayaRename.core.common import *
 import os
-
-root_ = os.path.dirname(__file__)
-
 
 class Configurator(object):
 	"""
 	Class work with config.ini
 	"""
-
 	def __init__(self, config_path):
+
 		self.config_path = config_path
-		self.config = ConfigParser()
-		self.config.read(self.config_path)
+		self.config = QtCore.QSettings(self.config_path, QtCore.QSettings.IniFormat)
 
 	def set_variable(self, section=None, var_name=None, value=None):
-
+		"""
+		Set a variable in the config file.
+		:param section: Group or section in the config (used as a group in QSettings)
+		:param var_name: Name of the variable
+		:param value: Value to set for the variable
+		"""
 		assert var_name is not None, "var_name is None"
 		assert value is not None, "value is None"
 		assert section is not None, "section is None"
 
-		if section:
-			if not self.config.has_section(section):
-				self.config.add_section(section)
-			self.config.set(section, var_name, value)
-		else:
-			self.config.set("custom", var_name, value)
+		self.config.beginGroup(section)
+		self.config.setValue(var_name, value)
+		self.config.endGroup()
 
-		self.write_config()
-
-	def get_variable(self, section=None, var_name=None):
+	def get_variable(self, section=None, var_name=None, default_value=None):
+		"""
+		Get a variable from the config file.
+		:param section: Group or section in the config (used as a group in QSettings)
+		:param var_name: Name of the variable
+		:param default_value: Default value if the variable does not exist
+		:return: The value of the variable or default_value
+		"""
 		assert var_name is not None, "var_name is None"
 		assert section is not None, "section is None"
 
-		return self.config.get(section, var_name)
-
-	def get_current_preset(self):
-		return self.config.get("startup", "current_preset")
-
-	def get_current_preset_path(self):
-		return self.config.get("startup", "current_preset_path")
-
-	def set_current_preset(self, preset=None):
-		assert preset is not None, "preset is None"
-		self.config.set("startup", "current_preset", preset)
-		self.write_config()
-
-	def set_current_preset_path(self, preset_path=None):
-		assert preset_path is not None, "preset is None"
-		self.config.set("startup", "current_preset_path", preset_path)
-		self.write_config()
+		self.config.beginGroup(section)
+		value = self.config.value(var_name, default_value)
+		self.config.endGroup()
+		return value
 
 	def init_config(self):
-		if not self.config:
-			return
+		"""
+		Initialize default configuration if it does not exist.
+		"""
+		# Initialize the "startup" group and set default values
+		if not self.config.contains("startup"):
 
-		# create section "startup"
-		if not self.config.has_section("startup"):
-			self.config.add_section("startup")
+			self.config.beginGroup("startup")
 
-		# create current preset
-		try:
-			current_preset = self.get_current_preset()
-		except:
-			self.config.set("startup", "current_preset", "test")
+			self.config.setValue("name", "test")
+			self.config.setValue("mode_number", True)
+			self.config.setValue("mode_prefix", True)
+			self.config.setValue("temp_dir", "Tem/dir/")
 
-		# create current presetPath
-		try:
-			current_preset = self.get_current_preset_path()
-		except:
-			self.config.set("startup", "current_preset_path", os.path.join(root_, "presets", "test.json"))
+			self.config.endGroup()  # End the group
 
-		self.write_config()
+	def get_info_all_keys(self):
+		# print config.ini
+		keys = self.config.allKeys()
 
-	def write_config(self):
-		with open(self.config_path, 'w') as config_file:
-			self.config.write(config_file)
+		for key in keys:
+			value = self.config.value(key)
+			parts = key.split('/')
+
+			log(message=f"[{parts[0]}] {parts[1]} = {value}", category="config.ini")
+

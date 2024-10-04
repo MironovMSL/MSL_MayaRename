@@ -21,8 +21,6 @@ class LineEditorWidget(QtWidgets.QWidget):
 		# Run function---------------------------
 		self.create_widgets()
 		self.create_layouts()
-		print("root:", root_)
-		print("project_root_:", project_root_)
 
 	def create_widgets(self):
 
