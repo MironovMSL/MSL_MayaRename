@@ -27,24 +27,6 @@ def read_json(path=None):
 		json_data = json.load(json_file)
 	return json_data
 
-def all_list_itemJSON():
-
-	word_list = []
-	data_json = read_json(os.path.join(root_, "resources", "listButtonsName.json"))
-
-	for key, value in data_json.items():
-		if isinstance(value, list): # Check if a value is a list
-			for item in value:
-				if item not in word_list:
-					word_list.append(item)
-		elif isinstance(value, dict): # If the nested elements are dictionaries, we also iterate over them
-			for sub_key, sub_value in value.items():
-				if isinstance(sub_value, list):
-					for item in sub_value:
-						if item not in word_list:
-							word_list.append(item)
-	return word_list
-
 def get_list_itemJSON(dictionary_name):
 	word_list = []
 	data_json = read_json(os.path.join(root_, "resources", "listButtonsName.json"))

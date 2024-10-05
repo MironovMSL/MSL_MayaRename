@@ -65,6 +65,7 @@ class AutoCompleteLineEdit(QtWidgets.QLineEdit):
 		Width            = 200
 		Height           = 25
 		NameHolder       = "Name"
+		ToolTip          = "Texting edit for Rename"
 		Font             = QtGui.QFont("Arial", 10, QtGui.QFont.Normal)
 		self.completer   = completer
 		self.oldCursor   = self.cursorPosition()
@@ -74,13 +75,15 @@ class AutoCompleteLineEdit(QtWidgets.QLineEdit):
 		self.setFixedHeight(Height)
 		self.setMinimumWidth(Width)
 		self.setPlaceholderText(NameHolder)
+		self.setToolTip(ToolTip)
 		self.setFont(Font)
 		self.setCompleter(self.completer)
 		self.setAttribute(QtCore.Qt.WA_InputMethodEnabled)
-		self.installEventFilter(self)
+		self.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
 		self.setClearButtonEnabled(True)
 		self.setAcceptDrops(True)
 		self.setDragEnabled(True)
+		self.installEventFilter(self)
 		#---------------------------
 		self.create_connections()
 
@@ -150,7 +153,7 @@ class AutoCompleteLineEdit(QtWidgets.QLineEdit):
 		posC = self.cursorPositionAt(event.pos())
 		self.setCursorPosition(posC)
 
-		pos = self.cursorPosition()
+		pos  = self.cursorPosition()
 		text = self.text()
 		Name = self.oldMineData
 
@@ -167,19 +170,18 @@ class AutoCompleteLineEdit(QtWidgets.QLineEdit):
 
 	def dropEvent(self, event):
 		mimeData = event.mimeData()
-		text = self.text()
-		pos = self.oldCursor
+		text     = self.text()
+		pos      = self.oldCursor
 
-		# Extract the original text without brackets
-		if mimeData.hasText():
+		if mimeData.hasText(): # Extract the original text without brackets
 			Name = mimeData.text()  # Original text without brackets
 		elif hasattr(mimeData, 'Name_Btn'):
 			Name = mimeData.Name_Btn
 		else:
 			Name = ""
 
-		# Remove the text with brackets inserted earlier
-		if self.oldMineData in text:
+
+		if self.oldMineData in text: # Remove the text with brackets inserted earlier
 			splitText = text.split(self.oldMineData)
 			text = splitText[0] + splitText[1]
 

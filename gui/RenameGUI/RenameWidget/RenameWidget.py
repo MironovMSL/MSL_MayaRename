@@ -4,6 +4,7 @@ except:
 	from PySide6 import QtWidgets, QtGui, QtCore
 
 from MSL_MayaRename.gui.RenameGUI.RenameWidget.LineEditorWidget import LineEditorWidget
+from MSL_MayaRename.gui.RenameGUI.RenameWidget.RemoveButtonWidget import RemoveButtonWidget
 import os
 import maya.cmds as cmds
 
@@ -24,13 +25,11 @@ class RenameWidget(QtWidgets.QWidget):
 	def create_widgets(self):
 
 		# create buttons
-		self.LeftRemoveButton = QtWidgets.QPushButton(">|")
-		self.LeftRemoveButton.setFixedSize(25, 25)
-		self.RightRemoveButton = QtWidgets.QPushButton("|<")
-		self.RightRemoveButton.setFixedSize(25, 25)
+		self.LeftRemoveButton = RemoveButtonWidget("",25, 25,"Right_chevron-arrows-svgrepo-com.svg")
+		self.RightRemoveButton = RemoveButtonWidget("",25, 25,"Left_chevron-arrows-svgrepo-com.svg")
+
 		# create LineEditor
 		self.LineEditor = LineEditorWidget()
-		self.LineEditor.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
 
 	def create_layouts(self):
 
