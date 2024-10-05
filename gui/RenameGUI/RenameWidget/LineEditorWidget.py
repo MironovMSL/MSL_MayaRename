@@ -3,6 +3,8 @@ try:
 except:
 	from PySide6 import QtWidgets, QtGui, QtCore
 
+from MSL_MayaRename.core.resources import Resources
+from MSL_MayaRename.core.config import Configurator
 from MSL_MayaRename.core.common import *
 import os
 
@@ -10,13 +12,23 @@ import os
 root_ = os.path.dirname(__file__) # ...MSL_MayaRename\gui\RenameGUI\RenameWidget
 new_root = os.path.abspath(os.path.join(root_, '..', '..')) #...MSL_MayaRename\gui
 
+# remove the class NameMineData
+class NameMIMEData(QtCore.QMimeData):
+	def __init__(self, text=None):
+		super(NameMIMEData, self).__init__()
+
+		if text:
+			self.Name_Btn = text
+		else:
+			self.Name_Btn = ""
 
 class LineEditorWidget(QtWidgets.QWidget):
 	def __init__(self, parent=None):
 		super(LineEditorWidget, self).__init__(parent)
 
 		# Attribute---------------------------
-		self.word_list = all_list_itemJSON() # list of all words library.
+		self.resource: Resources = Resources.get_instance()
+		self.word_list = self.resource.all_item_json # list of all words library.
 
 		# Run function---------------------------
 		self.create_widgets()
@@ -44,16 +56,19 @@ class LineEditorWidget(QtWidgets.QWidget):
 
 
 class AutoCompleteLineEdit(QtWidgets.QLineEdit):
+	itDropName = QtCore.Signal(str)
 
 	def __init__(self, completer, parent=None):
 		super().__init__(parent)
 
 		# Attribute---------------------------
-		Width          = 200
-		Height         = 25
-		NameHolder     = "Name"
-		Font           = QtGui.QFont("Calibri", 11, QtGui.QFont.Normal)
-		self.completer = completer
+		Width            = 200
+		Height           = 25
+		NameHolder       = "Name"
+		Font             = QtGui.QFont("Arial", 10, QtGui.QFont.Normal)
+		self.completer   = completer
+		self.oldCursor   = self.cursorPosition()
+		self.oldMineData = ""
 
 		# Setting---------------------------
 		self.setFixedHeight(Height)
@@ -62,9 +77,11 @@ class AutoCompleteLineEdit(QtWidgets.QLineEdit):
 		self.setFont(Font)
 		self.setCompleter(self.completer)
 		self.setAttribute(QtCore.Qt.WA_InputMethodEnabled)
-		self.setClearButtonEnabled(True)
 		self.installEventFilter(self)
-
+		self.setClearButtonEnabled(True)
+		self.setAcceptDrops(True)
+		self.setDragEnabled(True)
+		#---------------------------
 		self.create_connections()
 
 	def create_connections(self):
@@ -93,6 +110,86 @@ class AutoCompleteLineEdit(QtWidgets.QLineEdit):
 
 	def focusNextPrevChild(self, next): # Intercept focusNextPrevChild to prevent focus switching
 		return False # Stop focus switching when pressing TAB
+
+	def dragLeaveEvent(self, event):
+		text = self.text()
+		Name = self.oldMineData
+
+		if Name in text:
+			splitText = text.split(Name)
+			text = splitText[0] + splitText[1]
+		self.setText(text)
+
+	def dragEnterEvent(self, event):
+		event.acceptProposedAction()
+
+		mimeData = event.mimeData()
+
+		if mimeData.hasText():
+			Name = "[" + mimeData.text() + "]"
+		elif hasattr(mimeData, 'Name_Btn'):
+			Name = "[" + mimeData.Name_Btn + "]"
+		else:
+			Name = ""
+
+		self.oldMineData = Name
+
+		# More precise determination of the cursor position
+		posC = self.cursorPositionAt(event.pos())
+		self.setCursorPosition(posC)
+		self.setFocus()
+
+		pos = self.cursorPosition()
+		text = self.text()
+		NewText = text[:pos] + Name + text[pos:]  # Insert text with brackets when dragging
+		self.oldCursor = pos
+		self.setText(NewText)
+
+	def dragMoveEvent(self, event):
+		event.acceptProposedAction()
+		posC = self.cursorPositionAt(event.pos())
+		self.setCursorPosition(posC)
+
+		pos = self.cursorPosition()
+		text = self.text()
+		Name = self.oldMineData
+
+		if self.oldCursor != pos:
+			if Name in text:
+				splitText = text.split(Name)
+				Text = splitText[0] + splitText[1]
+				NewText = Text[:pos] + Name + Text[pos:]
+			else:
+				NewText = text[:pos] + Name + text[pos:]
+
+			self.oldCursor = pos
+			self.setText(NewText)
+
+	def dropEvent(self, event):
+		mimeData = event.mimeData()
+		text = self.text()
+		pos = self.oldCursor
+
+		# Extract the original text without brackets
+		if mimeData.hasText():
+			Name = mimeData.text()  # Original text without brackets
+		elif hasattr(mimeData, 'Name_Btn'):
+			Name = mimeData.Name_Btn
+		else:
+			Name = ""
+
+		# Remove the text with brackets inserted earlier
+		if self.oldMineData in text:
+			splitText = text.split(self.oldMineData)
+			text = splitText[0] + splitText[1]
+
+		if Name:
+			NewText = text[:pos] + Name + text[pos:]  # Insert the original text without brackets
+			self.oldMineData = ""
+			self.setText(NewText)
+			self.itDropName.emit(NewText)
+
+		event.source().setVisible(True)
 
 
 class CustomCompleter(QtWidgets.QCompleter):

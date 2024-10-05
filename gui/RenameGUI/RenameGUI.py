@@ -4,6 +4,7 @@ except:
 	from PySide6 import QtWidgets, QtGui, QtCore
 
 from MSL_MayaRename.core.resources import Resources
+from MSL_MayaRename.core.config import Configurator
 from MSL_MayaRename.gui.RenameGUI.FunctionWidget.FunctionWidget import FunctionWidget
 from MSL_MayaRename.gui.RenameGUI.RenameWidget.RenameWidget import RenameWidget
 from MSL_MayaRename.gui.RenameGUI.NumberWidget.NumberWidget import NumberWidget
@@ -23,6 +24,7 @@ class RenameGUI(QtWidgets.QWidget):
 		super(RenameGUI, self).__init__(parent)
 
 		self.FixedHeigt = 200
+		self.resources :Configurator = Resources.get_instance()
 
 		self.setFixedHeight(self.FixedHeigt)
 
@@ -31,7 +33,7 @@ class RenameGUI(QtWidgets.QWidget):
 		self.create_connections()
 
 	def create_Widgets(self):
-		self.resources = Resources()
+
 		self.FunctionWidget = FunctionWidget()
 		self.LabelWidget = LabelWidget()
 		self.RenameButton = QtWidgets.QPushButton("Rename")
