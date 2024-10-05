@@ -9,10 +9,7 @@ from MSL_MayaRename.core.common import *
 import os
 
 
-root_ = os.path.dirname(__file__) # ...MSL_MayaRename\gui\RenameGUI\RenameWidget
-new_root = os.path.abspath(os.path.join(root_, '..', '..')) #...MSL_MayaRename\gui
 
-# remove the class NameMineData
 class NameMIMEData(QtCore.QMimeData):
 	def __init__(self, text=None):
 		super(NameMIMEData, self).__init__()
@@ -58,6 +55,34 @@ class LineEditorWidget(QtWidgets.QWidget):
 class AutoCompleteLineEdit(QtWidgets.QLineEdit):
 	itDropName = QtCore.Signal(str)
 
+	Style_lineEdit = """
+	    QLineEdit {
+	        background-color: rgb(40, 40, 40);  /* Темно-серый фон */
+	        border: 2px solid rgb(70, 70, 70);  /* Серо-черная граница */
+	        border-radius: 10px;
+	        padding: 0 4px;
+	        color: rgb(220, 220, 220);          /* Светло-серый текст */
+	        selection-background-color: rgb(60, 60, 60); /* Темно-серый фон для выделения */
+	        selection-color: rgb(255, 255, 255);  /* Белый текст при выделении */
+	    }
+
+	    QLineEdit:hover {
+	        border: 2px solid rgb(100, 100, 100);  /* Светло-серая граница при наведении */
+	        background-color: rgb(45, 45, 45);     /* Немного светлее при наведении */
+	    }
+
+	    QLineEdit:focus {
+	        color: rgb(255, 255, 255);           /* Белый текст при фокусе */
+	        border: 2px solid rgb(120, 120, 120); /* Ярче серый при фокусе */
+	        background-color: rgb(50, 50, 50);    /* Более светлый серый при фокусе */
+	    }
+
+	    QLineEdit:hover:focus {
+	        border: 2px solid rgb(150, 150, 150); /* Светлая граница при наведении и фокусе */
+	        background-color: rgb(55, 55, 55);    /* Еще более светлый фон при наведении и фокусе */
+	    }
+	"""
+
 	def __init__(self, completer, parent=None):
 		super().__init__(parent)
 
@@ -84,6 +109,7 @@ class AutoCompleteLineEdit(QtWidgets.QLineEdit):
 		self.setAcceptDrops(True)
 		self.setDragEnabled(True)
 		self.installEventFilter(self)
+		self.setStyleSheet(self.Style_lineEdit)
 		#---------------------------
 		self.create_connections()
 

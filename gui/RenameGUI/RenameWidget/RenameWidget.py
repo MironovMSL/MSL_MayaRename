@@ -25,8 +25,8 @@ class RenameWidget(QtWidgets.QWidget):
 	def create_widgets(self):
 
 		# create buttons
-		self.LeftRemoveButton = RemoveButtonWidget("",25, 25,"Right_chevron-arrows-svgrepo-com.svg")
-		self.RightRemoveButton = RemoveButtonWidget("",25, 25,"Left_chevron-arrows-svgrepo-com.svg")
+		self.LeftRemoveButton = RemoveButtonWidget("",25,25,"Right_chevron-arrows-svgrepo-com.svg","first")
+		self.RightRemoveButton = RemoveButtonWidget("",25,25,"Left_chevron-arrows-svgrepo-com.svg","end")
 
 		# create LineEditor
 		self.LineEditor = LineEditorWidget()
@@ -42,4 +42,11 @@ class RenameWidget(QtWidgets.QWidget):
 		self.main_layout.addWidget(self.RightRemoveButton)
 
 	def create_connections(self):
-		pass
+		self.LeftRemoveButton.clicked.connect(self.click_on_remove_left)
+		self.RightRemoveButton.clicked.connect(self.click_on_remove_right)
+
+	def click_on_remove_left(self):
+		print("TODO : remove the first letter")
+
+	def click_on_remove_right(self):
+		print("TODO : remove the edn letter")

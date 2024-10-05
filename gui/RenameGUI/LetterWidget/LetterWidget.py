@@ -25,13 +25,14 @@ class LetterWidget(QtWidgets.QWidget):
 
 		self.leter_lineEditor = QtWidgets.QLineEdit()
 		self.leter_lineEditor.setPlaceholderText(self.NameHolder)
-		self.leter_lineEditor.setFixedWidth(133)
+		self.leter_lineEditor.setFixedWidth(105)
 
 		self.index_slider = QtWidgets.QSlider()
 		self.index_slider.setOrientation(QtCore.Qt.Horizontal)
 
 		self.index_SpinBox = QtWidgets.QSpinBox()
-		self.index_SpinBox.setFixedSize(40, 25)
+		self.index_SpinBox.setFixedSize(25, 25)
+		self.index_SpinBox.setButtonSymbols(QtWidgets.QAbstractSpinBox.ButtonSymbols.NoButtons)
 
 
 	def create_layouts(self):
