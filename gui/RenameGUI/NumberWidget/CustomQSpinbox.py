@@ -5,6 +5,7 @@ except:
 
 
 from MSL_MayaRename.core.resources import Resources
+from MSL_MayaRename.core.config import Configurator
 import os
 import maya.cmds as cmds
 
@@ -49,8 +50,8 @@ class CustomQSpinbox(QtWidgets.QSpinBox):
 		super(CustomQSpinbox, self).__init__(parent)
 
 		# Attribute----------------------
-		self.resoures    = Resources.get_instance()
-		self.mode_number = self.resoures.config.get_variable("startup", "mode_number", False)
+		self.resources    = Resources.get_instance()
+		self.mode_number = self.resources.config.get_variable("startup", "mode_number", False)
 		self.width       = width
 		self.height      = height
 		self.prefix      = prefix
@@ -66,8 +67,9 @@ class CustomQSpinbox(QtWidgets.QSpinBox):
 
 		elif self.tooltip == "Padding number":
 			self.name = self.tooltip
-			pading = lambda: "0" * start_Value
-			self.tooltip = f"{self.tooltip} : {start_Value} = {pading()}"
+			# pading = lambda: "0" * start_Value
+			pading = "0" * start_Value
+			self.tooltip = f"{self.tooltip} : {start_Value} = {pading}"
 
 		elif  self.tooltip == "Position of number":
 			self.name = self.tooltip
@@ -82,7 +84,7 @@ class CustomQSpinbox(QtWidgets.QSpinBox):
 		self.setReadOnly(not self.mode_number)
 		self.setStyleSheet(self.Style_spinBox)
 		self.setToolTip(self.tooltip)
-
+		# Run function ------------------------
 		self.create_connections()
 
 	def create_connections(self):
@@ -91,10 +93,13 @@ class CustomQSpinbox(QtWidgets.QSpinBox):
 	def on_changed_spinbox_value(self,value):
 		if self.name == "Starting number":
 			self.tooltip = f"{self.name} : {value}"
+			# self.resources.config.set_variable("startup", "start_number", value)
 		elif self.name == "Padding number":
 			pading = lambda: "0" * value
 			self.tooltip = f"{self.name} : {value} = {pading()}"
+			# self.resources.config.set_variable("startup", "padding_number", value)
 		elif self.name == "Position of number":
 			self.tooltip = f"{self.name} : {value}"
+			# self.resources.config.set_variable("startup", "position_number", value)
 
 		self.setToolTip(self.tooltip)

@@ -15,13 +15,14 @@ root_ = os.path.dirname(__file__)
 class CustomQSliderWidget(QtWidgets.QSlider):
 	wheelScrolled = QtCore.Signal(int)
 
-	def __init__(self,range=[], parent=None):
+	def __init__(self, position, range=[], parent=None):
 		super(CustomQSliderWidget, self).__init__(parent)
 
 		# Attribute----------------------
-		self.resoures    = Resources.get_instance()
-		self.mode_number = self.resoures.config.get_variable("startup", "mode_number", False)
-		self.range       = range
+		self.resources     = Resources.get_instance()
+		self.mode_number   = self.resources.config.get_variable("startup", "mode_number", False)
+		self.range         = range
+		self.position      = position
 		self.current_value = self.value()
 		self.tooltip = f"Position of number: {self.current_value}"
 
@@ -31,7 +32,9 @@ class CustomQSliderWidget(QtWidgets.QSlider):
 		self.setVisible(True)
 		self.setEnabled(self.mode_number)
 		self.setToolTip(self.tooltip)
+		self.setValue(self.position)
 
+		# Run function ------------------------
 		self.create_connections()
 
 	def wheelEvent(self, event):

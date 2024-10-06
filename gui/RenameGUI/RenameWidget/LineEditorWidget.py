@@ -62,7 +62,7 @@ class AutoCompleteLineEdit(QtWidgets.QLineEdit):
 	        border-radius: 10px;
 	        padding: 0 4px;
 	        color: rgb(220, 220, 220);          /* Светло-серый текст */
-	        selection-background-color: rgb(60, 60, 60); /* Темно-серый фон для выделения */
+	        selection-background-color: rgb(88, 88, 120); /* Темно-серый фон для выделения */
 	        selection-color: rgb(255, 255, 255);  /* Белый текст при выделении */
 	    }
 
@@ -84,7 +84,7 @@ class AutoCompleteLineEdit(QtWidgets.QLineEdit):
 	"""
 
 	def __init__(self, completer, parent=None):
-		super().__init__(parent)
+		super(AutoCompleteLineEdit, self).__init__(parent)
 
 		# Attribute---------------------------
 		Width            = 200

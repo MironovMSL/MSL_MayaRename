@@ -27,6 +27,7 @@ class NumberWidget(QtWidgets.QWidget):
 		self.maxRange = 20
 		self.start = self.resources.config.get_variable("startup", "start_number", 1)
 		self.pading = self.resources.config.get_variable("startup", "padding_number", 2)
+		self.position = self.resources.config.get_variable("startup", "position_number", 0)
 
 		self.setFixedHeight(self.FixedHeight)
 
@@ -39,9 +40,9 @@ class NumberWidget(QtWidgets.QWidget):
 		self.number_start = CustomQSpinbox(55,25, self.start, [0, 100], "Start: ", "Starting number")
 		self.number_padding = CustomQSpinbox(50, 25,self.pading, [1, 9], "Pad: ", "Padding number")
 		# add CustomQSliderWidget
-		self.index_slider = CustomQSliderWidget([0, self.maxRange])
+		self.index_slider = CustomQSliderWidget(self.position,[0, self.maxRange])
 		# add CustomQSpinbox
-		self.index_SpinBox = CustomQSpinbox(25, 25, 0, [self.index_slider.minimum(), self.index_slider.maximum()], "","Position of number")
+		self.index_SpinBox = CustomQSpinbox(25, 25, self.position, [self.index_slider.minimum(), self.index_slider.maximum()], "","Position of number")
 
 	def create_layouts(self):
 		self.main_layout = QtWidgets.QHBoxLayout(self)
