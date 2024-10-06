@@ -82,6 +82,9 @@ class RenameGUI(QtWidgets.QWidget):
 		self.main_layout.addStretch()
 
 	def create_connections(self):
-		pass
+		self.LabelWidget.number_mode.changeStateNumberMode.connect(self.on_number_mode_button_click)
+
+	def on_number_mode_button_click(self, state):
+		self.NumberWidget.set_state_from_number_mode(state)
 
 

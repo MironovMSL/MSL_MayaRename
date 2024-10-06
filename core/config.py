@@ -56,7 +56,7 @@ class Configurator(object):
 
 			self.config.setValue("name_tool", "MSL Rename")
 			self.config.setValue("name", "test")
-			self.config.setValue("mode_number", True)
+			self.config.setValue("mode_number", False)
 			self.config.setValue("mode_prefix_suffix", True)
 			self.config.setValue("start_number", 1)
 			self.config.setValue("padding_number", 2)

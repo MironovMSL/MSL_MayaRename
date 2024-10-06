@@ -45,18 +45,34 @@ class CustomQSpinbox(QtWidgets.QSpinBox):
 			        background-color: rgb(45, 45, 45);     /* Немного светлее при фокусе */
 			    }
 			"""
-	def __init__(self,width=55, height=25, start_Value=int,range=[], prefix="Start: ", parent=None):
+	def __init__(self,width=55, height=25, start_Value=int,range=[], prefix="", tooltip="", parent=None):
 		super(CustomQSpinbox, self).__init__(parent)
 
-
-		self.resoures    = Resources.get_instance()
 		# Attribute----------------------
+		self.resoures    = Resources.get_instance()
 		self.mode_number = self.resoures.config.get_variable("startup", "mode_number", False)
 		self.width       = width
 		self.height      = height
 		self.prefix      = prefix
 		self.range       = range
 		self.start_Value = start_Value
+		self.tooltip     = tooltip
+		self.name        = ""
+
+		# Check tooltip----------------------
+		if self.tooltip == "Starting number":
+			self.name = self.tooltip
+			self.tooltip = f"{self.tooltip} : {start_Value}"
+
+		elif self.tooltip == "Padding number":
+			self.name = self.tooltip
+			pading = lambda: "0" * start_Value
+			self.tooltip = f"{self.tooltip} : {start_Value} = {pading()}"
+
+		elif  self.tooltip == "Position of number":
+			self.name = self.tooltip
+			self.tooltip = f"{self.tooltip} : {start_Value}"
+
 		# Setting ------------------------
 		self.setFixedSize(width, height)
 		self.setPrefix(self.prefix)
@@ -65,3 +81,20 @@ class CustomQSpinbox(QtWidgets.QSpinBox):
 		self.setRange(self.range[0], self.range[1])
 		self.setReadOnly(not self.mode_number)
 		self.setStyleSheet(self.Style_spinBox)
+		self.setToolTip(self.tooltip)
+
+		self.create_connections()
+
+	def create_connections(self):
+		self.valueChanged.connect(self.on_changed_spinbox_value)
+
+	def on_changed_spinbox_value(self,value):
+		if self.name == "Starting number":
+			self.tooltip = f"{self.name} : {value}"
+		elif self.name == "Padding number":
+			pading = lambda: "0" * value
+			self.tooltip = f"{self.name} : {value} = {pading()}"
+		elif self.name == "Position of number":
+			self.tooltip = f"{self.name} : {value}"
+
+		self.setToolTip(self.tooltip)

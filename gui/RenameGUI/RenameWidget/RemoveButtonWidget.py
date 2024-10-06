@@ -35,12 +35,12 @@ class RemoveButtonWidget(QtWidgets.QPushButton):
 
 	def __init__(self, name="", width=25, height=25, icon="",tooltip="", parent=None):
 		super(RemoveButtonWidget, self).__init__(name, parent)
-
+		# Attribute---------------------------
 		self.width    = width
 		self.height   = height
 		self.resoures = Resources.get_instance()
 		tooltip = f"remove the {tooltip} letter"
-
+		# Setting---------------------------
 		self.setFixedSize(self.width,self.height)
 		self.setToolTip(tooltip)
 		self.setStyleSheet(self.Style_btn)
