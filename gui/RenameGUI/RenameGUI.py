@@ -26,23 +26,23 @@ class RenameGUI(QtWidgets.QWidget):
 		super(RenameGUI, self).__init__(parent)
 
 		# Attribute----------------------
+		self.resources = Resources.get_instance()
+		self.QSettings = QtCore.QSettings(self.resources.config_path, QtCore.QSettings.IniFormat)
 		self.FixedHeigt = 200
-		self.resources :Configurator = Resources.get_instance()
 
-		self.button_mode = self.resources.config.get_variable("startup", "mode_button", False)
-		self.number_mode = self.resources.config.get_variable("startup", "mode_number", False)
-		self.start_number = self.resources.config.get_variable("startup", "start_number", 1)
-		self.padding_number = self.resources.config.get_variable("startup", "padding_number", 2)
-		self.position_number =  self.resources.config.get_variable("startup", "position_number", 0)
-		self.number = self.handle_number()
+		self.mode_button = self.QSettings.value("startup/mode_button", False)
+		self.mode_number = self.QSettings.value("startup/mode_number", False)
+		self.start_number = self.QSettings.value("startup/start_number", 1)
+		self.padding_number = self.QSettings.value("startup/padding_number", 2)
+		self.position_number =  self.QSettings.value("startup/position_number", 0)
+		self.number = self.handle_number() #self.QSettings.value("startup/number", 10)
+		self.prefix, self.suffix = self.handle_prefix_suffix()
 		self.maxRange = 0
 		self.minRange = 0
-		self.oldTextLine = ""
 		self.cursor_pos = 0
-		self.prefix = ""
-		self.suffix = ""
-		self.old_prefix = ""
-		self.old_suffix = ""
+		self.old_Text = ""
+
+
 
 
 		# Setting ------------------------
@@ -101,27 +101,80 @@ class RenameGUI(QtWidgets.QWidget):
 		self.main_layout.addStretch()
 
 	def create_connections(self):
-		self.LabelWidget.number_mode.changeStateNumberMode.connect(self.on_number_mode_button_click)
+		self.LabelWidget.number_mode.changeStateNumberMode.connect(self.on_click_number_mode_button)
 		self.RenameWidget.LineEditor.AutoComplete_line_edit.textEdited.connect(self.do_text_edited)
-		# self.RenameWidget.LineEditor.AutoComplete_line_edit.cursorPositionChanged.connect(self.posNumber_cursor)
-		# self.lineEdit_rename.itDropName.connect(self.text_edited)
-		# self.lineEdit_rename.returnPressed.connect(self.slidLineEdit)
+		self.NumberWidget.new_number_Signal.connect(self.update_number)
+		self.NumberWidget.new_position_Signal.connect(self.update_position_number)
+		self.RenameWidget.LineEditor.AutoComplete_line_edit.cursorPositionChanged.connect(self.posNumber_cursor)
 
-		# self.NumberWidget.number_start.valueChanged.connect(self.set_number_text)
-		# self.NumberWidget.number_padding.valueChanged.connect(self.set_number_text)
-		# self.NumberWidget.index_SpinBox.valueChanged.connect(self.on_spinBox_value)
-		# self.NumberWidget.index_slider.sliderMoved.connect(self.on_slider_move_value)
+	def update_position_number(self, value):
+		self.position_number = value
+		print(f"update position number {value}")
 
+	def update_number(self, start_number, padding_number, number):
+		self.start_number = start_number
+		self.padding_number = padding_number
+		self.number = number
 
-	def on_number_mode_button_click(self, state):
+		print(f'New number: {self.number}, start: {self.start_number}, padding: {self.padding_number}')
+
+	def on_click_number_mode_button(self, state):
 		self.NumberWidget.set_state_from_number_mode(state)
-		self.number_mode = state
+		self.mode_number = state
 		self.number = self.handle_number()
-		print(self.number,"print number from state")
+		# self.state_number(state)
+		print(f"Number mode  {state}: '{self.number}'")
+
+	def state_number(self, state):
+
+		Number = self.number
+		name = self.RenameWidget.LineEditor.AutoComplete_line_edit.text()
+		start = self.position_number
+		end = start + len(Number)
+		left_text = name[:start]
+
+		right_text = name[end:]
+		print(right_text,"Right")
+		sectionText = name[start:end]
+		# cursor_pos =  self.position_number #self.cursor_pos
+		print(start, end, left_text, right_text)
+		cursor_pos = self.cursor_pos
+
+		if state:
+
+			if cursor_pos in range(start, len(name) + 1):
+				cursor_pos += len(Number)
+				print("+",cursor_pos)
+
+			right_text = name[start:]
+			name_number = left_text + Number + right_text
+			print("QWEFQWEFQW",name_number)
+
+			if name:
+				self.RenameWidget.LineEditor.AutoComplete_line_edit.setText(name_number)
+				self.RenameWidget.LineEditor.AutoComplete_line_edit.setCursorPosition(cursor_pos)
+
+				self.old_Text = name_number
+
+		else:
+
+			if cursor_pos in range(end, len(name) + 1):
+				cursor_pos -= len(Number)
+				print("-",cursor_pos)
+
+			name_no_number = left_text + right_text
+			print(left_text, right_text)
+			print(name_no_number,"QWEFQWEFQWEF")
+
+			if name:
+				self.RenameWidget.LineEditor.AutoComplete_line_edit.setText(name_no_number)
+				self.RenameWidget.LineEditor.AutoComplete_line_edit.setCursorPosition(cursor_pos)
+
+				self.old_Text = name_no_number
 
 	def handle_number(self):
 		"""Procesing number"""
-		if self.number_mode:
+		if self.mode_number:
 			number = ("0" * (self.padding_number - len(str(self.start_number)))) + str(self.start_number)
 		else:
 			number = ""
@@ -131,17 +184,20 @@ class RenameGUI(QtWidgets.QWidget):
 	#------------chelck
 	def update_text_with_number(self, text, number, start, end, prefix, suffix):
 		"""Обновление текста с учетом номера, префикса и суффикса"""
-		left_text = text[:start]
-		right_text = text[end:]
+		# left_text = text[:start]
+		# right_text = text[end:]
+		left_text = text[len(prefix):start]
+		right_text = text[end:end - len(suffix)]
 		new_text = prefix + left_text + number + right_text + suffix
 
 		self.RenameWidget.LineEditor.AutoComplete_line_edit.setText(new_text)
-		self.oldTextLine = new_text
+		self.old_Text = new_text
+		print("[{3}][{0}][{2}][{1}][{4}] Range = {5}".format(left_text, right_text, number, prefix, suffix, self.maxRange))
 		return new_text
 
 	def handle_prefix_suffix(self):
 		"""Обработка префикса и суффикса"""
-		if self.button_mode:
+		if self.mode_button:
 			pass
 			# TODO add prefix _ suffix возможно сделать как получение числа, через клик кнопки будет меняться префикс.
 			# prefix = self.prefix_Editline.text()
@@ -152,124 +208,122 @@ class RenameGUI(QtWidgets.QWidget):
 		return prefix, suffix
 
 	def do_text_edited(self, text):
-		print(f"TODO : Rename GUI textEdited: {text}")
 
-		self.prefix, self.suffix = self.handle_prefix_suffix()
-		self.number = self.handle_number()
-		# self.RenameWidget.LineEditor.AutoComplete_line_edit.setText()
-		prefix = self.prefix
-		suffix = self.suffix
-		Number = self.number
-		old_text = self.oldTextLine
+
+		# print(f"textEdited '{text}',prefix '{self.prefix}',suffix '{self.suffix}', number '{self.number}', oldTextLine '{self.old_Text}'")
+
+		old_text = self.old_Text
 		start = self.position_number
 		cursor_pos = self.cursor_pos
 		Delete_number = ""
-		end = start + len(Number)
-		left_text = text[:start]
+		end = self.position_number + len(self.number)
+
+		left_text = text[:self.position_number]
 		right_text = text[end:]
-		sectionText = text[start:end]
+		sectionText = text[self.position_number:end]
+
 		items_add = len(text) - len(old_text)
 		items_removed = len(old_text) - len(text)
-		self.maxRange = len(text) - len(Number) - len(suffix)
-		self.minRange = len(prefix)
-		right_without_suffix = old_text[end:len(old_text) - len(suffix)]
 
-		if len(text) > len(Number) + len(prefix) + len(suffix) and old_text:
+		self.maxRange = len(text) - len(self.number) - len(self.suffix)
+		self.minRange = len(self.prefix)
 
+		right_without_suffix = old_text[end:len(old_text) - len(self.suffix)]
+
+		if len(text) > len(self.number) + len(self.prefix) + len(self.suffix) and old_text:
 			if len(text) > len(old_text):  # items_add
 
-				self.oldTextLine = text
+				self.old_Text = text
 
-				if sectionText != Number or Number == "" and cursor_pos <= start:  # items_add in left_text! [left_text] >|< (sectionText != [Number]) [right_text]
+				if sectionText != self.number or self.number == "" and cursor_pos <= self.position_number:  # items_add in left_text! [left_text] >|< (sectionText != [Number]) [right_text]
 
 					self.position_number += items_add
-					start = self.position_number
-					end = start + len(Number)
-					left_text = text[:start]
-					right_text = text[end:]
+					left_text = text[:self.position_number]
+					right_text = text[self.position_number + len(self.number):]
+					print("here!!!")
+
 
 			elif len(text) < len(old_text):  # items_removed
 
-				self.oldTextLine = text
+				self.old_Text = text
 
-				if sectionText != Number or Number == "" and cursor_pos < start:  # items_removed in left_text! [left_text] >|< (sectionText != [Number]) [right_text]
+				if sectionText != self.number or self.number == "" and cursor_pos < self.position_number:  # items_removed in left_text! [left_text] >|< (sectionText != [Number]) [right_text]
 
 					self.position_number -= items_removed
 					start = self.position_number
-					end = start + len(Number)
+					end = start + len(self.number)
 					left_text = text[:start]
 					right_text = text[end:]
 					sectionText = text[start:end]
 
-					if start < 0 + len(prefix) and 0 + len(
-							prefix) != cursor_pos:  # start cannot to be negative  |  [-1][number]|[right_text]
+					if start < 0 + len(self.prefix) and 0 + len(self.prefix) != cursor_pos:  # start cannot to be negative  |  [-1][number]|[right_text]
 
 						Delete_number = "Delete number, left negative"
 
-						start = 0 + len(prefix)
-						end = start + len(Number)
+						start = 0 + len(self.prefix)
+						end = start + len(self.number)
 
 						left_text = old_text[:start]
 						right_text = old_text[end:]
 						sectionText = old_text[start:end]
 
-						self.maxRange = len(old_text) - len(Number) - len(suffix)
+						self.maxRange = len(old_text) - len(self.number) - len(self.suffix)
 
 						self.RenameWidget.LineEditor.AutoComplete_line_edit.setText(old_text)
 						self.RenameWidget.LineEditor.AutoComplete_line_edit.setCursorPosition(end)
 
-					elif prefix != text[:len(prefix)]:
+					elif self.prefix != text[:len(self.prefix)]:
 
 						Delete_number = "Delete prefix, left negative"
 
 						self.position_number += items_removed
 						start = self.position_number
-						end = start + len(Number)
+						end = start + len(self.number)
 
 						left_text = old_text[:start]
 						right_text = old_text[end:]
 						sectionText = old_text[start:end]
 
 						self.RenameWidget.LineEditor.AutoComplete_line_edit.setText(old_text)
-						self.RenameWidget.LineEditor.AutoComplete_line_edit.setCursorPosition(len(prefix))
-						self.maxRange = len(old_text) - len(Number) - len(suffix)
+						self.RenameWidget.LineEditor.AutoComplete_line_edit.setCursorPosition(len(self.prefix))
+						self.maxRange = len(old_text) - len(self.number) - len(self.suffix)
 
-					elif right_without_suffix == "" and sectionText != Number and start + 1 == cursor_pos:  # end cannot to be negative  |  [number]|[][_suffix]
+					elif right_without_suffix == "" and sectionText != self.number and start + 1 == cursor_pos:  # end cannot to be negative  |  [number]|[][_suffix]
 
 						Delete_number = "Delete number, right negative"
 
 						self.position_number += items_removed
 						start = self.position_number
-						end = start + len(Number)
+						end = start + len(self.number)
 
 						left_text = old_text[:start]
 						right_text = old_text[end:]
 						sectionText = old_text[start:end]
 
-						self.maxRange = len(old_text) - len(Number) - len(suffix)
+						self.maxRange = len(old_text) - len(self.number) - len(self.suffix)
 						self.RenameWidget.LineEditor.AutoComplete_line_edit.setText(old_text)
 						self.RenameWidget.LineEditor.AutoComplete_line_edit.setCursorPosition(cursor_pos)
 						right_without_suffix = "Delete number, right negative"
 
-					if sectionText != Number:  # [Text]DEL====>[Number]<===DEL[Text] Delet Number!
+					if sectionText != self.number:  # [Text]DEL====>[Number]<===DEL[Text] Delet Number!
 
 						self.position_number += items_removed
 						start = self.position_number
-						end = start + len(Number)
+						end = start + len(self.number)
 
 						if start == cursor_pos:  # [Text]>>DEL>>|[Number][(T)ext] Delet Number!
 
 							Delete_number = "Delete number , right"
 							left_text = old_text[:start]
 							right_text = old_text[end + items_removed:]
-							NewText = left_text + Number + right_text
+							NewText = left_text + self.number + right_text
 
 							self.RenameWidget.LineEditor.AutoComplete_line_edit.setText(NewText)
 							self.RenameWidget.LineEditor.AutoComplete_line_edit.setCursorPosition(start)
-							self.oldTextLine = NewText
+							self.old_Text = NewText
 
 							if right_text == "":
-								self.maxRange = len(NewText) - len(Number)
+								self.maxRange = len(NewText) - len(self.number)
 
 						else:  # self.End_index_number <= self.cursor_pos: # [Tex(t)][Number]|<<<DEL<<<[Text] Delet Number!
 
@@ -278,90 +332,86 @@ class RenameGUI(QtWidgets.QWidget):
 
 							left_text = old_text[:start - items_removed]
 							right_text = old_text[end:]
-							NewText = left_text + Number + right_text
+							NewText = left_text + self.number + right_text
 
 							start = self.position_number
-							end = start + len(Number)
+							end = start + len(self.number)
 
 							self.RenameWidget.LineEditor.AutoComplete_line_edit.setText(NewText)
 							self.RenameWidget.LineEditor.AutoComplete_line_edit.setCursorPosition(end)
-							self.oldTextLine = NewText
+							self.old_Text = NewText
 
 					else:
 
 						if self.position_number <= 0 + len(
-								prefix):  # start cannot be negative  |  [-1][number]|[right_text]
-							self.position_number = 0 + len(prefix)
-							self.oldTextLine = old_text
-						elif cursor_pos == len(prefix) and prefix != text[:len(prefix)]:
+								self.prefix):  # start cannot be negative  |  [-1][number]|[right_text]
+							self.position_number = 0 + len(self.prefix)
+							self.old_Text = old_text
+						elif cursor_pos == len(self.prefix) and self.prefix != text[:len(self.prefix)]:
 
-							self.oldTextLine = old_text
+							self.old_Text = old_text
 
 						elif right_without_suffix == "Delete number, right negative":
-							self.oldTextLine = old_text
+							self.old_Text = old_text
 
 						else:
-							self.oldTextLine = text
+							self.old_Text = text
 
-				elif suffix != text[len(text) - len(suffix):]:
+				elif self.suffix != text[len(text) - len(self.suffix):]:
 
 					Delete_number = "Delete suffix, right negative"
 
-					self.maxRange = len(old_text) - len(Number) - len(suffix)
+					self.maxRange = len(old_text) - len(self.number) - len(self.suffix)
 
 					self.RenameWidget.LineEditor.AutoComplete_line_edit.setText(old_text)
 					self.RenameWidget.LineEditor.AutoComplete_line_edit.setCursorPosition(cursor_pos)
 
-					self.oldTextLine = old_text
+					self.old_Text = old_text
 
 		else:
 
-			if len(text) == len(Number) + len(prefix) + len(suffix) or len(text) == 0:
+			if len(text) == len(self.number) + len(self.prefix) + len(self.suffix) or len(text) == 0:
 
 				self.RenameWidget.LineEditor.AutoComplete_line_edit.setText("")
-				self.oldTextLine = ""
+				self.old_Text = ""
 				left_text = ""
 				right_text = ""
-				Number = ""
+				self.number = ""
 				self.maxRange = 0
 				Delete_number = "removed Number"
 				self.position_number = 0
 
 			else:
 
-				self.maxRange = len(text) + len(prefix)
-				self.position_number = len(text) + len(prefix)
+				self.maxRange = len(text) + len(self.prefix)
+				self.position_number = len(text) + len(self.prefix)
 				start = self.position_number
 				Delete_number = "add Number"
-				left_text = prefix + text
-				right_text = "" + suffix
+				left_text = self.prefix + text
+				right_text = "" + self.suffix
 
-				NewText = prefix + text + Number + suffix
+				NewText = self.prefix + text + self.number + self.suffix
 
 				self.RenameWidget.LineEditor.AutoComplete_line_edit.setText(NewText)
 				self.RenameWidget.LineEditor.AutoComplete_line_edit.setCursorPosition(start)
 
-				self.oldTextLine = NewText
+				self.old_Text = NewText
 
-		left_text = left_text[len(prefix):]
-		right_text = right_text[:len(right_text) - len(suffix)]
+		left_text = left_text[len(self.prefix):]
+		right_text = right_text[:len(right_text) - len(self.suffix)]
 
-		print("[{3}][{0}][{2}][{1}][{4}] Range = {5} {6}".format(left_text, right_text, Number, prefix, suffix, self.maxRange,Delete_number))
-
-		# self.index_slider.setRange(self.minRange, self.maxRange)
-		# self.index_SpinBox.setRange(self.index_slider.minimum(), self.index_slider.maximum())
-		#
-		# self.index_slider.setValue(self.position_number)
-		# self.index_SpinBox.setValue(self.position_number)
+		print("[{3}][{0}][{2}][{1}][{4}] Range = {5} {6}".format(left_text, right_text, self.number, self.prefix, self.suffix, self.maxRange,Delete_number))
 
 		self.NumberWidget.index_slider.setRange(self.minRange, self.maxRange)
 		self.NumberWidget.index_SpinBox.setRange(self.NumberWidget.index_slider.minimum(), self.NumberWidget.index_slider.maximum())
 		self.NumberWidget.index_slider.setValue(self.position_number)
 		self.NumberWidget.index_SpinBox.setValue(self.position_number)
 
+		self.number = self.handle_number()
+
 		# prefix, suffix = self.handle_prefix_suffix(text)
 		#
-		# if self.number_mode:
+		# if self.mode_number:
 		# 	number = self.NumberText
 		#
 		# else:
@@ -375,18 +425,18 @@ class RenameGUI(QtWidgets.QWidget):
 		# right_text = text[end:]
 		# print(left_text, right_text)
 		#
-		# if len(text) > len(number) + len(prefix) + len(suffix) and self.oldTextLine:
+		# if len(text) > len(number) + len(prefix) + len(suffix) and self.old_Text:
 		#
-		# 	if len(text) > len(self.oldTextLine):  # items_add
-		# 		self.oldTextLine = text
+		# 	if len(text) > len(self.old_Text):  # items_add
+		# 		self.old_Text = text
 		# 		if text[start:end] != number and cursor_pos <= start:
-		# 			self.start_number += len(text) - len(self.oldTextLine)
+		# 			self.start_number += len(text) - len(self.old_Text)
 		# 			self.update_text_with_number(text, number, start, end, prefix, suffix)
 		#
-		# 	elif len(text) < len(self.oldTextLine):  # items_removed
-		# 		self.oldTextLine = text
+		# 	elif len(text) < len(self.old_Text):  # items_removed
+		# 		self.old_Text = text
 		# 		if text[start:end] != number and cursor_pos < start:
-		# 			self.start_number -= len(self.oldTextLine) - len(text)
+		# 			self.start_number -= len(self.old_Text) - len(text)
 		# 			self.update_text_with_number(text, number, start, end, prefix, suffix)
 		#
 		# 	# Логика для работы с префиксами/суффиксами
@@ -406,3 +456,48 @@ class RenameGUI(QtWidgets.QWidget):
 		# self.NumberWidget.index_SpinBox.setValue(self.position_number)
 
 
+	def posNumber_cursor(self, oldPos, newPos):
+
+		MineDataName = self.RenameWidget.LineEditor.AutoComplete_line_edit.oldMineData
+		name = self.RenameWidget.LineEditor.AutoComplete_line_edit.text()
+
+		if name != MineDataName:
+			self.prefix, self.suffix = self.handle_prefix_suffix()
+
+			prefix = self.prefix
+			suffix = self.suffix
+			Number = self.number
+			self.cursor_pos = newPos
+
+			start = self.position_number
+			end = start + len(Number)
+
+			if MineDataName:
+				print(MineDataName)
+				if MineDataName in name:
+					print(name)
+					SplitName = name.split(MineDataName)
+					name = SplitName[0] + SplitName[1]
+
+			if newPos in range(start + 1, end):
+				if oldPos >= end:
+
+					self.RenameWidget.LineEditor.AutoComplete_line_edit.setCursorPosition(start)
+
+				elif oldPos <= self.position_number:
+
+					self.RenameWidget.LineEditor.AutoComplete_line_edit.setCursorPosition(end)
+				print("number")
+
+			if prefix:
+				if newPos in range(0, len(prefix)):
+					self.RenameWidget.LineEditor.AutoComplete_line_edit.setCursorPosition(len(prefix))
+					print("prefix")
+
+			if suffix:
+
+				no_suffix = len(name) - len(suffix)
+
+				if newPos in range(no_suffix + 1, len(name)) or newPos >= len(name):
+					self.RenameWidget.LineEditor.AutoComplete_line_edit.setCursorPosition(no_suffix)
+					print("suffix")

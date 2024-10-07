@@ -61,6 +61,7 @@ class Configurator(object):
 			self.config.setValue("start_number", 1)
 			self.config.setValue("padding_number", 2)
 			self.config.setValue("position_number", 0)
+			self.config.setValue("number", "01")
 
 			self.config.endGroup()  # End the group
 

@@ -19,18 +19,24 @@ root_ = os.path.dirname(__file__)
 
 class NumberWidget(QtWidgets.QWidget):
 
+	new_number_Signal = QtCore.Signal(int, int, str)
+	new_position_Signal = QtCore.Signal(int)
+
 	def __init__(self, parent=None):
 		super(NumberWidget, self).__init__(parent)
-
-		self.resources = Resources.get_instance()
+		# Attribute----------------------
 		self.FixedHeight = 25
-		self.maxRange = 20
-		self.start = self.resources.config.get_variable("startup", "start_number", 1)
-		self.pading = self.resources.config.get_variable("startup", "padding_number", 2)
-		self.position = self.resources.config.get_variable("startup", "position_number", 0)
+		self.resources   = Resources.get_instance()
+		self.QSettings   = QtCore.QSettings(self.resources.config_path, QtCore.QSettings.IniFormat)
+		self.maxRange    = 0
+		self.start       = self.QSettings.value("startup/start_number", 1)
+		self.pading      = self.QSettings.value("startup/padding_number", 2)
+		self.position    = self.QSettings.value("startup/position_number", 0)
 
+		# Setting ------------------------
 		self.setFixedHeight(self.FixedHeight)
 
+		# Run function ------------------------
 		self.create_Widgets()
 		self.create_layouts()
 		self.create_connections()
@@ -54,11 +60,12 @@ class NumberWidget(QtWidgets.QWidget):
 		self.main_layout.addWidget(self.index_slider)
 		self.main_layout.addWidget(self.index_SpinBox)
 
+
 	def create_connections(self):
 
+		self.number_start.valueChanged.connect(self.update_valueChanged_number)
+		self.number_padding.valueChanged.connect(self.update_valueChanged_number)
 		self.index_slider.wheelScrolled.connect(self.on_wheel_scrolled)
-		self.number_start.valueChanged.connect(self.set_number_text)
-		self.number_padding.valueChanged.connect(self.set_number_text)
 		self.index_slider.sliderMoved.connect(self.on_slider_move_value)
 		self.index_SpinBox.valueChanged.connect(self.on_spinBox_value)
 
@@ -87,64 +94,24 @@ class NumberWidget(QtWidgets.QWidget):
 
 	def on_spinBox_value(self, value):
 		value_slider = self.index_slider.value()
-
-		# if value_slider != value:
-		# 	text = self.lineEdit_rename.text()
-		# 	Number = self.NumberText
-		# 	start = self.Start_index_Number
-		# 	end = start + len(Number)
-		# 	left_text = text[:start]
-		# 	right_text = text[end:]
-		#
-		# 	# delete number in text: [left_text][right_text]  del [Number]
-		# 	New_Text = left_text + right_text
-		#
-		# 	# Move number in text: [left_text][Number][right_text]
-		# 	number_move = New_Text[:value] + Number + New_Text[value:]
-		# 	self.lineEdit_rename.setText(number_move)
-		#
-		# 	# Save value
-		# 	self.oldTextLine = number_move
-		# 	self.Start_index_Number = value
-		# 	self.lineEdit_rename.setCursorPosition(value)
-
-			# print("[{0}][{2}][{1}] value = {3}".format(New_Text[:value], New_Text[value:],Number, value))
-
 		self.index_slider.setValue(value)
+		self.new_position_Signal.emit(value)
 
-	def set_number_text(self):
 
-		# if self.AnimCheckBox.isChecked():
-		# 	Number = self.NumberText
-		# else:
-		# Number = ""
+	def update_valueChanged_number(self):
 
-		# text = self.lineEdit_rename.text()
-		# text = ""
-		# old_text = self.oldTextLine
-		# start = self.Start_index_Number
-		# end = start + len(Number)
-		# left_text = old_text[:start]
-		# right_text = old_text[end:]
+		padding_number = self.number_padding.value()
+		start_number   = self.number_start.value()
+		number         = ("0" * (padding_number - len(str(start_number)))) + str(start_number)
 
-		padding = self.number_padding.value()
+		self.number_start.setRange(0, (pow(10, padding_number)))
 
-		self.number_start.setRange(0, (pow(10, padding)))
+		# TODO delete QSettings and make QSettings when app close.
+		self.QSettings.setValue("startup/start_number", start_number)
+		self.QSettings.setValue("startup/padding_number", padding_number)
+		self.QSettings.setValue("startup/number", number)
 
-		number_start = self.number_start.value()
+		self.new_number_Signal.emit(start_number, padding_number, number)
 
-		Number = ("0" * (padding - len(str(number_start)))) + str(number_start)
 
-		# if text:
-		# 	NewText = left_text + Number + right_text
-		#
-		# 	self.lineEdit_rename.setText(NewText)
-		# 	self.lineEdit_rename.setCursorPosition(start)
-		#
-		# 	self.oldTextLine = NewText
-
-		self.NumberText = Number
-		# print(self.NumberText)
-
-		# print("[{0}][{2}][{1}] Range = {3} {4}".format(left_text, right_text, Number, self.maxRange, Delete_number))
 
