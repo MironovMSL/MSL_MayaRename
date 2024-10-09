@@ -71,6 +71,5 @@ class NumberModeButton(QtWidgets.QPushButton):
 		self.clicked.connect(self.is_active_mode)
 
 	def is_active_mode(self, Checkable):
-		print(f"Numeric Mode: {'checked' if Checkable else 'unchecked'}")
 		self.resources.config.set_variable("startup", "mode_number", Checkable)
 		self.changeStateNumberMode.emit(Checkable)
