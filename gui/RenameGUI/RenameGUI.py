@@ -1,3 +1,4 @@
+from lib2to3.main import diff_texts
 from sys import prefix, int_info
 from time import process_time_ns
 from traceback import print_tb
@@ -248,20 +249,76 @@ class RenameGUI(QtWidgets.QWidget):
 	def update_pos_num_let(self):
 
 		if self.num_cod == "XY":
+			self.end_pos_X = self.get_end_pos(self.pos_X, self.X)
 			self.pos_num = self.pos_X
 			self.end_pos_num = self.get_end_pos(self.pos_num, self.num)
 			self.pos_let = self.end_pos_num
 			self.end_pos_let = self.get_end_pos(self.pos_let, self.let)
+			self.pos_Y = self.get_end_pos(self.end_pos_X, self.Y)
+			self.end_pos_Y = self.get_end_pos(self.pos_Y, self.Y)
+
+
+	def handle_text(self, text):
+		if self.text and len(text) > len(self.prefix) + len(self.X) + len(self.Y) + len(self.prefix):
+			prefix = text[ : len(self.prefix)]
+			left   = text[len(prefix) : self.pos_X]
+			X      = text[self.pos_X : self.end_pos_X]
+			mid    = text[self.end_pos_X : self.pos_Y]
+			Y      = text[self.pos_Y : self.end_pos_Y]
+			right  = text[self.end_pos_Y : len(text) - len(self.suffix)]
+			suffix = text[len(text) - len(self.suffix): ]
+
+			print(f"[{prefix}][{left}][{X}][{mid}][{Y}][{right}][{suffix}]:  ___handle_text___{text}")
+		else:
+
+			prefix, left, X, mid, Y, right, suffix = self.prefix, self.left, self.X, self.mid, self.Y, self.right, self.suffix
+			print(f"[{prefix}][{text}][{X}][{mid}][{Y}][{right}][{suffix}]:  ___handle_text___{text}")
+
+		return prefix, left, X, mid, Y, right, suffix
+
+	def handle_addition(self, prefix, left, X, mid, Y, right, suffix, text, items_diff):
+		part = ""
+
+		if prefix != self.prefix:
+			part = "prefix"
+		elif left != self.left:
+			part = "left"
+		elif X != self.X:
+			part = "X"
+			self.pos_X = self.pos_X+items_diff
+			self.left = text[len(prefix): self.pos_X ]
+			self.update_pos_num_let()
+
+		elif mid != self.mid:
+			part = "mid"
+		elif Y != self.Y:
+			part = "Y"
+		elif right != self.right:
+			part = "right"
+		elif suffix != self.suffix:
+			part = "suffix"
+
+		self.info = f"___FIX_addition___ --> {part}"
+
+		self.maxR = len(self.prefix) + len(self.left) + len(self.mid) + len(self.right)
+		self.minR = len(self.prefix)
+
+		newCur = self.pos_cur + items_diff
+		newText = self.prefix + self.left + self.X + self.mid + self.Y + self.right + self.suffix
+		return newText, newCur
+
 
 	def do_text_edited(self, text):
 
+		newText    = ""
 		pos_cur    = self.pos_cur
 		newCur     = 0
 		items_diff = len(text) - len(self.text)
+		prefix, left, X, mid, Y, right, suffix = self.handle_text(text)
 
 		if self.text and len(text) > len(self.prefix)+ len(self.X) + len(self.Y) + len(self.prefix):
 			if items_diff > 0:  # Added items
-				pass
+				newText, newCur = self.handle_addition(prefix, left, X, mid, Y, right, suffix, text, items_diff) # TODO
 			elif items_diff < 0:  # Removed items
 				pass
 
