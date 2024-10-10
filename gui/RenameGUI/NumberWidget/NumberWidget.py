@@ -29,9 +29,9 @@ class NumberWidget(QtWidgets.QWidget):
 		self.resources   = Resources.get_instance()
 		self.QSettings   = QtCore.QSettings(self.resources.config_path, QtCore.QSettings.IniFormat)
 		self.maxRange    = 0
-		self.start       = self.QSettings.value("startup/start_number", 1)
-		self.pading      = self.QSettings.value("startup/padding_number", 2)
-		self.position    = self.QSettings.value("startup/position_number", 0)
+		self.start       = self.QSettings.value("startup/start_number", 1, int)
+		self.pading      = self.QSettings.value("startup/padding_number", 2, int)
+		self.position    = self.QSettings.value("startup/position_number", 0, int)
 
 		# Setting ------------------------
 		self.setFixedHeight(self.FixedHeight)

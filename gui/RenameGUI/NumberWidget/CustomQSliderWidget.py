@@ -20,7 +20,8 @@ class CustomQSliderWidget(QtWidgets.QSlider):
 
 		# Attribute----------------------
 		self.resources     = Resources.get_instance()
-		self.mode_number   = self.resources.config.get_variable("startup", "mode_number", False)
+		self.QSettings     = QtCore.QSettings(self.resources.config_path, QtCore.QSettings.IniFormat)
+		self.mode_number   = self.QSettings.value("startup/mode_number", False, bool)
 		self.range         = range
 		self.position      = position
 		self.current_value = self.value()

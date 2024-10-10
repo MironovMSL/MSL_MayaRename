@@ -127,13 +127,13 @@ class RenameGUI(QtWidgets.QWidget):
 	def init_attribute(self):
 
 		# mode----------------------------
-		self.mode_button = self.QSettings.value("startup/mode_button", False)  # mode number for button and lineEdits
-		self.mode_number = self.QSettings.value("startup/mode_number", False)  # mode number for Numeric
+		self.mode_button = self.QSettings.value("startup/mode_button", False, bool)  # mode number for button and lineEdits
+		self.mode_number = self.QSettings.value("startup/mode_number", False, bool)  # mode number for Numeric
 		# number-----------------------------------
-		self.start_num = self.QSettings.value("startup/start_number", 1)  # start number ~ 1
-		self.padding_num = self.QSettings.value("startup/padding_number", 2)  # pading number ~ 2 = 00
+		self.start_num = self.QSettings.value("startup/start_number", 1, int)  # start number ~ 1
+		self.padding_num = self.QSettings.value("startup/padding_number", 2, int)  # pading number ~ 2 = 00
 		self.num = self.handle_number()  # number start = 1, padding = 2, number = [01]
-		self.pos_num = self.QSettings.value("startup/position_number", 0)  # position number [pos:end]
+		self.pos_num = self.QSettings.value("startup/position_number", 0, int)  # position number [pos:end]
 		self.end_pos_num = self.pos_num + len(self.num)  # end position num [pos:end]
 		self.num_cod = ""
 		# letter----------------------------------
@@ -179,6 +179,7 @@ class RenameGUI(QtWidgets.QWidget):
 		self.NumberWidget.set_state_from_number_mode(state)
 		self.mode_number = state
 		self.num = self.handle_number()
+
 		self.X, self.mid, self.Y = self.handle_X_mid_Y()
 		# print(f"Numeric Mode: {'checked' if state else 'unchecked'}: '{self.num}'")
 		self.info = f"Numeric Mode: {'checked' if state else 'unchecked'}: '{self.num}'"
@@ -186,7 +187,7 @@ class RenameGUI(QtWidgets.QWidget):
 
 	def handle_left_right(self):
 		left = self.text[len(self.prefix):self.pos_X]
-		right = self.text[self.pos_Y:len(self.text) - len(self.suffix)]
+		right = self.text[self.end_pos_Y:len(self.text) - len(self.suffix)]
 		return left, right
 
 
@@ -268,59 +269,188 @@ class RenameGUI(QtWidgets.QWidget):
 			right  = text[self.end_pos_Y : len(text) - len(self.suffix)]
 			suffix = text[len(text) - len(self.suffix): ]
 
-			print(f"[{prefix}][{left}][{X}][{mid}][{Y}][{right}][{suffix}]:  ___handle_text___{text}")
+			print(f"[{prefix}][{left}][{X}][{mid}][{Y}][{right}][{suffix}]:  ___HANDLE_TEXT___[{text}]")
 		else:
 
 			prefix, left, X, mid, Y, right, suffix = self.prefix, self.left, self.X, self.mid, self.Y, self.right, self.suffix
-			print(f"[{prefix}][{text}][{X}][{mid}][{Y}][{right}][{suffix}]:  ___handle_text___{text}")
+			print(f"[{prefix}][{text}][{X}][{mid}][{Y}][{right}][{suffix}]:  ___HANDLE_TEXT_else__{text}")
 
 		return prefix, left, X, mid, Y, right, suffix
+	def handle_add_part_X(self, prefix,text,items_diff, pos_cur):
+		if pos_cur <= self.pos_X: #   >|[X] left side
+			info_part = (f"[[pos_cur]{pos_cur}<={self.pos_X}[pos_X]], change___HERE___[LEFT]")
+			self.pos_X = self.pos_X + items_diff
+			self.left = text[len(prefix): self.pos_X]
+			self.update_pos_num_let()
+		elif pos_cur > self.pos_X: # [[X:] >| [:X]] >| [X] >| right side
+			info_part = (f"[[pos_cur]{pos_cur}>{self.pos_X}[pos_X]] change___HERE___[RIGHT]")
+			temptext = text[pos_cur:pos_cur + items_diff]
+			self.right = temptext + self.right
+			items_diff += items_diff
 
-	def handle_addition(self, prefix, left, X, mid, Y, right, suffix, text, items_diff):
+		return items_diff, info_part
+
+	def handle_add_part_left(self,prefix, text, items_diff, pos_cur):
+		self.pos_X = self.pos_X + items_diff
+		self.left = text[len(prefix): self.pos_X]
+		self.update_pos_num_let()
+		info_part = (f"[[pos_cur]{pos_cur}<{self.pos_X}[pos_X]] change___HERE___[LEFT]")
+
+		return items_diff, info_part
+
+	def handle_add_part_right(self, prefix,text,items_diff, pos_cur):
+		self.right = text[self.pos_Y: len(text) - len(self.suffix)]
+		info_part = (f"[[pos_cur]{pos_cur}>{self.end_pos_Y}[end_pos_Y]] change___HERE___[RIGHT]")
+		return items_diff, info_part
+
+
+	def handle_addition(self, prefix, left, X, mid, Y, right, suffix, text, items_diff, pos_cur):
 		part = ""
+		info_part = ""
 
 		if prefix != self.prefix:
 			part = "prefix"
 		elif left != self.left:
 			part = "left"
+			items_diff, info_part = self.handle_add_part_left(prefix, text, items_diff, pos_cur)
 		elif X != self.X:
 			part = "X"
-			self.pos_X = self.pos_X+items_diff
-			self.left = text[len(prefix): self.pos_X ]
-			self.update_pos_num_let()
-
+			items_diff, info_part = self.handle_add_part_X(prefix,text,items_diff, pos_cur)
 		elif mid != self.mid:
 			part = "mid"
 		elif Y != self.Y:
 			part = "Y"
 		elif right != self.right:
 			part = "right"
+			items_diff, info_part = self.handle_add_part_right(prefix,text,items_diff, pos_cur)
 		elif suffix != self.suffix:
 			part = "suffix"
 
-		self.info = f"___FIX_addition___ --> {part}"
+		self.info = f"___FIND_ADDITION___[{part}], {info_part}"
 
 		self.maxR = len(self.prefix) + len(self.left) + len(self.mid) + len(self.right)
 		self.minR = len(self.prefix)
 
-		newCur = self.pos_cur + items_diff
+		new_cur = self.pos_cur + items_diff
 		newText = self.prefix + self.left + self.X + self.mid + self.Y + self.right + self.suffix
-		return newText, newCur
+		return newText, new_cur
+
+	def handle_del_part_left(self, text, prefix, left , items_diff, pos_cur):
+
+		in_left_old = self.text[len(prefix):pos_cur]
+		in_left_new = text[len(prefix):pos_cur]
+
+		if in_left_old == in_left_new: # [[]|>|[here]]
+
+			info_part = (f"[[in_left_old]{in_left_old}=={in_left_new}[in_left_new]], change___HERE___[LEFT]--> [[][here]]")
+			self.pos_X = self.pos_X + items_diff
+			self.left = text[len(prefix):self.pos_X]
+			self.update_pos_num_let()
+			items_diff=0
+
+		else: # [[here]|<|[]]
+			info_part = (f"[[in_left_old]{in_left_old}!={in_left_new}[in_left_new]], change___HERE___[LEFT]--> [[here][]]")
+			self.pos_X = self.pos_X + items_diff
+			self.left = text[len(prefix):self.pos_X]
+			self.update_pos_num_let()
+
+		return items_diff, info_part
+
+	def handle_del_part_right(self,text, prefix, left, right, items_diff, pos_cur):
+
+		in_left_old = self.right[:pos_cur - self.end_pos_Y]
+		in_left_new = right[:pos_cur - self.end_pos_Y]
+
+		if in_left_old == in_left_new:  # [[]|>|[here]]
+
+			info_part = (f"[[in_left_old]{in_left_old}=={in_left_new}[in_left_new]], change___HERE___[RIGHT]--> [[][here]]")
+
+			items_diff = 0
+
+		else:  # [[here]|<|[]]
+			info_part = (f"[[in_left_old]{in_left_old}!={in_left_new}[in_left_new]], change___HERE___[RIGHT]--> [[here][]]")
+
+		self.right = right
+
+
+		return items_diff, info_part
+
+
+	def handle_del_part_X(self, prefix, left, X, mid, Y, right, suffix, text, items_diff, pos_cur):
+
+		if pos_cur in range(self.pos_X, self.end_pos_X ):# left side >|[X]
+			if self.mid:
+				print("TODO : MID ")
+				info_part = (f"[[pos_cur]{pos_cur}<={self.pos_X}[pos_X]], change___HERE___[MID]")
+			elif self.right:
+				info_part = (f"[[pos_cur]{pos_cur} in {range(self.pos_X, self.end_pos_X)}[pos_X]],, change___HERE___[RIGHT]")
+				self.right = right
+				items_diff = 0
+			else:
+				info_part = (f"[[pos_cur]{pos_cur} in {range(self.pos_X, self.end_pos_X)}[pos_X]], change___HERE___[X]")
+				items_diff = 0
+
+			self.update_pos_num_let()
+
+		elif pos_cur == self.end_pos_X: # [X]|< right side
+			if left:
+				info_part = (f"[[pos_cur]{pos_cur}>{self.end_pos_X}[end_pos_X]] change___HERE___[LEFT]")
+				self.pos_X = self.pos_X + items_diff
+				self.left = text[len(prefix): self.pos_X]
+				self.update_pos_num_let()
+			else: # [left = false][X]|<|
+				info_part = (f"[[pos_cur]{pos_cur}>{self.end_pos_X}[end_pos_X]] change___HERE___[LEFT NONE] RUTERN NAME")
+				items_diff = 0
+
+		return items_diff, info_part
+
+
+
+	def handle_deletion(self, prefix, left, X, mid, Y, right, suffix, text, items_diff, pos_cur):
+		part = ""
+		info_part = ""
+
+		if prefix != self.prefix:
+			part = "prefix"
+		elif left != self.left:
+			part = "left"
+			items_diff, info_part = self.handle_del_part_left(text, prefix, left , items_diff, pos_cur)
+		elif X != self.X:
+			part = "X"
+			items_diff, info_part = self.handle_del_part_X(prefix, left, X, mid, Y, right, suffix, text, items_diff, pos_cur)
+		elif mid != self.mid:
+			part = "mid"
+		elif Y != self.Y:
+			part = "Y"
+		elif right != self.right:
+			part = "right"
+			items_diff, info_part = self.handle_del_part_right(text, prefix, left, right, items_diff, pos_cur)
+		elif suffix != self.suffix:
+			part = "suffix"
+
+		self.info = f"___FIX_deletion___ --> {part}, {info_part}"
+
+		self.maxR = len(self.prefix) + len(self.left) + len(self.mid) + len(self.right)
+		self.minR = len(self.prefix)
+
+		new_cur = self.pos_cur + items_diff
+		newText = self.prefix + self.left + self.X + self.mid + self.Y + self.right + self.suffix
+		return newText, new_cur
 
 
 	def do_text_edited(self, text):
 
 		newText    = ""
 		pos_cur    = self.pos_cur
-		newCur     = 0
+		new_cur     = 0
 		items_diff = len(text) - len(self.text)
 		prefix, left, X, mid, Y, right, suffix = self.handle_text(text)
 
 		if self.text and len(text) > len(self.prefix)+ len(self.X) + len(self.Y) + len(self.prefix):
 			if items_diff > 0:  # Added items
-				newText, newCur = self.handle_addition(prefix, left, X, mid, Y, right, suffix, text, items_diff) # TODO
+				newText, new_cur = self.handle_addition(prefix, left, X, mid, Y, right, suffix, text, items_diff, pos_cur)
 			elif items_diff < 0:  # Removed items
-				pass
+				newText, new_cur = self.handle_deletion(prefix, left, X, mid, Y, right, suffix, text, items_diff, pos_cur)
 
 		else:
 			if len(text) == len(self.prefix) + len(self.X) + len(self.Y) + len(self.suffix) or len(text) == 0:
@@ -329,6 +459,7 @@ class RenameGUI(QtWidgets.QWidget):
 				self.maxR = 0
 				self.pos_X = 0
 				self.left = ""
+				self.right = ""
 				self.update_pos_num_let()
 				self.info = f" ____REMOVE____ --> [prefix][number][letter][suffix]"
 				self.RenameWidget.LineEditor.AutoComplete_line_edit.setClearButtonEnabled(False)
@@ -340,7 +471,7 @@ class RenameGUI(QtWidgets.QWidget):
 				self.left = text
 
 				newText = self.prefix + self.left + self.X + self.mid + self.Y + self.right + self.suffix
-				newCur = self.pos_X
+				new_cur = self.pos_X
 				self.update_pos_num_let()
 				self.info = " ___ADD___ --> [prefix][number][letter][suffix]"
 				self.RenameWidget.LineEditor.AutoComplete_line_edit.setClearButtonEnabled(True)
@@ -350,7 +481,7 @@ class RenameGUI(QtWidgets.QWidget):
 		self.text = newText
 
 		self.RenameWidget.LineEditor.AutoComplete_line_edit.setText(newText)
-		self.RenameWidget.LineEditor.AutoComplete_line_edit.setCursorPosition(newCur)
+		self.RenameWidget.LineEditor.AutoComplete_line_edit.setCursorPosition(new_cur)
 
 		self.NumberWidget.index_slider.setRange(self.minR, self.maxR)
 		self.NumberWidget.index_SpinBox.setRange(self.minR, self.maxR)

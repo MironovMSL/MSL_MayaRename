@@ -29,7 +29,7 @@ class Configurator(object):
 		self.config.setValue(var_name, value)
 		self.config.endGroup()
 
-	def get_variable(self, section=None, var_name=None, default_value=None):
+	def get_variable(self, section=None, var_name=None, default_value=None, type=None):
 		"""
 		Get a variable from the config file.
 		:param section: Group or section in the config (used as a group in QSettings)
@@ -39,9 +39,11 @@ class Configurator(object):
 		"""
 		assert var_name is not None, "var_name is None"
 		assert section is not None, "section is None"
+		assert type is not None, "type is None"
+
 
 		self.config.beginGroup(section)
-		value = self.config.value(var_name, default_value)
+		value = self.config.value(var_name, default_value, type)
 		self.config.endGroup()
 		return value
 

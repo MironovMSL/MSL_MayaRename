@@ -51,11 +51,12 @@ class NumberModeButton(QtWidgets.QPushButton):
 		super(NumberModeButton, self).__init__(parent)
 		# Attribute---------------------------
 		self.resources = Resources.get_instance()
+		self.QSettings = QtCore.QSettings(self.resources.config_path, QtCore.QSettings.IniFormat)
 		self.width    = width
 		self.height   = height
 		self.tooltip  = f"Numeric Mode: Adds Numbers to Words"
 		self.icon = self.resources.get_icon_from_resources(icon if icon else "cooperate-svgrepo-com.svg")
-		self.has_state = self.resources.config.get_variable("startup", "mode_number", False)
+		self.has_state = self.QSettings.value("startup/mode_number", False, bool)
 		# Setting---------------------------
 		self.setText(name)
 		self.setFixedSize(self.width,self.height)
