@@ -1,7 +1,3 @@
-from sys import prefix
-
-from maya.app.renderSetup.model.plug import value
-
 try:
 	from PySide2 import QtWidgets, QtGui, QtCore
 except:
@@ -46,9 +42,9 @@ class NumberWidget(QtWidgets.QWidget):
 		self.number_start = CustomQSpinbox(55,25, self.start, [0, 100], "Start: ", "Starting number")
 		self.number_padding = CustomQSpinbox(50, 25,self.pading, [1, 9], "Pad: ", "Padding number")
 		# add CustomQSliderWidget
-		self.index_slider = CustomQSliderWidget(self.position,[0, self.maxRange])
+		self.pos_num_slider = CustomQSliderWidget(self.position,[0, self.maxRange])
 		# add CustomQSpinbox
-		self.index_SpinBox = CustomQSpinbox(25, 25, self.position, [self.index_slider.minimum(), self.index_slider.maximum()], "","Position of number")
+		self.pos_num_spinbox = CustomQSpinbox(25, 25, self.position, [self.pos_num_slider.minimum(), self.pos_num_slider.maximum()], "","Position of number")
 
 	def create_layouts(self):
 		self.main_layout = QtWidgets.QHBoxLayout(self)
@@ -57,46 +53,45 @@ class NumberWidget(QtWidgets.QWidget):
 
 		self.main_layout.addWidget(self.number_start)
 		self.main_layout.addWidget(self.number_padding)
-		self.main_layout.addWidget(self.index_slider)
-		self.main_layout.addWidget(self.index_SpinBox)
+		self.main_layout.addWidget(self.pos_num_slider)
+		self.main_layout.addWidget(self.pos_num_spinbox)
 
 
 	def create_connections(self):
 
 		self.number_start.valueChanged.connect(self.update_valueChanged_number)
 		self.number_padding.valueChanged.connect(self.update_valueChanged_number)
-		self.index_slider.wheelScrolled.connect(self.on_wheel_scrolled)
-		self.index_slider.sliderMoved.connect(self.on_slider_move_value)
-		self.index_SpinBox.valueChanged.connect(self.on_spinBox_value)
+		self.pos_num_slider.wheelScrolled.connect(self.on_wheel_scrolled)
+		self.pos_num_slider.sliderMoved.connect(self.on_slider_move_value)
+		self.pos_num_spinbox.valueChanged.connect(self.on_spinBox_value)
 
 	def set_state_from_number_mode(self, state):
 		# signal from number Button to  RenameGUI to NumberWidget (here)
 		self.number_start.setReadOnly(not state)
 		self.number_padding.setReadOnly(not state)
-		self.index_slider.setEnabled(state)
-		self.index_SpinBox.setReadOnly(not state)
+		self.pos_num_slider.setEnabled(state)
+		self.pos_num_spinbox.setReadOnly(not state)
 
 	def on_wheel_scrolled(self, delta):
 		"""Processing the signal wheelScrolled"""
-		current_value = self.index_slider.value()
+		current_value = self.pos_num_slider.value()
 		step = 1  # Step change value
 
 		if delta > 0:# Update the slider value depending on the scroll direction
-			self.index_slider.setValue(current_value + step)
+			self.pos_num_slider.setValue(current_value + step)
 		else:
-			self.index_slider.setValue(current_value - step)
+			self.pos_num_slider.setValue(current_value - step)
 
-		new_value = self.index_slider.value()
-		self.index_SpinBox.setValue(new_value)
+		new_value = self.pos_num_slider.value()
+		self.pos_num_spinbox.setValue(new_value)
 
 	def on_slider_move_value(self, value):
-		self.index_SpinBox.setValue(value)
+		self.pos_num_spinbox.setValue(value)
 
 	def on_spinBox_value(self, value):
-		value_slider = self.index_slider.value()
-		self.index_slider.setValue(value)
+		value_slider = self.pos_num_slider.value()
+		# self.pos_num_slider.setValue(value)
 		self.new_position_Signal.emit(value)
-
 
 	def update_valueChanged_number(self):
 
