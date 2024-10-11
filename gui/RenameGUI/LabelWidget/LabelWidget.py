@@ -6,6 +6,7 @@ except:
 from MSL_MayaRename.core.resources import Resources
 from MSL_MayaRename.core.config import Configurator
 from MSL_MayaRename.gui.RenameGUI.LabelWidget.NumberModeButton import NumberModeButton
+from MSL_MayaRename.gui.RenameGUI.LabelWidget.PushButtonModeBTN import PushButtonModeBTN
 import os
 import maya.cmds as cmds
 
@@ -78,8 +79,7 @@ class LabelWidget(QtWidgets.QWidget):
         # namber mode
         self.number_mode = NumberModeButton("",25,25,)
         # button mode
-        self.button_mode = QtWidgets.QPushButton("B")
-        self.button_mode.setFixedWidth(25)
+        self.button_mode = PushButtonModeBTN("", 25, 25)
 
     def create_layouts(self):
         self.main_layout = QtWidgets.QHBoxLayout(self)

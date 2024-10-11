@@ -78,12 +78,12 @@ class NumberWidget(QtWidgets.QWidget):
 		step = 1  # Step change value
 
 		if delta > 0:# Update the slider value depending on the scroll direction
-			self.pos_num_slider.setValue(current_value + step)
+			self.pos_num_spinbox.setValue(current_value + step)
 		else:
-			self.pos_num_slider.setValue(current_value - step)
+			self.pos_num_spinbox.setValue(current_value - step)
 
-		new_value = self.pos_num_slider.value()
-		self.pos_num_spinbox.setValue(new_value)
+
+
 
 	def on_slider_move_value(self, value):
 		self.pos_num_spinbox.setValue(value)

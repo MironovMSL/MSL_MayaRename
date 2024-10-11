@@ -34,9 +34,9 @@ class SuffixPrefixWidget(QtWidgets.QWidget):
         self.prefix_add_btn.setFixedWidth(25)
 
         # QlineEdit prefix
-        self.prefix_lineEditor = QtWidgets.QLineEdit()
-        self.prefix_lineEditor.setPlaceholderText(self.PrefixHolder)
-        self.prefix_lineEditor.setMinimumWidth(Width)
+        self.prefix_Editline = QtWidgets.QLineEdit()
+        self.prefix_Editline.setPlaceholderText(self.PrefixHolder)
+        self.prefix_Editline.setMinimumWidth(Width)
 
         # label type of selection
         self.typeSelection = QtWidgets.QLabel()
@@ -78,7 +78,7 @@ class SuffixPrefixWidget(QtWidgets.QWidget):
         self.main_layout.setSpacing(0)
 
         self.main_layout.addWidget(self.prefix_add_btn)
-        self.main_layout.addWidget(self.prefix_lineEditor)
+        self.main_layout.addWidget(self.prefix_Editline)
         self.main_layout.addWidget(self.typeSelection)
         self.main_layout.addWidget(self.suffix_Editline)
         self.main_layout.addWidget(self.suffix_add_btn)
