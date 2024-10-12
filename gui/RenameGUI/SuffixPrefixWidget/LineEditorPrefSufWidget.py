@@ -19,13 +19,16 @@ class NameMIMEData(QtCore.QMimeData):
 		else:
 			self.Name_Btn = ""
 
-class LineEditorWidget(QtWidgets.QWidget):
-	def __init__(self, parent=None):
-		super(LineEditorWidget, self).__init__(parent)
+class LineEditorPrefSufWidget(QtWidgets.QWidget):
+	def __init__(self, NameHolder,Width, parent=None):
+		super(LineEditorPrefSufWidget, self).__init__(parent)
 
 		# Attribute---------------------------
+		self.Width = Width
+		self.NameHolder = NameHolder
 		self.resource: Resources = Resources.get_instance()
 		self.word_list = self.resource.all_item_json # list of all words library.
+
 
 		# Run function---------------------------
 		self.create_widgets()
@@ -34,7 +37,7 @@ class LineEditorWidget(QtWidgets.QWidget):
 	def create_widgets(self):
 
 		self.completer = CustomCompleter(self.word_list)
-		self.AutoComplete_line_edit = AutoCompleteLineEdit(self.completer, self)
+		self.AutoComplete_line_edit = AutoCompleteLineEdit(self.completer, self.NameHolder,self.Width, self)
 		self.model = QtCore.QStringListModel()  # model for list name.
 
 		# List of words for autocompletion
@@ -83,13 +86,13 @@ class AutoCompleteLineEdit(QtWidgets.QLineEdit):
 	    }
 	"""
 
-	def __init__(self, completer, parent=None):
+	def __init__(self, completer, NameHolder, Width, parent=None):
 		super(AutoCompleteLineEdit, self).__init__(parent)
 
 		# Attribute---------------------------
-		Width            = 200
+		self.Width       = Width
 		Height           = 25
-		NameHolder       = "Name"
+		self.NameHolder  = NameHolder
 		ToolTip          = "Texting edit for Rename"
 		Font             = QtGui.QFont("Arial", 10, QtGui.QFont.Normal)
 		self.completer   = completer
@@ -98,8 +101,8 @@ class AutoCompleteLineEdit(QtWidgets.QLineEdit):
 
 		# Setting---------------------------
 		self.setFixedHeight(Height)
-		self.setMinimumWidth(Width)
-		self.setPlaceholderText(NameHolder)
+		self.setMaximumWidth(self.Width)
+		self.setPlaceholderText(self.NameHolder)
 		self.setToolTip(ToolTip)
 		self.setFont(Font)
 		self.setCompleter(self.completer)

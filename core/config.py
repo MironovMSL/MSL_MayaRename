@@ -64,6 +64,8 @@ class Configurator(object):
 			self.config.setValue("padding_number", 2)
 			self.config.setValue("position_number", 0)
 			self.config.setValue("number", "01")
+			self.config.setValue("prefix", "")
+			self.config.setValue("suffix", "")
 
 			self.config.endGroup()  # End the group
 

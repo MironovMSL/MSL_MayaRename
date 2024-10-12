@@ -28,6 +28,7 @@ class MainToolWindow(QtWidgets.QDialog):
 		self.setWindowIcon(QtGui.QIcon(os.path.join(root_,"resources", "icon", "earth-svgrepo-com.svg")))  # crab-svgrepo-com  pen-svgrepo-com earth-svgrepo-com
 		self.setMinimumWidth(300)
 		self.setMinimumHeight(250)
+		self.resize(300,250)
 
 		# On macOS make the window a Tool to keep it on top of Maya
 		if sys.platform == "darwin":

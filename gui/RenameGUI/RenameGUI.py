@@ -26,36 +26,36 @@ class RenameGUI(QtWidgets.QWidget):
 		super(RenameGUI, self).__init__(parent)
 
 		# Attribute----------------------
-		self.resources = Resources.get_instance()
-		self.QSettings = QtCore.QSettings(self.resources.config_path, QtCore.QSettings.IniFormat)
-		self.FixedHeigt = 200
+		self.resources   = Resources.get_instance()
+		self.QSettings   = QtCore.QSettings(self.resources.config_path, QtCore.QSettings.IniFormat)
+		self.FixedHeigt  = 200
 		# mode----------------------------
 		self.mode_button = None # mode number for button and lineEdits
 		self.mode_number = None # mode number for Numeric
 		# blocks text------------------------------------
-		self.prefix = None  # [prefix]
-		self.left = None # [left_text]
-		self.X = None # [X] number or letter
-		self.mid = None #[mid_text]
-		self.Y = None # [Y] number or letter
-		self.right = None #[right text]
-		self.suffix = None  # [suffix]
+		self.prefix      = None  # [prefix]
+		self.left        = None # [left_text]
+		self.X           = None # [X] number or letter
+		self.mid         = None #[mid_text]
+		self.Y           = None # [Y] number or letter
+		self.right       = None #[right text]
+		self.suffix      = None  # [suffix]
 
-		self.text = None # old text for comperisen [last Text]
+		self.text        = None # old text for comperisen [last Text]
 		# number-----------------------------------
-		self.pos_num = None  # position number [pos:end]
+		self.pos_num     = None  # position number [pos:end]
 		self.end_pos_num = None # end position num [pos:end]
-		self.num = None  # number start = 1, padding = 2, number = [01]
-		self.num_cod = None
+		self.num         = None  # number start = 1, padding = 2, number = [01]
+		self.num_cod     = None
 		# letter----------------------------------
-		self.pos_let = None # position letter [pos:end]
+		self.pos_let     = None # position letter [pos:end]
 		self.end_pos_let = None # end position letter [pos:end]
-		self.let = None # letter  ~ [lettter]
-		self.num_let = None
+		self.let         = None # letter  ~ [lettter]
+		self.num_let     = None
 		# Range and cursor-------------------------------
-		self.pos_cur = None # cursor position for comparison
-		self.maxR = None # maximum range for position [number] and [letter]
-		self.minR = None # minimum range for position [number] and [letter]
+		self.pos_cur     = None # cursor position for comparison
+		self.maxR        = None # maximum range for position [number] and [letter]
+		self.minR        = None # minimum range for position [number] and [letter]
 
 		# Setting ------------------------
 		self.setFixedHeight(self.FixedHeigt)
@@ -68,16 +68,16 @@ class RenameGUI(QtWidgets.QWidget):
 
 	def create_Widgets(self):
 
-		self.FunctionWidget = FunctionWidget()
-		self.LabelWidget = LabelWidget()
-		self.RenameButton = QtWidgets.QPushButton("Rename")
+		self.FunctionWidget      = FunctionWidget()
+		self.LabelWidget         = LabelWidget()
+		self.RenameButton        = QtWidgets.QPushButton("Rename")
 		self.RenameButton.setFixedSize(50, 75)
-		self.RenameWidget = RenameWidget()
-		self.NumberWidget = NumberWidget()
-		self.LetterWidget = LetterWidget()
-		self.SuffixPrefixWidget = SuffixPrefixWidget()
+		self.RenameWidget        = RenameWidget()
+		self.NumberWidget        = NumberWidget()
+		self.LetterWidget        = LetterWidget()
+		self.SuffixPrefixWidget  = SuffixPrefixWidget()
 		self.QuickListButtonName = QuickListButtonName()
-		self.CasheNameWidget = CasheNameWidget()
+		self.CasheNameWidget     = CasheNameWidget()
 
 	def create_layouts(self):
 		# main layout
@@ -118,9 +118,12 @@ class RenameGUI(QtWidgets.QWidget):
 		self.LabelWidget.number_mode.changeStateNumberMode.connect(self.on_click_number_mode_button)
 		self.LabelWidget.button_mode.changeStateButtonMode.connect(self.on_click_button_mode_button)
 		self.RenameWidget.LineEditor.AutoComplete_line_edit.textEdited.connect(self.do_text_edited)
+		self.RenameWidget.LineEditor.AutoComplete_line_edit.itDropName.connect(self.drop_text)
 		self.NumberWidget.new_number_Signal.connect(self.update_number)
 		self.NumberWidget.new_position_Signal.connect(self.update_position_number)
 		self.RenameWidget.LineEditor.AutoComplete_line_edit.cursorPositionChanged.connect(self.posNumber_cursor)
+		self.SuffixPrefixWidget.itEditPrefix.connect(self.update_prefix)
+		self.SuffixPrefixWidget.itEditSuffix.connect(self.update_suffix)
 
 	def init_attribute(self):
 
@@ -128,26 +131,26 @@ class RenameGUI(QtWidgets.QWidget):
 		self.mode_button = self.QSettings.value("startup/mode_button", False, bool)  # mode number for button and lineEdits
 		self.mode_number = self.QSettings.value("startup/mode_number", False, bool)  # mode number for Numeric
 		# number-----------------------------------
-		self.start_num = self.QSettings.value("startup/start_number", 1, int)  # start number ~ 1
+		self.start_num   = self.QSettings.value("startup/start_number", 1, int)  # start number ~ 1
 		self.padding_num = self.QSettings.value("startup/padding_number", 2, int)  # pading number ~ 2 = 00
-		self.num = self.handle_number()  # number start = 1, padding = 2, number = [01]
-		self.pos_num = self.QSettings.value("startup/position_number", 0, int)  # position number [pos:end]
+		self.num         = self.handle_number()  # number start = 1, padding = 2, number = [01]
+		self.pos_num     = self.QSettings.value("startup/position_number", 0, int)  # position number [pos:end]
 		self.end_pos_num = self.pos_num + len(self.num)  # end position num [pos:end]
-		self.num_cod = ""
+		self.num_cod     = ""
 		# letter----------------------------------
-		self.pos_let = 0  # position letter [pos:end]
+		self.pos_let     = 0  # position letter [pos:end]
 		self.end_pos_let = 0  # end position letter [pos:end]
-		self.let = ""  # letter  ~ [lettter]
-		self.let_cod = ""
+		self.let         = ""  # letter  ~ [lettter]
+		self.let_cod     = ""
 		# Range and cursor-------------------------------
-		self.pos_cur = 0  # cursor position for comparison
-		self.maxR = 0  # maximum range for position [number] and [letter]
-		self.minR = 0  # minimum range for position [number] and [letter]
+		self.pos_cur     = 0  # cursor position for comparison
+		self.maxR        = 0  # maximum range for position [number] and [letter]
+		self.minR        = 0  # minimum range for position [number] and [letter]
 		# blocks text------------------------------------
-		self.text = ""  # old text for comperisen [last Text]
+		self.text        = ""  # old text for comperisen [last Text]
 		self.prefix, self.suffix = self.handle_prefix_suffix()
 		self.X, self.mid, self.Y = self.handle_X_mid_Y()
-		self.left ,self.right = self.handle_left_right()
+		self.left ,self.right    = self.handle_left_right()
 		#------------------------------
 		self.info = "Initialization attribute"
 
@@ -163,6 +166,12 @@ class RenameGUI(QtWidgets.QWidget):
 		print(f"position: [{self.pos_cur}] Cursor")
 		print(f'[{self.prefix}][{self.left}][{self.X}][{self.mid}][{self.Y}][{self.right}][{self.suffix}]: {self.info}')
 
+
+
+	def drop_text(self, text, pos_cur):
+		self.pos_cur = pos_cur
+		self.do_text_edited(text)
+
 	def on_click_number_mode_button(self, state):
 		self.NumberWidget.set_state_from_number_mode(state)
 		self.state_number(state)
@@ -170,6 +179,7 @@ class RenameGUI(QtWidgets.QWidget):
 	def state_number(self, state):
 
 		self.mode_number = state
+		dift             = len(self.num)
 		self.num         = self.handle_number()
 		self.end_pos_num = self.pos_num + len(self.num)
 		self.X, self.mid, self.Y = self.handle_X_mid_Y()  # from num and let take pos and cod >>> X Y MID
@@ -179,7 +189,7 @@ class RenameGUI(QtWidgets.QWidget):
 		text    = self.RenameWidget.LineEditor.AutoComplete_line_edit.text()
 		new_cur = 0
 		newText = ""
-		print(self.num_cod)
+
 		if state:
 			if text:
 				if self.num_cod == "X" or self.num_cod == "XY":
@@ -202,7 +212,7 @@ class RenameGUI(QtWidgets.QWidget):
 		else:
 			if text:
 				if pos_cur > self.pos_num:  # [X]>|
-					new_cur = pos_cur - len(self.X)
+					new_cur = pos_cur - dift
 				else:
 					new_cur = pos_cur
 
@@ -215,15 +225,57 @@ class RenameGUI(QtWidgets.QWidget):
 		self.info = f"Numeric Mode: {'checked' if state else 'unchecked'}: '{self.num}'"
 		self.update_ui_elements(newText, new_cur)
 
+	def update_prefix(self, prefix):
+		text = self.RenameWidget.LineEditor.AutoComplete_line_edit.text()
+
+		if self.mode_button:
+			if text:
+
+				item_dift   = len(prefix) - len(self.prefix) # prefix - prefix_ = -1
+				self.prefix = prefix
+
+				newText = self.prefix + self.left + self.X + self.mid + self.Y + self.right + self.suffix
+				new_cur = self.pos_cur + item_dift
+				self.pos_X += item_dift
+				self.update_pos_num_let()
+				self.update_range()
+
+
+
+				self.update_ui_elements(newText, new_cur)
+			else:
+				self.prefix = prefix
+
+		self.info = (f'New prefix: {self.prefix},')
+		self.info_attribute()
+
+
+	def update_suffix(self, suffix):
+		text = self.RenameWidget.LineEditor.AutoComplete_line_edit.text()
+		self.suffix = suffix
+
+		if self.mode_button:
+			if text:
+
+				newText = self.prefix + self.left + self.X + self.mid + self.Y + self.right + self.suffix
+				new_cur = self.pos_cur
+
+
+				self.update_ui_elements(newText, new_cur)
+
+		self.info = (f'New suffix: {self.suffix},')
+		self.info_attribute()
+
+
 	def on_click_button_mode_button(self, state):
-		# TODO change all widget buttons for hint for buttons
 		self.state_prefix_suffix(state)
+
 
 	def state_prefix_suffix(self, state):
 		self.mode_button         = state
 		self.prefix, self.suffix = self.handle_prefix_suffix()
 
-		prefix = self.SuffixPrefixWidget.prefix_Editline.text()
+		prefix = self.SuffixPrefixWidget.prefix_Editline.AutoComplete_line_edit.text()
 
 		pos_cur                  = self.pos_cur
 		new_cur                  = 0
@@ -260,7 +312,7 @@ class RenameGUI(QtWidgets.QWidget):
 				newText = ""
 				new_cur = 0
 
-		print( self.minR,self.maxR)
+
 		self.info = f"Button Mode: {'checked' if state else 'unchecked'}: [{self.prefix}] [ ] [{self.suffix}]"
 		self.update_ui_elements(newText, new_cur)
 
@@ -290,16 +342,16 @@ class RenameGUI(QtWidgets.QWidget):
 
 				self.RenameWidget.LineEditor.AutoComplete_line_edit.setText(self.text)
 				self.RenameWidget.LineEditor.AutoComplete_line_edit.setCursorPosition(pos_cur)
-
-		# self.info_attribute()
+			self.info_attribute()
 
 
 	def update_number(self, start_number, padding_number, number):
-		self.start_num = start_number
-		self.padding_num = padding_number
-		self.num = number
-		self.end_pos_num = self.pos_num + len(self.num)
+		self.start_num           = start_number
+		self.padding_num         = padding_number
+		self.num                 = number
+		self.end_pos_num         = self.pos_num + len(self.num)
 		self.X, self.mid, self.Y = self.handle_X_mid_Y()
+
 		self.update_range()
 		self.update_pos_num_let()
 
@@ -316,10 +368,6 @@ class RenameGUI(QtWidgets.QWidget):
 	def update_range(self):
 		self.maxR = len(self.prefix) + len(self.left) + len(self.mid) + len(self.right)
 		self.minR = len(self.prefix)
-
-
-
-
 
 	def handle_left_right(self):
 		left = self.text[len(self.prefix):self.pos_X]
@@ -371,21 +419,17 @@ class RenameGUI(QtWidgets.QWidget):
 
 	def handle_prefix_suffix(self):
 		"""Prefix and Suffix Processing"""
-		print(self.mode_button)
 		if self.mode_button:
-			print("!!!!")
-			prefix = self.SuffixPrefixWidget.prefix_Editline.text()
-			suffix = self.SuffixPrefixWidget.suffix_Editline.text()
+
+			prefix = self.SuffixPrefixWidget.prefix_Editline.AutoComplete_line_edit.text()
+			suffix = self.SuffixPrefixWidget.suffix_Editline.AutoComplete_line_edit.text()
 			print(prefix,suffix)
 		else:
-			print("2!!!")
 			prefix = ""
 			suffix = ""
 		return prefix, suffix
 
 	def update_pos_num_let(self):
-
-		print(self.num_cod, "num_cod")
 
 		if self.num_cod == "XY":
 
@@ -402,28 +446,29 @@ class RenameGUI(QtWidgets.QWidget):
 
 		elif self.num_cod == "None num" and self.let_cod == "None let" :
 
-			self.pos_num = self.pos_X
+			self.pos_num     = self.pos_X
 			self.end_pos_num = self.get_end_pos(self.pos_num, self.num)
 
-			self.end_pos_X = self.get_end_pos(self.pos_X, self.X)
+			self.end_pos_X   = self.get_end_pos(self.pos_X, self.X)
 
-			self.pos_let = self.end_pos_num
+			self.pos_let     = self.end_pos_num
 			self.end_pos_let = self.get_end_pos(self.pos_let, self.let)
 
-			self.pos_Y = self.get_end_pos(self.end_pos_X, self.Y)
-			self.end_pos_Y = self.get_end_pos(self.pos_Y, self.Y)
+			self.pos_Y       = self.get_end_pos(self.end_pos_X, self.Y)
+			self.end_pos_Y   = self.get_end_pos(self.pos_Y, self.Y)
 
 
 
 	def handle_text(self, text):
-		if self.text and len(text) > len(self.prefix) + len(self.X) + len(self.Y) + len(self.prefix):
-			prefix = text[ : len(self.prefix)]
-			left   = text[len(prefix) : self.pos_X]
-			X      = text[self.pos_X : self.end_pos_X]
-			mid    = text[self.end_pos_X : self.pos_Y]
-			Y      = text[self.pos_Y : self.end_pos_Y]
-			right  = text[self.end_pos_Y : len(text) - len(self.suffix)]
-			suffix = text[len(text) - len(self.suffix): ]
+
+		if self.text and len(text) > len(self.prefix) + len(self.X) + len(self.Y) + len(self.suffix):
+			prefix = text[ : len(self.prefix) ]
+			left   = text[ len(self.prefix) : self.pos_X ]
+			X      = text[ self.pos_X : self.end_pos_X ]
+			mid    = text[ self.end_pos_X : self.pos_Y ]
+			Y      = text[ self.pos_Y : self.end_pos_Y ]
+			right  = text[ self.end_pos_Y : len(text) - len(self.suffix) ]
+			suffix = text[ len(text) - len(self.suffix): ]
 
 			print(f"[{prefix}][{left}][{X}][{mid}][{Y}][{right}][{suffix}]:  ___HANDLE_TEXT___[{text}]")
 		else:
@@ -450,22 +495,21 @@ class RenameGUI(QtWidgets.QWidget):
 		self.pos_X = self.pos_X + items_diff
 		self.left = text[len(prefix): self.pos_X]
 		self.update_pos_num_let()
-		info_part = (f"[[pos_cur]{pos_cur}<{self.pos_X}[pos_X]] change___HERE___[LEFT]")
+		info_part = (f"[[pos_cur]{pos_cur}<{self.pos_X}[pos_X]] change___HERE-->[LEFT]")
 
 		return items_diff, info_part
 
 	def handle_add_part_right(self, prefix,text,items_diff, pos_cur):
-		if self.pos_X == self.end_pos_Y: #[X]=[Y]
-			info_part = (f"[[pos_cur]{pos_cur}<={self.pos_X}[pos_X]] change___HERE___[LEFT]")
+		if pos_cur <= self.pos_X: #[X]=[Y]
+			info_part = (f"[[cur]{pos_cur}<={self.pos_X}[X]] change___HERE-->[LEFT]")
 			self.pos_X = self.pos_X + items_diff
 			self.left = text[len(prefix): self.pos_X]
 			self.update_pos_num_let()
-			# TODO fix hire issue
-
 
 		else:
-			self.right = text[self.pos_Y: len(text) - len(self.suffix)]
-			info_part = (f"[[pos_cur]{pos_cur}>{self.end_pos_Y}[end_pos_Y]] change___HERE___[RIGHT]")
+			info_part = (f"[[cur]{pos_cur}>{self.end_pos_Y}[end_Y]] change___HERE-->[RIGHT]")
+			self.right = text[self.end_pos_Y: len(text) - len(self.suffix)]
+
 		return items_diff, info_part
 
 
@@ -634,12 +678,12 @@ class RenameGUI(QtWidgets.QWidget):
 		items_diff = len(text) - len(self.text)
 		prefix, left, X, mid, Y, right, suffix = self.handle_text(text)
 
-		if self.text and len(text) > len(self.prefix)+ len(self.X) + len(self.Y) + len(self.prefix):
+		if self.text and len(text) > len(self.prefix)+ len(self.X) + len(self.Y) + len(self.suffix):
 			if items_diff > 0:  # Added items
-				print("add")
+
 				newText, new_cur = self.handle_addition(prefix, left, X, mid, Y, right, suffix, text, items_diff, pos_cur)
 			elif items_diff < 0:  # Removed items
-				print("del")
+
 				newText, new_cur = self.handle_deletion(prefix, left, X, mid, Y, right, suffix, text, items_diff, pos_cur)
 		else:
 			newText, new_cur = self.reset_text(text)
@@ -661,3 +705,4 @@ class RenameGUI(QtWidgets.QWidget):
 
 	def posNumber_cursor(self, oldPos, newPos):
 		self.pos_cur = newPos
+
