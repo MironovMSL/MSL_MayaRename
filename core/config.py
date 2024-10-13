@@ -60,10 +60,12 @@ class Configurator(object):
 			self.config.setValue("name", "test")
 			self.config.setValue("mode_number", False)
 			self.config.setValue("mode_button", False)
+			self.config.setValue("mode_letter", False)
 			self.config.setValue("start_number", 1)
 			self.config.setValue("padding_number", 2)
 			self.config.setValue("position_number", 0)
 			self.config.setValue("number", "01")
+			self.config.setValue("letter", "")
 			self.config.setValue("prefix", "")
 			self.config.setValue("suffix", "")
 

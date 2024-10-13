@@ -4,6 +4,8 @@ except:
     from PySide6 import QtWidgets, QtGui, QtCore, QtSvg
 
 from MSL_MayaRename.gui.RenameGUI.SuffixPrefixWidget.LineEditorPrefSufWidget import LineEditorPrefSufWidget
+from MSL_MayaRename.gui.RenameGUI.SuffixPrefixWidget.AddByttonWidget import AddByttonWidget
+
 from MSL_MayaRename.core.resources import Resources
 from MSL_MayaRename.core.config import Configurator
 import os
@@ -42,8 +44,7 @@ class SuffixPrefixWidget(QtWidgets.QWidget):
 
         Width = 120
         # button add prefix
-        self.prefix_add_btn = QtWidgets.QPushButton("+")
-        self.prefix_add_btn.setFixedWidth(25)
+        self.prefix_add_btn = AddByttonWidget("+", 25,25, "prefix")
         # QlineEdit prefix
         self.prefix_Editline = LineEditorPrefSufWidget(self.PrefixHolder, Width)
         self.prefix_Editline.AutoComplete_line_edit.setText(self.prefix)
@@ -65,8 +66,7 @@ class SuffixPrefixWidget(QtWidgets.QWidget):
         self.typeSelection.resize(25, 25)
         #---------------------------------
         # button add suffix
-        self.suffix_add_btn = QtWidgets.QPushButton("+")
-        self.suffix_add_btn.setFixedWidth(25)
+        self.suffix_add_btn = AddByttonWidget("+", 25,25, "suffix")
         # QlineEdit suffix
         self.suffix_Editline = LineEditorPrefSufWidget(self.SuffixHolder, Width)
         self.suffix_Editline.AutoComplete_line_edit.setText(self.suffix)
@@ -85,6 +85,8 @@ class SuffixPrefixWidget(QtWidgets.QWidget):
     def create_connections(self):
         self.prefix_Editline.AutoComplete_line_edit.textEdited.connect(self.edit_prefix)
         self.suffix_Editline.AutoComplete_line_edit.textEdited.connect(self.edit_suffix)
+        self.prefix_add_btn.clicked.connect(self.do_prefix)
+        self.suffix_add_btn.clicked.connect(self.do_suffix)
 
     def edit_prefix(self, prefix):
         self.QSettings.setValue("startup/prefix", prefix)
@@ -93,5 +95,11 @@ class SuffixPrefixWidget(QtWidgets.QWidget):
     def edit_suffix(self, suffix):
         self.QSettings.setValue("startup/suffix", suffix)
         self.itEditSuffix.emit(suffix)
+
+    def do_prefix(self):
+        print("TODO: add prefix")
+
+    def do_suffix(self):
+        print("TODO: add suffix")
 
 

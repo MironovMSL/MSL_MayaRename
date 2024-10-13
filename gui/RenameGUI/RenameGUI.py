@@ -117,6 +117,8 @@ class RenameGUI(QtWidgets.QWidget):
 	def create_connections(self):
 		self.LabelWidget.number_mode.changeStateNumberMode.connect(self.on_click_number_mode_button)
 		self.LabelWidget.button_mode.changeStateButtonMode.connect(self.on_click_button_mode_button)
+		self.LetterWidget.itEditLetter.connect(self.on_click_letter_mode)
+
 		self.RenameWidget.LineEditor.AutoComplete_line_edit.textEdited.connect(self.do_text_edited)
 		self.RenameWidget.LineEditor.AutoComplete_line_edit.itDropName.connect(self.drop_text)
 		self.NumberWidget.new_number_Signal.connect(self.update_number)
@@ -171,6 +173,12 @@ class RenameGUI(QtWidgets.QWidget):
 	def drop_text(self, text, pos_cur):
 		self.pos_cur = pos_cur
 		self.do_text_edited(text)
+
+
+	def on_click_letter_mode(self, letter, state):
+
+		print(letter, state)
+
 
 	def on_click_number_mode_button(self, state):
 		self.NumberWidget.set_state_from_number_mode(state)
@@ -243,18 +251,25 @@ class RenameGUI(QtWidgets.QWidget):
 
 
 				self.update_ui_elements(newText, new_cur)
+				self.info = (f'Button mode "{self.mode_button}", New prefix: [{self.prefix}]')
 			else:
 				self.prefix = prefix
 
-		self.info = (f'New prefix: {self.prefix},')
+			self.info = (f'Button mode "{self.mode_button}", New prefix: [{self.prefix}]')
+
+		else:
+			self.info = (f'Button mode "{self.mode_button}", Initialization prefix: [{prefix}]')
+
+
 		self.info_attribute()
 
 
 	def update_suffix(self, suffix):
 		text = self.RenameWidget.LineEditor.AutoComplete_line_edit.text()
-		self.suffix = suffix
+
 
 		if self.mode_button:
+			self.suffix = suffix
 			if text:
 
 				newText = self.prefix + self.left + self.X + self.mid + self.Y + self.right + self.suffix
@@ -263,7 +278,11 @@ class RenameGUI(QtWidgets.QWidget):
 
 				self.update_ui_elements(newText, new_cur)
 
-		self.info = (f'New suffix: {self.suffix},')
+			self.info = (f'New suffix: [{self.suffix}]')
+
+		else:
+			self.info = (f'Button mode {self.mode_button}, Initialization suffix: [{suffix}]')
+
 		self.info_attribute()
 
 
@@ -317,8 +336,6 @@ class RenameGUI(QtWidgets.QWidget):
 		self.update_ui_elements(newText, new_cur)
 
 
-
-
 	def update_position_number(self, value):
 
 		value_slider         = self.NumberWidget.pos_num_slider.value()
@@ -351,16 +368,23 @@ class RenameGUI(QtWidgets.QWidget):
 		self.num                 = number
 		self.end_pos_num         = self.pos_num + len(self.num)
 		self.X, self.mid, self.Y = self.handle_X_mid_Y()
+		text                     = self.RenameWidget.LineEditor.AutoComplete_line_edit.text()
 
 		self.update_range()
 		self.update_pos_num_let()
 
-		if self.pos_cur <= self.pos_num:
-			new_cur = self.pos_cur
-		else:
-			new_cur = self.pos_cur + self.padding_num
+		if text:
+			if self.pos_cur <= self.pos_num:
+				new_cur = self.pos_cur
+			else:
+				new_cur = self.pos_cur + self.padding_num
 
-		newText = self.prefix + self.left + self.X + self.mid + self.Y + self.right + self.suffix
+			newText = self.prefix + self.left + self.X + self.mid + self.Y + self.right + self.suffix
+
+		else:
+			newText = ""
+			new_cur = self.pos_cur
+
 		self.info = (f'New number: {self.num}, start: {self.start_num}, padding: {self.padding_num}')
 		self.update_ui_elements(newText, new_cur)
 
@@ -697,10 +721,15 @@ class RenameGUI(QtWidgets.QWidget):
 
 		self.NumberWidget.pos_num_slider.setRange(self.minR, self.maxR)
 		self.NumberWidget.pos_num_spinbox.setRange(self.minR, self.maxR)
-		self.NumberWidget.pos_num_slider.setValue(self.pos_X)
+		self.NumberWidget.pos_num_slider.setValue(self.pos_num)
 		print("____________________")
-		self.NumberWidget.pos_num_spinbox.setValue(self.pos_X)
+		self.NumberWidget.pos_num_spinbox.setValue(self.pos_num)
 		print("____________________")
+		self.LetterWidget.pos_let_slider.setRange(self.minR, self.maxR)
+		self.LetterWidget.pos_let_spinbox.setRange(self.minR, self.maxR)
+		self.LetterWidget.pos_let_slider.setValue(self.pos_let)
+		self.LetterWidget.pos_let_spinbox.setValue(self.pos_let)
+
 		self.info_attribute()
 
 	def posNumber_cursor(self, oldPos, newPos):
