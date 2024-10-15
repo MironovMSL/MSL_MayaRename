@@ -29,7 +29,7 @@ class CustomQSliderWidget(QtWidgets.QSlider):
 		self.current_value = self.value()
 		self.tooltip = f"Position of letters: {self.current_value}"
 
-		self.mode_letter = self.QSettings.value("startup/mode_letter", str)
+		self.mode_letter = self.QSettings.value("startup/mode_letter", bool)
 
 		# Setting ------------------------
 		self.setOrientation(QtCore.Qt.Horizontal)
