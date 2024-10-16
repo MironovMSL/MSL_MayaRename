@@ -128,7 +128,7 @@ class RenameGUI(QtWidgets.QWidget):
 		self.RenameWidget.LineEditor.AutoComplete_line_edit.itDropName.connect(self.drop_text)
 		self.NumberWidget.new_number_Signal.connect(self.update_number)
 		self.NumberWidget.new_position_Signal.connect(self.update_position_number)
-		self.RenameWidget.LineEditor.AutoComplete_line_edit.cursorPositionChanged.connect(self.posNumber_cursor)
+		self.RenameWidget.LineEditor.AutoComplete_line_edit.cursorPositionChanged.connect(self.check_position_cursor)
 		self.SuffixPrefixWidget.itEditPrefix.connect(self.update_prefix)
 		self.SuffixPrefixWidget.itEditSuffix.connect(self.update_suffix)
 
@@ -672,249 +672,179 @@ class RenameGUI(QtWidgets.QWidget):
 				else:
 					self.pos_let = self.pos_let + items_dift
 
-	def handle_text(self, text):
 
-		if self.text and len(text) > len(self.prefix) + len(self.X) + len(self.Y) + len(self.suffix):
-			prefix = text[ : len(self.prefix) ]
-			left   = text[ len(self.prefix) : self.pos_X ]
-			X      = text[ self.pos_X : self.end_pos_X ]
-			mid    = text[ self.end_pos_X : self.pos_Y ]
-			Y      = text[ self.pos_Y : self.end_pos_Y ]
-			right  = text[ self.end_pos_Y : len(text) - len(self.suffix) ]
-			suffix = text[ len(text) - len(self.suffix): ]
+	def handle_addition(self, text, items_dift, pos_cur):
 
-			print(f"[{prefix}][{left}][{X}][{mid}][{Y}][{right}][{suffix}]:  ___HANDLE_TEXT___[{text}]")
-		else:
-
-			prefix, left, X, mid, Y, right, suffix = self.prefix, self.left, self.X, self.mid, self.Y, self.right, self.suffix
-			print(f"[{prefix}][{text}][{X}][{mid}][{Y}][{right}][{suffix}]:  ___HANDLE_TEXT_else__{text}")
-
-		return prefix, left, X, mid, Y, right, suffix
-
-
-
-	def handle_add_part_left(self,prefix, text, items_diff, pos_cur):
-		# self.pos_X = self.pos_X + items_diff
-		# self.update_pos_num_let()
-		# self.update_pos_X_and_Y(items_dift=items_dift)
-		self.update_pos_X_Y_num_let(items_dift=items_diff, side="X")
-		self.left = text[len(prefix): self.pos_X]
-		info_part = (f"[[pos_cur]{pos_cur}<{self.pos_X}[pos_X]] change___HERE-->[LEFT]")
-
-		return items_diff, info_part
-
-	def handle_add_part_X(self, prefix,text,items_diff, pos_cur):
-		if pos_cur <= self.pos_X: #   >|[X] left side
-
-			info_part = (f"[[pos_cur]{pos_cur}<={self.pos_X}[pos_X]], change___HERE___[LEFT]")
-			self.update_pos_X_Y_num_let(items_dift=items_diff, side="X")
-			self.left = text[len(prefix): self.pos_X]
-
-		elif pos_cur > self.pos_X: # [[X:] >| [:X]] >| [X] >| right side
-
-			info_part = (f"[[pos_cur]{pos_cur}>{self.pos_X}[pos_X]] change___HERE___[MID]")
-			self.update_pos_X_Y_num_let(items_dift=items_diff, side="Y")
-			temptext = text[pos_cur:pos_cur + items_diff]
-			self.mid = temptext + self.mid
-			items_diff += items_diff
-
-		return items_diff, info_part
-
-	def handle_add_part_right(self, prefix,text,items_dift, pos_cur):
-		if pos_cur <= self.pos_X: #[X]=[Y]
-			info_part = (f"[[cur]{pos_cur}<={self.pos_X}[X]] change___HERE-->[LEFT]")
-			self.update_pos_X_Y_num_let(items_dift=items_dift, side="X", len_X=0)
-			# self.pos_X = self.pos_X + items_diff
-			self.left = text[len(prefix): self.pos_X]
-			# self.update_pos_num_let()
-
-		else:
-			info_part = (f"[[cur]{pos_cur}>{self.end_pos_Y}[end_Y]] change___HERE-->[RIGHT]")
-			self.right = text[self.end_pos_Y: len(text) - len(self.suffix)]
-
-		return items_dift, info_part
-
-	def handle_add_part_mid(self, text, items_diff, pos_cur):
-
-		self.update_pos_X_Y_num_let(items_dift=items_diff, side="Y")
-		self.mid = text[self.end_pos_X: self.pos_Y]
-		info_part = (f"[[pos_cur]{pos_cur}>{self.end_pos_X}[end_pos_X]] change___HERE-->[MID]")
-
-
-	def handle_addition(self, prefix, left, X, mid, Y, right, suffix, text, items_diff, pos_cur):
-		part = ""
-		info_part = ""
-		#------------------------------
-		print("------------------------------!!!!!!!!!!")
-
-		# Вычисляем границы заранее для улучшения читаемости
 		prefix_end = len(self.prefix)
-		left_end = prefix_end + len(self.left)
-		x_end = left_end + len(self.X)
-		mid_end = x_end + len(self.mid)
-		y_end = mid_end + len(self.Y)
-		right_end = y_end + len(self.right)
+		left_end   = prefix_end + len(self.left)
+		x_end      = left_end + len(self.X)
+		mid_end    = x_end + len(self.mid)
+		y_end      = mid_end + len(self.Y)
+		right_end  = y_end + len(self.right)
 		suffix_end = right_end + len(self.suffix)
 
-
-		# Логика условий с self.text[:]
 		if 0 <= pos_cur < prefix_end:
-			part = "prefix"
-			print("TODO: prefix", list(range(0, prefix_end)))
+
+			info_part  = (f"[PREFIX] --> NO Change [{self.prefix}]: {list(range(0, prefix_end))}")
+			items_dift = 0
 
 		elif prefix_end <= pos_cur <= left_end:
-			part = "left"
-			print("TODO: left", list(range(prefix_end, left_end)))
+
+			self.update_pos_X_Y_num_let(items_dift=items_dift, side="X")
+			self.left = text[len(self.prefix): left_end + items_dift]
+			info_part = (f"[LEFT] Change [{self.left}]: {list(range(prefix_end, left_end + items_dift))}")
 
 		elif left_end < pos_cur < x_end:
-			part = "X"
-			print("TODO: X", list(range(left_end, x_end)))
+
+			info_part  = (f"[X] --> NO Change [{self.X}]: {list(range(left_end, x_end))}")
+			items_dift = 0
 
 		elif x_end <= pos_cur <= mid_end:
-			part = "mid"
-			print("TODO: MID", list(range(x_end, mid_end)))
+
+			self.update_pos_X_Y_num_let(items_dift=items_dift, side="Y")
+			self.mid = text[ x_end : mid_end + items_dift ]
+			info_part = (f"[MID] Change [{self.mid}]: {list(range(x_end, mid_end + items_dift))}")
 
 		elif mid_end < pos_cur < y_end:
-			part = "Y"
-			print("TODO: Y", list(range(mid_end, y_end)))
+
+			info_part = (f"[Y] --> NO Change [{self.Y}]: {list(range(mid_end, y_end))}")
+			items_dift = 0
 
 		elif y_end <= pos_cur <= right_end:
-			part = "right"
-			print("TODO: right", list(range(y_end, right_end)))
+
+			self.right = text[y_end: right_end + items_dift]
+			info_part = (f"[RIGHT] Change [{self.right}]: {list(range(y_end, right_end + items_dift))}")
 
 		elif right_end < pos_cur <= suffix_end:
-			part = "suffix"
-			print("TODO: suffix", list(range(right_end, suffix_end)))
 
-		print("------------------------------!!!!!!!!!!")
-		#------------------------------
+			info_part = (f"[SUFFIX] --> NO Change [{self.suffix}]: {list(range(right_end, suffix_end))}")
+			items_dift = 0
 
 
-		if prefix != self.prefix:
-			part = "prefix"
-		elif left != self.left:
-			part = "left"
-			items_diff, info_part = self.handle_add_part_left(prefix, text, items_diff, pos_cur)
-		elif X != self.X:
-			part = "X"
-			items_diff, info_part = self.handle_add_part_X(prefix, text, items_diff, pos_cur)
-		elif mid != self.mid:
-			part = "mid"
-		elif Y != self.Y:
-			part = "Y"
-		elif right != self.right:
-			part = "right"
-			items_diff, info_part = self.handle_add_part_right(prefix, text, items_diff, pos_cur)
-		elif suffix != self.suffix:
-			part = "suffix"
-
-		self.info = f"____ADDITION___[{part}], {info_part}"
+		new_cur   = self.pos_cur + items_dift
+		newText   = self.get_new_text()
+		self.info = f"__ADD__{info_part}"
 
 		self.update_range()
-
-		new_cur = self.pos_cur + items_diff
-		newText = self.get_new_text()
 
 		return newText, new_cur
 
-	def handle_del_part_left(self,prefix, left, X, mid, Y, right, suffix, text, items_diff, pos_cur):
+	def handle_deletion(self, text, items_dift, pos_cur):
 
-		in_left_old = self.text[len(prefix):pos_cur]
-		in_left_new = text[len(prefix):pos_cur]
+		temp_cur   = self.RenameWidget.LineEditor.AutoComplete_line_edit.cursorPosition()
+		prefix_end = len(self.prefix)
+		left_end   = prefix_end + len(self.left)
+		x_end      = left_end + len(self.X)
+		mid_end    = x_end + len(self.mid)
+		y_end      = mid_end + len(self.Y)
+		right_end  = y_end + len(self.right)
+		suffix_end = right_end + len(self.suffix)
 
-		if in_left_old == in_left_new: # [[]|>|[here]]
+		if temp_cur != pos_cur:
 
-			info_part = (f"[[in_left_old]{in_left_old}=={in_left_new}[in_left_new]], change___HERE___[LEFT]--> [[][here]]")
-			self.pos_X = self.pos_X + items_diff
-			self.left = text[len(prefix):self.pos_X]
-			self.update_pos_num_let()
-			items_diff=0
+			if 0 < pos_cur <= prefix_end: # [prefix]
+				info_part = (f"[PREFIX] --> NO Change [{self.prefix}]: {list(range(0, prefix_end))}")
+				items_dift = 0
 
-		else: # [[here]|<|[]]
-			info_part = (f"[[in_left_old]{in_left_old}!={in_left_new}[in_left_new]], change___HERE___[LEFT]--> [[here][]]")
-			self.pos_X = self.pos_X + items_diff
-			self.left = text[len(prefix):self.pos_X]
-			self.update_pos_num_let()
+			elif prefix_end < pos_cur <= left_end: #[left]
+				self.update_pos_X_Y_num_let(items_dift=items_dift, side="X")
+				self.left = text[len(self.prefix): left_end + items_dift]
+				info_part = (f"[LEFT] Change [{self.left}]: {list(range(prefix_end, left_end + items_dift))}")
 
-		return items_diff, info_part
+			elif left_end < pos_cur <= x_end: # [X]
+				if self.left:
+					self.update_pos_X_Y_num_let(items_dift=items_dift, side="X")
+					self.left = text[len(self.prefix): left_end + items_dift]
+					info_part = (f"[X] --> NO Change [{self.X}]: {list(range(left_end, x_end))}, left = True [{self.left}]")
 
-	def handle_del_part_right(self,prefix, left, X, mid, Y, right, suffix, text, items_diff, pos_cur):
+				else:
+					info_part = (f"[X] --> NO Change [{self.X}]: {list(range(left_end, x_end))}, left = False [{self.left}]")
+					items_dift = 0
 
-		in_left_old = self.right[:pos_cur - self.end_pos_Y]
-		in_left_new = right[:pos_cur - self.end_pos_Y]
+			elif x_end < pos_cur <= mid_end: # [mid]
+				self.update_pos_X_Y_num_let(items_dift=items_dift, side="Y")
+				self.mid = text[x_end: mid_end + items_dift]
+				info_part = (f"[MID] Change [{self.mid}]: {list(range(x_end, mid_end + items_dift))}")
 
-		if in_left_old == in_left_new:  # [[]|>|[here]]
+			elif mid_end < pos_cur <= y_end: # [Y]
 
-			info_part = (f"[[in_left_old]{in_left_old}=={in_left_new}[in_left_new]], change___HERE___[RIGHT]--> [[][here]]")
+				if self.mid:
+					self.update_pos_X_Y_num_let(items_dift=items_dift, side="Y")
+					self.mid = text[x_end: mid_end + items_dift]
+					info_part = (f"[Y] --> NO Change [{self.Y}]: {list(range(mid_end, y_end))}, mid = True [{self.mid}]")
 
-			items_diff = 0
+				elif self.left:
+					self.update_pos_X_Y_num_let(items_dift=items_dift, side="X")
+					self.left = text[len(self.prefix): left_end + items_dift]
+					info_part = (f"[Y] --> NO Change [{self.Y}]: {list(range(mid_end, y_end))}, mid = False [{self.mid}], left = True [{self.left}]")
 
-		else:  # [[here]|<|[]]
-			info_part = (f"[[in_left_old]{in_left_old}!={in_left_new}[in_left_new]], change___HERE___[RIGHT]--> [[here][]]")
+				else:
+					info_part = (f"[Y] --> NO Change [{self.Y}]: {list(range(mid_end, y_end))}, mid = False [{self.mid}], left = False [{self.left}]")
+					items_dift = 0
 
-		self.right = right
+			elif y_end < pos_cur <= right_end: # [right]
+				self.right = text[y_end: right_end + items_dift]
+				info_part = (f"[RIGHT] Change [{self.right}]: {list(range(y_end, right_end + items_dift))}")
 
-
-		return items_diff, info_part
-
-
-	def handle_del_part_X(self, prefix, left, X, mid, Y, right, suffix, text, items_diff, pos_cur):
-
-		if pos_cur in range(self.pos_X, self.end_pos_X ):# left side >|[X]
-			if self.mid:
-				print("TODO : MID ")
-				info_part = (f"[[pos_cur]{pos_cur}<={self.pos_X}[pos_X]], change___HERE___[MID]")
-			elif self.right:
-				info_part = (f"[[pos_cur]{pos_cur} in {range(self.pos_X, self.end_pos_X)}[pos_X]],, change___HERE___[RIGHT]")
-				self.right = right
-				items_diff = 0
-			else:
-				info_part = (f"[[pos_cur]{pos_cur} in {range(self.pos_X, self.end_pos_X)}[pos_X]], change___HERE___[X]")
-				items_diff = 0
-
-			self.update_pos_num_let()
-
-		elif pos_cur == self.end_pos_X: # [X]|< right side
-			if left:
-				info_part = (f"[[pos_cur]{pos_cur}>{self.end_pos_X}[end_pos_X]] change___HERE___[LEFT]")
-				self.pos_X = self.pos_X + items_diff
-				self.left = text[len(prefix): self.pos_X]
-				self.update_pos_num_let()
-			else: # [left = false][X]|<|
-				info_part = (f"[[pos_cur]{pos_cur}>{self.end_pos_X}[end_pos_X]] change___HERE___[LEFT NONE] RUTERN NAME")
-				items_diff = 0
-
-		return items_diff, info_part
+			elif right_end < pos_cur <= suffix_end:
+				info_part = (f"[SUFFIX] --> NO Change [{self.suffix}]: {list(range(right_end, suffix_end))}")
+				items_dift = 0
 
 
-	def handle_deletion(self, prefix, left, X, mid, Y, right, suffix, text, items_diff, pos_cur):
-		part = ""
-		info_part = ""
+		else:
 
-		if prefix != self.prefix:
-			part = "prefix"
-		elif left != self.left:
-			part = "left"
-			items_diff, info_part = self.handle_del_part_left(prefix, left, X, mid, Y, right, suffix, text, items_diff, pos_cur)
-		elif X != self.X:
-			part = "X"
-			items_diff, info_part = self.handle_del_part_X(prefix, left, X, mid, Y, right, suffix, text, items_diff, pos_cur)
-		elif mid != self.mid:
-			part = "mid"
-		elif Y != self.Y:
-			part = "Y"
-		elif right != self.right:
-			part = "right"
-			items_diff, info_part = self.handle_del_part_right(prefix, left, X, mid, Y, right, suffix, text, items_diff, pos_cur)
-		elif suffix != self.suffix:
-			part = "suffix"
+			if 0 <= pos_cur < prefix_end: # [prefix]
+				info_part = (f"[PREFIX] --> NO Change [{self.prefix}]: {list(range(0, prefix_end))}")
 
-		self.info = f"___FIX_deletion___ --> {part}, {info_part}"
+			elif prefix_end <= pos_cur < left_end: # [left]
+				self.update_pos_X_Y_num_let(items_dift=items_dift, side="X")
+				self.left = text[len(self.prefix): left_end + items_dift]
+				info_part = (f"[LEFT] Change [{self.left}]: {list(range(prefix_end, left_end + items_dift))}")
+
+			elif left_end <= pos_cur < x_end: # [X]
+				if self.mid:
+					self.update_pos_X_Y_num_let(items_dift=items_dift, side="Y")
+					self.mid   = text[x_end: mid_end + items_dift]
+					info_part  = (f"[X] --> NO Change [{self.X}]: {list(range(left_end, x_end))}, mid = True [{self.mid}]")
+
+				elif self.right:
+					self.right = text[y_end: right_end + items_dift]
+					info_part = (f"[X] --> NO Change [{self.X}]: {list(range(left_end, x_end))}, mid = False [{self.mid}], right = True [{self.right}]")
+
+				else:  # left side >|[X]
+					info_part = (f"[X] --> NO Change [{self.X}]: {list(range(left_end, x_end))}, mid = False [{self.mid}], right = False [{self.right}]")
+
+			elif x_end <= pos_cur < mid_end: # [mid]
+				self.update_pos_X_Y_num_let(items_dift=items_dift, side="Y")
+				self.mid = text[x_end: mid_end + items_dift]
+				info_part = (f"[MID] Change [{self.mid}]: {list(range(x_end, mid_end + items_dift))}")
+
+			elif mid_end <= pos_cur < y_end: # [Y]
+				info_part = (f"[Y] --> NO Change [{self.Y}]: {list(range(mid_end, y_end))}")
+
+				if self.right:
+					self.right = text[y_end: right_end + items_dift]
+					info_part = (f"[Y] --> NO Change [{self.Y}]: {list(range(mid_end, y_end))}, right = True [{self.right}]")
+
+				else:  # left side >|[X]
+					info_part = (f"[Y] --> NO Change [{self.Y}]: {list(range(mid_end, y_end))}, right = False [{self.right}]")
+
+			elif y_end <= pos_cur < right_end:  # [right]
+				self.right = text[y_end: right_end + items_dift]
+				info_part = (f"[RIGHT] Change [{self.right}]: {list(range(y_end, right_end + items_dift))}")
+
+			elif right_end <= pos_cur < suffix_end:
+				info_part = (f"[SUFFIX] --> NO Change [{self.suffix}]: {list(range(right_end, suffix_end))}")
+
+			items_dift = 0
+
+
+		new_cur = self.pos_cur + items_dift
+		newText = self.get_new_text()
+		self.info = f"__DEL__{info_part}"
 
 		self.update_range()
 
-		new_cur = self.pos_cur + items_diff
-		newText = self.prefix + self.left + self.X + self.mid + self.Y + self.right + self.suffix
 		return newText, new_cur
 
 	def reset_text(self, text):
@@ -928,6 +858,7 @@ class RenameGUI(QtWidgets.QWidget):
 			self.left = ""
 			self.right = ""
 			self.mid = ""
+			self.minR = 0
 			self.update_pos_X_Y_num_let(reset=True)
 			self.info = f" ____REMOVE____ --> [prefix][number][letter][suffix]"
 			self.RenameWidget.LineEditor.AutoComplete_line_edit.setClearButtonEnabled(False)
@@ -956,17 +887,15 @@ class RenameGUI(QtWidgets.QWidget):
 
 		newText    = ""
 		pos_cur    = self.pos_cur
-		new_cur     = 0
-		items_diff = len(text) - len(self.text)
-		prefix, left, X, mid, Y, right, suffix = self.handle_text(text)
+		items_dift = len(text) - len(self.text)
 
 		if self.text and len(text) > len(self.prefix)+ len(self.X) + len(self.Y) + len(self.suffix):
-			if items_diff > 0:  # Added items
+			if items_dift > 0:  # Added items
 
-				newText, new_cur = self.handle_addition(prefix, left, X, mid, Y, right, suffix, text, items_diff, pos_cur)
-			elif items_diff < 0:  # Removed items
+				newText, new_cur = self.handle_addition(text, items_dift, pos_cur)
+			elif items_dift < 0:  # Removed items
 
-				newText, new_cur = self.handle_deletion(prefix, left, X, mid, Y, right, suffix, text, items_diff, pos_cur)
+				newText, new_cur = self.handle_deletion(text, items_dift, pos_cur)
 		else:
 			newText, new_cur = self.reset_text(text)
 
@@ -990,8 +919,6 @@ class RenameGUI(QtWidgets.QWidget):
 
 		self.info_attribute()
 
-	def posNumber_cursor(self, oldPos, newPos):
+	def check_position_cursor(self, oldPos, newPos):
 		self.pos_cur = newPos
-
-# TODO перебрать все обновления позиций и заменить на новую фунцию, их две для Х и У подумать, может их объеденить.
-# TODO update_pos_X_Y_num_let новая функция.
+		# print(f"pos_cursor: oldPos[{oldPos}]:[{newPos}] newPos")

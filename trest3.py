@@ -1,59 +1,41 @@
-try:
-    from PySide2 import QtWidgets, QtGui, QtCore
-except:
-    from PySide6 import QtWidgets, QtGui, QtCore
-import sys
+import tkinter as tk
+from tkinter import ttk
 
-class SharedData:
-    _instance = None
+class NumberSliderApp:
+    def __init__(self, root):
+        self.root = root
+        self.root.title("Number Position Slider")
 
-    @staticmethod
-    def get_instance():
-        if SharedData._instance is None:
-            SharedData._instance = SharedData()
-        return SharedData._instance
+        # Текст, в который будем вставлять число
+        self.text = "This is a number: ____ and it can move."
+        self.number = 42  # Число, которое будем двигать
+        self.number_position = 16  # Начальная позиция для числа в строке
 
-    def __init__(self):
-        self.some_data = None
+        # Метка с текстом
+        self.label_var = tk.StringVar()
+        self.update_label_text()
 
+        self.label = ttk.Label(self.root, textvariable=self.label_var, font=("Arial", 16))
+        self.label.pack(pady=20)
 
-class SenderWidget(QtWidgets.QWidget):
-    # Определяем сигнал с использованием правильного синтаксиса
-    data_sent = QtCore.Signal(str)
+        # Слайдер для управления позицией числа
+        self.slider = ttk.Scale(self.root, from_=0, to=len(self.text)-len(str(self.number)), orient="horizontal", command=self.slider_moved)
+        self.slider.set(self.number_position)  # Устанавливаем начальную позицию слайдера
+        self.slider.pack(pady=20)
 
-    def __init__(self):
-        super().__init__()
-        button = QtWidgets.QPushButton("Send Data", self)
-        button.clicked.connect(self.send_data)
+    def update_label_text(self):
+        # Обновляем текст метки с учётом новой позиции числа
+        number_str = str(self.number)
+        updated_text = self.text[:self.number_position] + number_str + self.text[self.number_position + len(number_str):]
+        self.label_var.set(updated_text)
 
-    def send_data(self):
-        data = "Hello from Sender"
-        SharedData.get_instance().some_data = data
-        print("Data sent!")
-        self.data_sent.emit(data)  # Испускаем сигнал с данными
-
-
-class ReceiverWidget(QtWidgets.QWidget):
-    def __init__(self):
-        super().__init__()
-        self.button = QtWidgets.QPushButton("Get Data", self)
-        self.button.clicked.connect(self.get_data)
-
-    def get_data(self):
-        data = SharedData.get_instance().some_data
-        print(f"Received Data: {data}")
+    def slider_moved(self, value):
+        # Когда слайдер двигается, меняем позицию числа
+        self.number_position = int(float(value))  # Позиция на основе слайдера
+        self.update_label_text()  # Обновляем метку
 
 
 if __name__ == "__main__":
-    app = QtWidgets.QApplication(sys.argv)
-
-    sender = SenderWidget()
-    receiver = ReceiverWidget()
-
-    # Подключаем сигнал из SenderWidget к слоту в ReceiverWidget
-    sender.data_sent.connect(receiver.get_data)
-
-    sender.show()
-    receiver.show()
-
-    sys.exit(app.exec_())
+    root = tk.Tk()
+    app = NumberSliderApp(root)
+    root.mainloop()
