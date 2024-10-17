@@ -34,8 +34,10 @@ class LetterWidget(QtWidgets.QWidget):
 		self.maxRange   = 0
 		self.position   = 0
 
-		self.letter = self.QSettings.value("startup/letter", str)
-		self.mode_letter = self.QSettings.value("startup/mode_letter", str)
+		self.letter = self.QSettings.value("startup/letter", "" ,str)
+		self.mode_letter = self.QSettings.value("startup/mode_letter", False, bool)
+
+
 
 
 		self.setFixedHeight(self.FixedHeight)

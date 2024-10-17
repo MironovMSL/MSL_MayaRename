@@ -1,4 +1,5 @@
 from asyncio import current_task
+from lib2to3.main import diff_texts
 
 try:
 	from PySide2 import QtWidgets, QtGui, QtCore
@@ -143,13 +144,13 @@ class RenameGUI(QtWidgets.QWidget):
 		self.padding_num = self.QSettings.value("startup/padding_number", 2, int)  # pading number ~ 2 = 00
 		self.num         = self.handle_number()  # number start = 1, padding = 2, number = [01]
 		self.pos_num     = self.QSettings.value("startup/position_number", 0, int)  # position number [pos:end]
-		self.end_pos_num = self.pos_num + len(self.num)  # end position num [pos:end]
-		self.num_cod     = ""
+		# self.end_pos_num = self.pos_num + len(self.num)  # end position num [pos:end]
+		self.num_cod     = "X"
 		# letter----------------------------------
 		self.pos_let     = 0  # position letter [pos:end]
-		self.end_pos_let = 0  # end position letter [pos:end]
+		# self.end_pos_let = 0  # end position letter [pos:end]
 		self.let         = self.QSettings.value("startup/letter", "", str)  # letter  ~ [lettter]
-		self.let_cod     = ""
+		self.let_cod     = "Y"
 		# Range and cursor-------------------------------
 		self.pos_cur     = 0  # cursor position for comparison
 		self.maxR        = 0  # maximum range for position [number] and [letter]
@@ -157,11 +158,20 @@ class RenameGUI(QtWidgets.QWidget):
 		# blocks text------------------------------------
 		self.text        = ""  # old text for comperisen [last Text]
 		self.prefix, self.suffix  = self.handle_prefix_suffix()
-		self.X, self.mid, self.Y  = self.handle_X_mid_Y()
+
+		self.X = self.num
+		self.pos_X = self.pos_num
+		self.end_pos_X = self.pos_X + len(self.X)
+
+		self.mid = ""
+
+		self.Y = self.let
+		self.pos_Y = self.pos_let + len(self.X)
+		self.end_pos_Y = self.pos_Y + len(self.Y)
+
 		self.left ,self.right     = self.handle_left_right()
+
 		#------------------------------
-
-
 
 		self.info = "Initialization attribute"
 
@@ -177,155 +187,249 @@ class RenameGUI(QtWidgets.QWidget):
 		print(f"position: [{self.pos_cur}] Cursor")
 		print(f'[{self.prefix}][{self.left}][{self.X}][{self.mid}][{self.Y}][{self.right}][{self.suffix}]: {self.info}')
 
-
-
 	def drop_text(self, text, pos_cur):
 		self.pos_cur = pos_cur
 		self.do_text_edited(text)
 
+	def handel_letter(self, letter):
+		"""Procesing letter"""
+		if self.mode_letter:
+			let = letter
+		else:
+			let = ""
+
+		return let
 
 	def on_click_letter_mode(self, letter, state):
 
+		dift = len(self.let)  # Difference in the length of numerical values
+
 		self.mode_letter = state
+		self.let = self.handel_letter(letter)
 
 		pos_cur = self.pos_cur
-		text    = self.RenameWidget.LineEditor.AutoComplete_line_edit.text()
-		new_cur = 0
-		newText = ""
+		text = self.RenameWidget.LineEditor.AutoComplete_line_edit.text()
+		new_cur = pos_cur  # Set the initial position of the cursor
 
-		print(letter, state)
+		if text:  # If there is text in the field
+			if self.let_cod == "X":
+				self.X = self.let
+				self.update_pos_X_Y_num_let(side="Y", len_X=len(self.let) if state else -dift)
 
-		if state:
-			if text:
-				if self.let_cod == "Y":
-					self.Y = letter
-					if pos_cur >= self.pos_Y:
-						new_cur = pos_cur + len(letter)
-					else:
-						new_cur = self.pos_cur
-				elif self.let_cod  == "X":
-					self.X = letter
-					if pos_cur >= self.pos_X:
-						new_cur = pos_cur + len(letter)
-			else:
-				if self.let_cod == "Y":
-					self.Y = letter
-					new_cur = cur_pos
-				elif self.let_cod  == "X":
-					self.X = letter
-					new_cur = self.pos_cur
+				if pos_cur > self.pos_X:
+					new_cur = pos_cur + (len(self.X) if state else -dift)
 
-			newText = self.prefix + self.left + self.X + self.mid + self.Y + self.right + self.prefix
+			elif self.let_cod == "Y":
+				self.Y = self.let
+				if pos_cur > self.pos_Y:
+					new_cur = pos_cur + (len(self.Y) if state else -dift)
 
-		else:
+			new_text = self.get_new_text()
 
-			if text:
-				if self.let_cod == "Y":
+		else:  # If the field is empty, update only the X or Y values
+			if self.let_cod == "X":
+				self.X = self.let
+			elif self.let_cod == "Y":
+				self.Y = self.let
 
-					if pos_cur > self.end_pos_Y:
-						new_cur = pos_cur - len(self.Y)
-					else:
-						new_cur = self.pos_cur
+			new_text = ""
 
-					self.Y = ""
-
-				elif self.let_cod == "X":
-
-					if pos_cur > self.pos_X:
-						new_cur = pos_cur - len(self.X)
-
-					self.X = ""
-			else:
-				new_cur = self.pos_cur
-				if self.let_cod == "Y":
-					self.Y = ""
-
-				elif self.let_cod == "X":
-					self.X = ""
-
-			newText = ""
-
-		self.mode_letter = state
+		# Updating text and interface
 		self.info = f"Letter Mode: {'checked' if state else 'unchecked'}: '{self.let}'"
-		self.update_ui_elements(newText, new_cur)
-
-
+		self.update_ui_elements(new_text, new_cur)
 
 	def on_click_number_mode_button(self, state):
 		self.NumberWidget.set_state_from_number_mode(state)
 		self.state_number(state)
 
 	def state_number(self, state):
-
-		dift             = len(self.num)
+		dift = len(self.num)  # Difference in the length of numerical values
 
 		self.mode_number = state
-		self.num         = self.handle_number()
-		self.end_pos_num = self.pos_num + dift
+		self.num = self.handle_number()
 
 		pos_cur = self.pos_cur
-		text    = self.RenameWidget.LineEditor.AutoComplete_line_edit.text()
-		new_cur = 0
-		newText = ""
+		text = self.RenameWidget.LineEditor.AutoComplete_line_edit.text()
+		new_cur = pos_cur  # Set the initial position of the cursor
 
-		if state:
-			if text:
-				if self.num_cod == "X":
-					self.X = self.num
+		if text:  # If there is text in the field
+			if self.num_cod == "X":
+				self.X = self.num
+				self.update_pos_X_Y_num_let(side="Y", len_X=len(self.num) if state else -dift)
 
-					if pos_cur >= self.pos_X:  # [X]>|
-						new_cur = pos_cur + len(self.X)
-					else:
-						new_cur = pos_cur
+				if pos_cur > self.pos_X:
+					new_cur = pos_cur + (len(self.X) if state else -dift)
 
-					self.update_pos_X_Y_num_let(side="Y", len_X=len(self.num))
+			elif self.num_cod == "Y":
+				self.Y = self.num
+				if pos_cur > self.pos_Y:
+					new_cur = pos_cur + (len(self.Y) if state else -dift)
 
-				elif self.num_cod == "Y":
-					self.Y = self.num
+			new_text = self.get_new_text()
 
-					if pos_cur >= self.pos_Y:  # [Y]>|
-						new_cur = pos_cur + len(self.Y)
+		else:  # If the field is empty, update only the X or Y values
+			if self.num_cod == "X":
+				self.X = self.num
+			elif self.num_cod == "Y":
+				self.Y = self.num
+
+			new_text = ""
+
+		# Updating text and interface
+		self.info = f"Numeric Mode: {'checked' if state else 'unchecked'}: '{self.num}'"
+		self.update_ui_elements(new_text, new_cur)
+
+	def update_position_number(self, value):
+
+		value_slider         = self.NumberWidget.pos_num_slider.value()
+
+		self.pos_num         = value
+		print(f"Update position number {value}, {value_slider}={value}")
+		pos_cur              = self.pos_cur
+
+		dift = value - value_slider
+
+
+		if value_slider != value:
+
+
+			# if dift > 0:
+			# 	print(f"go ahead : {dift}")
+			# 	text = self.prefix + self.left + self.mid + self.right + self.suffix
+			#
+			# 	left = text[len(self.prefix): value]
+			# 	right = text[value: len(text) - len(self.suffix)]
+			# 	print(f" [{left}] [{right}]")
+			#
+			#
+			# elif dift < 0:
+			# 	print(f"go back : {dift}")
+
+
+			self.info = (f"Update position number {value}, {value_slider}!={value}")
+			if self.pos_num <= self.pos_let:
+				if self.pos_num == self.pos_let:
+					self.switch = 1
+					print(f"switch:[{self.switch}]")
+
+
 				else:
+					self.switch = 0
+					print(f"switch:[{self.switch}]")
 
-					new_cur = cur_pos
 
-				newText = self.get_new_text()
+				text = self.prefix + self.left + self.mid
+				self.left  =  text[ len(self.prefix) : value ]
+				self.mid = text[value: self.pos_Y]
 
-			else:
-				if self.num_cod == "X":
-					self.X = self.num
 
-				elif self.num_cod == "Y":
+
+				self.X = self.num
+				self.Y = self.let
+				self.num_cod = "X"
+				self.let_cod = "Y"
+				self.pos_X = value
+				self.update_pos_X_Y_num_let(side="X")
+
+				self.text = self.get_new_text()
+
+				self.RenameWidget.LineEditor.AutoComplete_line_edit.setText(self.text)
+				self.RenameWidget.LineEditor.AutoComplete_line_edit.setCursorPosition(pos_cur)
+				self.NumberWidget.pos_num_slider.setValue(value)
+
+			elif self.pos_num > self.pos_let:
+				if self.switch == 1:
+
+					print(f"switch:[{self.switch}] swap!!!!")
+					self.X = self.let
 					self.Y = self.num
+					self.num_cod = "Y"
+					self.let_cod = "X"
+
+					self.text = self.get_new_text()
+					self.RenameWidget.LineEditor.AutoComplete_line_edit.setText(self.text)
+					self.RenameWidget.LineEditor.AutoComplete_line_edit.setCursorPosition(pos_cur)
+
+					self.switch = 0
 
 
+					self.NumberWidget.pos_num_slider.setValue(value-1)
+					self.NumberWidget.pos_num_spinbox.setValue(value-1)
 
-		else:
-			if text:
-				if self.num_cod == "X":
-					self.X = self.num
-					if pos_cur > self.pos_num:  # [X]>|
-						new_cur = pos_cur - dift
-					else:
-						new_cur = pos_cur
+				else:
+					text = self.prefix + self.left + self.mid + self.right + self.suffix
 
-					self.update_pos_X_Y_num_let(side="Y", len_X=-dift)
 
-				elif self.num_cod == "Y":
+					self.mid = text[self.pos_X : value ]
+					self.right = text[value: len(text) - len(self.suffix)]
+
+					self.X = self.let
 					self.Y = self.num
+					self.num_cod = "Y"
+					self.let_cod = "X"
+					self.pox_Y = value
+					self.update_pos_X_Y_num_let(side="Y")
 
-					if pos_cur >= self.pos_Y:  # [Y]>|
-						new_cur = pos_cur - dift
-			else:
-				if self.num_cod == "X":
-					self.X = self.num
+					self.text = self.get_new_text()
 
-				elif self.num_cod == "Y":
-					self.Y = self.num
+					self.RenameWidget.LineEditor.AutoComplete_line_edit.setText(self.text)
+					self.RenameWidget.LineEditor.AutoComplete_line_edit.setCursorPosition(pos_cur)
+
+					self.NumberWidget.pos_num_slider.setValue(value)
+
+
+
+			if self.num_cod == "XY":
+
+				text       = self.prefix + self.left + self.right + self.suffix
+				self.left  =  text[ len(self.prefix) : value ]
+				self.right = text[ value : len(text) - len(self.suffix) ]
+				self.pos_X = value
+
+				self.update_pos_num_let()
+
+				self.text = self.get_new_text()
+
+				self.RenameWidget.LineEditor.AutoComplete_line_edit.setText(self.text)
+				self.RenameWidget.LineEditor.AutoComplete_line_edit.setCursorPosition(pos_cur)
+			self.info_attribute()
+
+
+		print(self.pos_let, self.pos_Y)
+
+
+	def update_number(self, start_number, padding_number, number):
+		self.start_num    = start_number
+		self.padding_num  = padding_number
+		self.num          = number
+
+		text              = self.RenameWidget.LineEditor.AutoComplete_line_edit.text()
+		pos_cur           = self.pos_cur
+		new_cur           = pos_cur  # Set the initial position of the cursor
+		dift              = len(self.num) - len(self.X)
+
+		if text: # If there is text in the field
+			if self.num_cod == "X":
+				self.X = self.num
+				self.update_pos_X_Y_num_let(side="Y", len_X=len(self.num))
+				if pos_cur > self.pos_X:
+					new_cur = pos_cur + dift
+
+			elif self.num_cod == "Y":
+				self.Y = self.num
+				if pos_cur > self.pos_Y:
+					new_cur = pos_cur + dift
 
 			newText = self.get_new_text()
 
-		self.info = f"Numeric Mode: {'checked' if state else 'unchecked'}: '{self.num}'"
+		else:  # If the field is empty, update only the X or Y values
+			if self.num_cod == "X":
+				self.X = self.num
+			elif self.num_cod == "Y":
+				self.Y = self.num
+			newText = ""
+
+		self.info = (f'New number: {self.num}, start: {self.start_num}, padding: {self.padding_num}')
 		self.update_ui_elements(newText, new_cur)
 
 	def update_prefix(self, prefix):
@@ -431,59 +535,7 @@ class RenameGUI(QtWidgets.QWidget):
 		self.update_ui_elements(newText, new_cur)
 
 
-	def update_position_number(self, value):
 
-		value_slider         = self.NumberWidget.pos_num_slider.value()
-		self.NumberWidget.pos_num_slider.setValue(value)
-		self.pos_num         = value
-		print(f"Update position number {value}, {value_slider}={value}")
-		pos_cur              = self.pos_cur
-
-		if value_slider != value:
-			self.info = (f"Update position number {value}, {value_slider}!={value}")
-			if self.num_cod == "XY":
-
-				text       = self.prefix + self.left + self.right + self.suffix
-				self.left  =  text[ len(self.prefix) : value ]
-				self.right = text[ value : len(text) - len(self.suffix) ]
-				self.pos_X = value
-
-				self.update_pos_num_let()
-
-				self.text = self.prefix + self.left + self.X + self.mid + self.Y + self.right + self.suffix
-
-				self.RenameWidget.LineEditor.AutoComplete_line_edit.setText(self.text)
-				self.RenameWidget.LineEditor.AutoComplete_line_edit.setCursorPosition(pos_cur)
-			self.info_attribute()
-
-		print(self.pos_let, self.pos_Y)
-
-
-	def update_number(self, start_number, padding_number, number):
-		self.start_num           = start_number
-		self.padding_num         = padding_number
-		self.num                 = number
-		self.end_pos_num         = self.pos_num + len(self.num)
-		self.X, self.mid, self.Y = self.handle_X_mid_Y()
-		text                     = self.RenameWidget.LineEditor.AutoComplete_line_edit.text()
-
-		self.update_range()
-		self.update_pos_num_let()
-
-		if text:
-			if self.pos_cur <= self.pos_num:
-				new_cur = self.pos_cur
-			else:
-				new_cur = self.pos_cur + self.padding_num
-
-			newText = self.prefix + self.left + self.X + self.mid + self.Y + self.right + self.suffix
-
-		else:
-			newText = ""
-			new_cur = self.pos_cur
-
-		self.info = (f'New number: {self.num}, start: {self.start_num}, padding: {self.padding_num}')
-		self.update_ui_elements(newText, new_cur)
 
 
 	def update_range(self):
@@ -495,97 +547,66 @@ class RenameGUI(QtWidgets.QWidget):
 		right = self.text[self.end_pos_Y:len(self.text) - len(self.suffix)]
 		return left, right
 
-	def handle_X_mid_Y(self):
-
-		# if self.num and self.let:
-		# 	if self.pos_num < self.pos_let:
-		# 		X, self.pos_X, self.end_pos_X, self.num_cod = self.num, self.pos_num, self.end_pos_num, "X"
-		# 		Y, self.pos_Y, self.end_pos_Y, self.let_cod = self.let, self.pos_let, self.end_pos_let, "Y"
-		# 	elif self.pos_num > self.pos_let:
-		# 		X, self.pos_X, self.end_pos_X, self.let_cod = self.let, self.pos_let, self.end_pos_let, "X"
-		# 		Y, self.pos_Y, self.end_pos_Y, self.num_cod = self.num, self.pos_num, self.end_pos_num, "Y"
-		#
-		# 	if end_pos_X == pos_Y:
-		# 		mid = ""
-		# 	else:
-		# 		mid = self.text[end_pos_X:pos_Y]
-		# # else:
-		# 	if self.num:
-		# 		X, self.pos_X, self.end_pos_X, self.num_cod = self.num, self.pos_num, self.end_pos_num, "XY"
-		# 		self.let_cod = "None let"
-		# 		self.pos_let = self.end_pos_X
-		# 		self.end_pos_let = self.end_pos_X
-		# 	elif self.let:
-		# 		X, self.pos_X, self.end_pos_X, self.let_cod = self.let, self.pos_let, self.end_pos_let, "XY"
-		# 		self.num_cod = "None num"
-		# 		self.pos_num = self.end_pos_X
-		# 		self.end_pos_num = self.end_pos_X
-		# 	else:
-		# 		X, self.pos_X, self.end_pos_X, self.num_cod = self.num, self.pos_num, self.end_pos_num, "None num"
-		# 		self.let_cod = "None let"
-		#
-		# 	Y, self.pos_Y, self.end_pos_Y = "", self.end_pos_X, self.end_pos_X
-		# 	mid = ""
-
-			#============================================
-		pos_dift = 0
-
-		if self.pos_num < self.pos_let:
-
-			X, self.num_cod = self.num, "X"
-			self.pos_X      = self.pos_num
-			self.end_pos_X  = self.pos_X + len(X)
-
-			Y, self.let_cod = self.let, "Y"
-			self.pos_Y      = self.pos_let + len(X)
-			self.end_pos_Y  = self.pos_Y + len(Y)
-
-		elif self.pos_num > self.pos_let:
-
-			X, self.let_cod = self.let,"X"
-			self.pos_X      = self.pos_let
-			self.end_pos_X  = self.pos_X + len(X)
-
-			Y, self.num_cod = self.num, "Y"
-			self.pos_Y      = self.pos_num + len(X)
-			self.end_pos_Y  = self.pos_Y + len(Y)
-
-		elif self.pos_num == self.pos_let:
-			if not self.num_cod:
-				print("!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-				X, self.num_cod = self.num, "X"
-				self.pos_X = self.pos_num
-				self.end_pos_X = self.pos_X + len(X)
-
-				Y, self.let_cod = self.let, "Y"
-				self.pos_Y = self.pos_let + len(X)
-				self.end_pos_Y = self.pos_Y + len(Y)
-
-			elif self.num_cod == "X":
-
-				X, self.num_cod = self.num, "X"
-				self.pos_X = self.pos_num
-				self.end_pos_X = self.pos_X + len(X)
-
-				Y, self.let_cod = self.let, "Y"
-				self.pos_Y = self.pos_let + len(X)
-				self.end_pos_Y = self.pos_Y + len(Y)
-
-			elif self.let_cod == "X":
-
-				X, self.let_cod = self.let, "X"
-				self.pos_X = self.pos_let
-				self.end_pos_X = self.pos_X + len(X)
-
-				Y, self.num_cod = self.num, "Y"
-				self.pos_Y = self.pos_num + len(X)
-				self.end_pos_Y = self.pos_Y + len(Y)
-
-
-		mid = self.text[self.end_pos_X:self.pos_Y]
-		print(self.let_cod)
-
-		return X, Y, mid
+	# def handle_X_mid_Y(self):
+	#
+	# 	pos_dift = 0
+	#
+	# 	if self.pos_num < self.pos_let:
+	#
+	# 		X, self.num_cod = self.num, "X"
+	# 		self.pos_X      = self.pos_num
+	# 		self.end_pos_X  = self.pos_X + len(X)
+	#
+	# 		Y, self.let_cod = self.let, "Y"
+	# 		self.pos_Y      = self.pos_let + len(X)
+	# 		self.end_pos_Y  = self.pos_Y + len(Y)
+	#
+	# 	elif self.pos_num > self.pos_let:
+	#
+	# 		X, self.let_cod = self.let,"X"
+	# 		self.pos_X      = self.pos_let
+	# 		self.end_pos_X  = self.pos_X + len(X)
+	#
+	# 		Y, self.num_cod = self.num, "Y"
+	# 		self.pos_Y      = self.pos_num + len(X)
+	# 		self.end_pos_Y  = self.pos_Y + len(Y)
+	#
+	# 	elif self.pos_num == self.pos_let:
+	# 		if not self.num_cod:
+	# 			print("!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+	# 			X, self.num_cod = self.num, "X"
+	# 			self.pos_X = self.pos_num
+	# 			self.end_pos_X = self.pos_X + len(X)
+	#
+	# 			Y, self.let_cod = self.let, "Y"
+	# 			self.pos_Y = self.pos_let + len(X)
+	# 			self.end_pos_Y = self.pos_Y + len(Y)
+	#
+	# 		elif self.num_cod == "X":
+	#
+	# 			X, self.num_cod = self.num, "X"
+	# 			self.pos_X = self.pos_num
+	# 			self.end_pos_X = self.pos_X + len(X)
+	#
+	# 			Y, self.let_cod = self.let, "Y"
+	# 			self.pos_Y = self.pos_let + len(X)
+	# 			self.end_pos_Y = self.pos_Y + len(Y)
+	#
+	# 		elif self.let_cod == "X":
+	#
+	# 			X, self.let_cod = self.let, "X"
+	# 			self.pos_X = self.pos_let
+	# 			self.end_pos_X = self.pos_X + len(X)
+	#
+	# 			Y, self.num_cod = self.num, "Y"
+	# 			self.pos_Y = self.pos_num + len(X)
+	# 			self.end_pos_Y = self.pos_Y + len(Y)
+	#
+	#
+	# 	mid = self.text[self.end_pos_X:self.pos_Y]
+	# 	print(self.let_cod)
+	#
+	# 	return X, Y, mid
 
 	def handle_number(self):
 		"""Procesing number"""
@@ -593,7 +614,7 @@ class RenameGUI(QtWidgets.QWidget):
 			number = ("0" * (self.padding_num - len(str(self.start_num)))) + str(self.start_num)
 		else:
 			number = ""
-			self.update_pos_num_let()
+
 		return number
 
 	def handle_prefix_suffix(self):
@@ -602,10 +623,11 @@ class RenameGUI(QtWidgets.QWidget):
 
 			prefix = self.SuffixPrefixWidget.prefix_Editline.AutoComplete_line_edit.text()
 			suffix = self.SuffixPrefixWidget.suffix_Editline.AutoComplete_line_edit.text()
-			print(prefix,suffix)
+
 		else:
 			prefix = ""
 			suffix = ""
+
 		return prefix, suffix
 
 	def update_pos_num_let(self):
@@ -847,37 +869,7 @@ class RenameGUI(QtWidgets.QWidget):
 
 		return newText, new_cur
 
-	def reset_text(self, text):
 
-		new_cur = 0
-		newText = ""
-
-		if len(text) == len(self.prefix) + len(self.X) + len(self.Y) + len(self.suffix) or len(text) == 0:
-			newText = ""
-			self.maxR = 0
-			self.left = ""
-			self.right = ""
-			self.mid = ""
-			self.minR = 0
-			self.update_pos_X_Y_num_let(reset=True)
-			self.info = f" ____REMOVE____ --> [prefix][number][letter][suffix]"
-			self.RenameWidget.LineEditor.AutoComplete_line_edit.setClearButtonEnabled(False)
-
-		else:
-			self.maxR   = len(text) + len(self.prefix)
-			pos_X       = len(text) + len(self.prefix)
-			new_cur     = pos_X
-			self.left   = text
-			newText     = self.get_new_text()
-
-			# self.update_pos_num_let()
-
-			self.update_pos_X_Y_num_let(items_dift=pos_X, side="X", len_X=0)
-
-			self.info = " ___ADD___ --> [prefix][number][letter][suffix]"
-			self.RenameWidget.LineEditor.AutoComplete_line_edit.setClearButtonEnabled(True)
-
-		return newText, new_cur
 
 	def get_new_text(self):
 		text = self.prefix + self.left + self.X + self.mid + self.Y + self.right + self.suffix
@@ -897,23 +889,53 @@ class RenameGUI(QtWidgets.QWidget):
 
 				newText, new_cur = self.handle_deletion(text, items_dift, pos_cur)
 		else:
-			newText, new_cur = self.reset_text(text)
+			newText, new_cur = self.reset_text(text, items_dift)
 
 		self.update_ui_elements(newText, new_cur)
 
+	def reset_text(self, text, items_dift):
+
+
+		if items_dift > 0:
+
+			self.left   = text
+			self.maxR   = len(text) + len(self.prefix)
+			pos_X       = len(text) + len(self.prefix)
+			new_cur     = len(text) + len(self.prefix)
+			newText     = self.get_new_text()
+
+			self.update_pos_X_Y_num_let(items_dift=pos_X, side="X", len_X=0)
+			self.RenameWidget.LineEditor.AutoComplete_line_edit.setClearButtonEnabled(True)
+			self.info = " ___ADD___ --> [prefix][number][letter][suffix]"
+		else:
+
+			new_cur    = 0
+			newText    = ""
+			self.left  = ""
+			self.right = ""
+			self.mid   = ""
+			self.minR  = 0
+			self.maxR  = 0
+
+			self.update_pos_X_Y_num_let(reset=True)
+			self.RenameWidget.LineEditor.AutoComplete_line_edit.setClearButtonEnabled(False)
+			self.info = f" ____REMOVE____ --> [prefix][number][letter][suffix]"
+
+		return newText, new_cur
+
 	def update_ui_elements(self, newText, new_cur):
+
 		self.text = newText
 		self.RenameWidget.LineEditor.AutoComplete_line_edit.setText(newText)
 		self.RenameWidget.LineEditor.AutoComplete_line_edit.setCursorPosition(new_cur)
 
 		self.NumberWidget.pos_num_slider.setRange(self.minR, self.maxR)
 		self.NumberWidget.pos_num_spinbox.setRange(self.minR, self.maxR)
-		self.NumberWidget.pos_num_slider.setValue(self.pos_num)
-		print("____________________")
-		self.NumberWidget.pos_num_spinbox.setValue(self.pos_num)
-		print("____________________")
 		self.LetterWidget.pos_let_slider.setRange(self.minR, self.maxR)
 		self.LetterWidget.pos_let_spinbox.setRange(self.minR, self.maxR)
+
+		self.NumberWidget.pos_num_slider.setValue(self.pos_num)
+		self.NumberWidget.pos_num_spinbox.setValue(self.pos_num)
 		self.LetterWidget.pos_let_slider.setValue(self.pos_let)
 		self.LetterWidget.pos_let_spinbox.setValue(self.pos_let)
 
