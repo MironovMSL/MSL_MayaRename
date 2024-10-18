@@ -158,38 +158,32 @@ class RenameGUI(QtWidgets.QWidget):
 		# blocks text------------------------------------
 		self.text        = ""  # old text for comperisen [last Text]
 		self.prefix, self.suffix  = self.handle_prefix_suffix()
+		self.left, self.right     = self.handle_left_right()
+		self.mid         = ""
 
-		self.X = self.num
-		self.pos_X = self.pos_num
-		self.end_pos_X = self.pos_X + len(self.X)
+		self.X           = self.num
+		self.pos_X       = self.pos_num
+		self.end_pos_X   = self.pos_X + len(self.X)
+		self.Y           = self.let
+		self.pos_Y       = self.pos_let + len(self.X)
+		self.end_pos_Y   = self.pos_Y + len(self.Y)
 
-		self.mid = ""
-
-		self.Y = self.let
-		self.pos_Y = self.pos_let + len(self.X)
-		self.end_pos_Y = self.pos_Y + len(self.Y)
-
-		self.left ,self.right     = self.handle_left_right()
-
-
-		self.switch = 1
+		self.switch      = 1
 		#------------------------------
-
-		self.info = "Initialization attribute"
-
-	def get_end_pos(self, pos, name):
-		end_pos = pos + len(name)
-		return end_pos
+		self.info        = "Initialization attribute"
 
 	def info_attribute(self):
-		print("--------------------------------------------")
-		print(f"position:{self.num_cod}[{self.pos_num}]-[{self.num}] Number")
-		print(f"position:{self.let_cod}[{self.pos_let}]-[{self.let}] Letter")
-		print(f"position:X[{self.pos_X}:{self.end_pos_X}]-[{self.X}],")
-		print(f"position:Y[{self.pos_Y}:{self.end_pos_Y},{len(self.X)}]-[{self.Y}],")
-		print(f"position: [{self.pos_cur}] Cursor")
-		print(f'[{self.prefix}][{self.left}][{self.X}][{self.mid}][{self.Y}][{self.right}][{self.suffix}]: {self.info}')
-		print("--------------------------------------------")
+		state = True
+
+		if state:
+			print("--------------------------------------------")
+			print(f"position:{self.num_cod}[{self.pos_num}]-[{self.num}] Number")
+			print(f"position:{self.let_cod}[{self.pos_let}]-[{self.let}] Letter")
+			print(f"position:X[{self.pos_X}:{self.end_pos_X}]-[{self.X}],")
+			print(f"position:Y[{self.pos_Y}:{self.end_pos_Y},{len(self.X)}]-[{self.Y}],")
+			print(f"position: [{self.pos_cur}] Cursor")
+			print(f'[{self.prefix}][{self.left}][{self.X}][{self.mid}][{self.Y}][{self.right}][{self.suffix}]: {self.info}')
+			print("--------------------------------------------")
 
 	def drop_text(self, text, pos_cur):
 		self.pos_cur = pos_cur
@@ -583,6 +577,10 @@ class RenameGUI(QtWidgets.QWidget):
 			self.end_pos_Y   = self.get_end_pos(self.pos_Y, self.Y)
 		#______________________________________________________
 
+	def get_end_pos(self, pos, name):
+		end_pos = pos + len(name)
+		return end_pos
+
 	def update_pos_X_Y_num_let(self, items_dift = 0, side="X", len_X = 0, reset = False):
 
 		if reset:
@@ -618,6 +616,7 @@ class RenameGUI(QtWidgets.QWidget):
 					self.pos_num = self.pos_num + items_dift
 				else:
 					self.pos_let = self.pos_let + items_dift
+
 
 
 	def handle_addition(self, text, items_dift, pos_cur):
