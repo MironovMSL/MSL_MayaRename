@@ -69,7 +69,7 @@ class CustomQSpinbox(QtWidgets.QSpinBox):
 
 
 		# Check tooltip----------------------
-		if self.tooltip == "Starting number":
+		if self.tooltip == "Position of letters":
 			self.name = self.tooltip
 			self.tooltip = f"{self.tooltip} : {start_Value}"
 
@@ -99,7 +99,7 @@ class CustomQSpinbox(QtWidgets.QSpinBox):
 		self.valueChanged.connect(self.on_changed_spinbox_value)
 
 	def on_changed_spinbox_value(self,value):
-		if self.name == "Starting number":
+		if self.name == "Position of letters":
 			self.tooltip = f"{self.name} : {value}"
 			# self.resources.config.set_variable("startup", "start_number", value)
 		elif self.name == "Padding number":

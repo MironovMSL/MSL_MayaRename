@@ -16,7 +16,7 @@ root_ = os.path.dirname(__file__)
 class NumberWidget(QtWidgets.QWidget):
 
 	new_number_Signal = QtCore.Signal(int, int, str)
-	new_position_Signal = QtCore.Signal(int)
+	new_position_Signal = QtCore.Signal(int, str)
 
 	def __init__(self, parent=None):
 		super(NumberWidget, self).__init__(parent)
@@ -91,7 +91,7 @@ class NumberWidget(QtWidgets.QWidget):
 	def on_spinBox_value(self, value):
 		value_slider = self.pos_num_slider.value()
 		# self.pos_num_slider.setValue(value)
-		self.new_position_Signal.emit(value)
+		self.new_position_Signal.emit(value, "number")
 
 	def update_valueChanged_number(self):
 

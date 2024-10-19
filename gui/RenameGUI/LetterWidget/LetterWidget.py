@@ -17,7 +17,7 @@ root_ = os.path.dirname(__file__)
 class LetterWidget(QtWidgets.QWidget):
 
 	itEditLetter = QtCore.Signal(str, bool)
-	itletPosition = QtCore.Signal(int)
+	itletPosition = QtCore.Signal(int, str)
 
 	def __init__(self, parent=None):
 		super(LetterWidget, self).__init__(parent)
@@ -96,9 +96,9 @@ class LetterWidget(QtWidgets.QWidget):
 
 	def on_spinBox_value(self, value):
 		value_slider = self.pos_let_slider.value()
-		self.pos_let_slider.setValue(value)
-		self.itletPosition.emit(value)
-		print(value)
+		# self.pos_let_slider.setValue(value)
+		self.itletPosition.emit(value, "letter")
+
 
 	def edit_letter(self, letter):
 
