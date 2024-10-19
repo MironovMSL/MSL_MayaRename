@@ -728,43 +728,38 @@ class RenameGUI(QtWidgets.QWidget):
 		right_end  = y_end + len(self.right)
 		suffix_end = right_end + len(self.suffix)
 
-		if 0 <= pos_cur < prefix_end:
+		if pos_cur > len(self.text):
+			pos_cur = len(self.text)
 
+		if 0 <= pos_cur < prefix_end:
 			info_part  = (f"[PREFIX] --> NO Change [{self.prefix}]: {list(range(0, prefix_end))}")
 			items_dift = 0
 
 		elif prefix_end <= pos_cur <= left_end:
-
 			self.update_pos_X_Y_num_let(items_dift=items_dift, side="X")
 			self.left = text[len(self.prefix): left_end + items_dift]
 			info_part = (f"[LEFT] Change [{self.left}]: {list(range(prefix_end, left_end + items_dift))}")
 
 		elif left_end < pos_cur < x_end:
-
 			info_part  = (f"[X] --> NO Change [{self.X}]: {list(range(left_end, x_end))}")
 			items_dift = 0
 
 		elif x_end <= pos_cur <= mid_end:
-
 			self.update_pos_X_Y_num_let(items_dift=items_dift, side="Y")
 			self.mid = text[ x_end : mid_end + items_dift ]
 			info_part = (f"[MID] Change [{self.mid}]: {list(range(x_end, mid_end + items_dift))}")
 
 		elif mid_end < pos_cur < y_end:
-
 			info_part = (f"[Y] --> NO Change [{self.Y}]: {list(range(mid_end, y_end))}")
 			items_dift = 0
 
 		elif y_end <= pos_cur <= right_end:
-
 			self.right = text[y_end: right_end + items_dift]
 			info_part = (f"[RIGHT] Change [{self.right}]: {list(range(y_end, right_end + items_dift))}")
 
 		elif right_end < pos_cur <= suffix_end:
-
 			info_part = (f"[SUFFIX] --> NO Change [{self.suffix}]: {list(range(right_end, suffix_end))}")
 			items_dift = 0
-
 
 		new_cur   = self.pos_cur + items_dift
 		newText   = self.get_new_text()
@@ -940,4 +935,31 @@ class RenameGUI(QtWidgets.QWidget):
 
 	def check_position_cursor(self, oldPos, newPos):
 		self.pos_cur = newPos
-		# print(f"pos_cursor: oldPos[{oldPos}]:[{newPos}] newPos")
+		pos_cur      = self.pos_cur
+		dift         = newPos - oldPos
+		prefix_end   = len(self.prefix)
+		left_end     = prefix_end + len(self.left)
+		x_end        = left_end + len(self.X)
+		mid_end      = x_end + len(self.mid)
+		y_end        = mid_end + len(self.Y)
+		right_end    = y_end + len(self.right)
+		suffix_end   = right_end + len(self.suffix)
+
+		if 0 <= pos_cur < prefix_end:
+			self.RenameWidget.LineEditor.AutoComplete_line_edit.setCursorPosition(prefix_end)
+		elif left_end < pos_cur < x_end:
+			if dift < 0:
+				self.RenameWidget.LineEditor.AutoComplete_line_edit.setCursorPosition(left_end)
+			if dift > 0:
+				self.RenameWidget.LineEditor.AutoComplete_line_edit.setCursorPosition(x_end)
+		elif mid_end < pos_cur < y_end:
+			if dift < 0:
+				self.RenameWidget.LineEditor.AutoComplete_line_edit.setCursorPosition(mid_end)
+			if dift > 0:
+				self.RenameWidget.LineEditor.AutoComplete_line_edit.setCursorPosition(y_end)
+		elif right_end < pos_cur <= suffix_end:
+			self.RenameWidget.LineEditor.AutoComplete_line_edit.setCursorPosition(right_end)
+
+
+
+
