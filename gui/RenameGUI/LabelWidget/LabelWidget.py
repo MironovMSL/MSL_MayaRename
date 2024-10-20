@@ -7,6 +7,7 @@ from MSL_MayaRename.core.resources import Resources
 from MSL_MayaRename.core.config import Configurator
 from MSL_MayaRename.gui.RenameGUI.LabelWidget.NumberModeButton import NumberModeButton
 from MSL_MayaRename.gui.RenameGUI.LabelWidget.PushButtonModeBTN import PushButtonModeBTN
+from MSL_MayaRename.gui.RenameGUI.LabelWidget.CustomeLabelWidget import CustomeLabelWidget
 import os
 import maya.cmds as cmds
 
@@ -56,7 +57,6 @@ class LabelWidget(QtWidgets.QWidget):
 
 
         self.FixedHeight = 25
-        self.name_label_empty = '<font color="red">selected</font> and <font color="blue">object</font>.'
 
         self.setObjectName("LabelWidget")
         self.setFixedHeight(self.FixedHeight)
@@ -73,8 +73,7 @@ class LabelWidget(QtWidgets.QWidget):
         self.list_selected_btn.setFixedWidth(25)
 
         # label
-        self.label_name = QtWidgets.QLabel(self.name_label_empty)
-        self.label_name.setAlignment(QtCore.Qt.AlignCenter)
+        self.label_name = CustomeLabelWidget()
 
         # namber mode
         self.number_mode = NumberModeButton("",25,25,)
@@ -94,3 +93,6 @@ class LabelWidget(QtWidgets.QWidget):
 
     def create_connections(self):
         pass
+
+
+

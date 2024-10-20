@@ -254,3 +254,6 @@ class CustomCompleter(QtWidgets.QCompleter):
 	def splitPath(self, path):
 		PATH = str(path.split('_')[-1]).lstrip(' ') # get the last word after '_' [prefix_name_se] ---> [se]
 		return [PATH]
+
+	# TODO when text has more than cursor pos - need hide pop ui comleter
+	# TODO when copleter work need to add in text function. self.do_text() in RenameWidget.py

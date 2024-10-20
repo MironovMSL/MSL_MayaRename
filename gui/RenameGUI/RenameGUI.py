@@ -181,6 +181,7 @@ class RenameGUI(QtWidgets.QWidget):
 			print(f"position:X[{self.pos_X}:{self.end_pos_X}]-[{self.X}],")
 			print(f"position:Y[{self.pos_Y}:{self.end_pos_Y},{len(self.X)}]-[{self.Y}],")
 			print(f"position: [{self.pos_cur}] Cursor")
+			print(f"Range: [{self.minR}]:[{self.maxR}]")
 			print(f'[{self.prefix}][{self.left}][{self.X}][{self.mid}][{self.Y}][{self.right}][{self.suffix}]: {self.info}')
 			print("--------------------------------------------")
 
@@ -254,6 +255,7 @@ class RenameGUI(QtWidgets.QWidget):
 			new_text = ""
 
 		# Updating text and interface
+		self.update_range()
 		self.info = f"Letter Mode: {'checked' if state else 'unchecked'}: '{self.let}'"
 		self.update_ui_elements(new_text, new_cur)
 
@@ -366,7 +368,6 @@ class RenameGUI(QtWidgets.QWidget):
 			self.switch_X = -dift
 
 		if self.pos_num > self.pos_let:
-
 			text = self.prefix + self.left + self.mid
 			self.left = text[len(self.prefix): value]
 			self.mid = text[value: self.pos_Y]
@@ -412,6 +413,7 @@ class RenameGUI(QtWidgets.QWidget):
 		self.LetterWidget.pos_let_slider.setValue(value)
 
 		self.info_attribute()
+		self.set_label_rename_color()
 
 	def move_position_number(self, value):
 
@@ -504,6 +506,7 @@ class RenameGUI(QtWidgets.QWidget):
 		self.RenameWidget.LineEditor.AutoComplete_line_edit.setCursorPosition(pos_cur)
 		self.NumberWidget.pos_num_slider.setValue(value)
 
+		self.set_label_rename_color()
 		self.info_attribute()
 
 	def update_number(self, start_number, padding_number, number):
@@ -552,15 +555,15 @@ class RenameGUI(QtWidgets.QWidget):
 				new_text = self.get_new_text()
 				new_cur = self.pos_cur + dift
 				self.update_pos_X_Y_num_let(side="X", items_dift=dift)
+				self.update_range()
 				self.update_ui_elements(new_text, new_cur)
-
 
 			self.info = (f'New prefix: [{self.prefix}]')
 		else:
 			self.info = (f'Button mode "{self.mode_button}", Initialization prefix: [{prefix}]')
 
-		self.update_range()
 		self.info_attribute()
+		self.set_label_rename_color()
 
 	def update_suffix(self, suffix):
 		text                     = self.get_text()
@@ -580,6 +583,7 @@ class RenameGUI(QtWidgets.QWidget):
 
 
 		self.info_attribute()
+		self.set_label_rename_color()
 
 	def update_range(self):
 		self.maxR = len(self.prefix) + len(self.left) + len(self.mid) + len(self.right)
@@ -841,6 +845,7 @@ class RenameGUI(QtWidgets.QWidget):
 		self.LetterWidget.pos_let_spinbox.setValue(self.pos_let)
 
 		self.info_attribute()
+		self.set_label_rename_color()
 
 	def drop_text(self, text, pos_cur):
 		self.pos_cur = pos_cur
@@ -872,3 +877,6 @@ class RenameGUI(QtWidgets.QWidget):
 				self.RenameWidget.LineEditor.AutoComplete_line_edit.setCursorPosition(y_end)
 		elif right_end < pos_cur <= suffix_end:
 			self.RenameWidget.LineEditor.AutoComplete_line_edit.setCursorPosition(right_end)
+
+	def set_label_rename_color(self):
+		self.LabelWidget.label_name.set_rename_color(self.text, self.prefix, self.left, self.X, self.mid, self.Y, self.right, self.suffix)
