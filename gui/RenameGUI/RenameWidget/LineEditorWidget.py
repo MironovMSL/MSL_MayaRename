@@ -221,7 +221,6 @@ class AutoCompleteLineEdit(QtWidgets.QLineEdit):
 
 		event.source().setVisible(True)
 
-
 class CustomCompleter(QtWidgets.QCompleter):
 	def __init__(self, words, parent=None):
 		QtWidgets.QCompleter.__init__(self, parent)

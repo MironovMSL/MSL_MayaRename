@@ -320,94 +320,7 @@ class RenameGUI(QtWidgets.QWidget):
 		self.info = f"Button Mode: {'checked' if state else 'unchecked'}: [{self.prefix}]-[{self.suffix}]"
 		self.update_range()
 		self.update_ui_elements(new_text, new_cur)
-	# #----------------------------------------------check--------------
-	#
-	# def update_position(self, value, widget_type):
-	# 	value_slider = self._get_slider_value(widget_type)
-	# 	pos_cur = self.pos_cur
-	# 	dift = value - value_slider
-	# 	print(widget_type)
-	#
-	#
-	#
-	# 	if value_slider == value:
-	# 		print(f"Update position {widget_type} {value}, {value_slider}={value}")
-	# 		return
-	#
-	# 	self.info = f"Update position {widget_type} {value}, {value_slider}!={value}"
-	# 	self._update_switch(dift)
-	#
-	# 	if self.pos_num == self.pos_let:
-	# 		self._process_equal_positions(value, dift)
-	# 	elif (widget_type == "letter" and self.pos_num > self.pos_let) or \
-	# 			(widget_type == "number" and self.pos_num < self.pos_let):
-	# 		self._process_letter_greater(value)
-	# 	else:
-	# 		self._process_number_greater(value)
-	#
-	# 	self._update_ui(pos_cur, value, widget_type)
-	#
-	# def _get_slider_value(self, widget_type):
-	# 	return (self.LetterWidget.pos_let_slider.value() if widget_type == "letter"
-	# 	        else self.NumberWidget.pos_num_slider.value())
-	#
-	# def _update_switch(self, dift):
-	# 	self.switch = dift
-	#
-	# def _process_equal_positions(self, value, dift):
-	# 	text = self.prefix + self.left + self.mid + self.right + self.suffix
-	# 	self.mid = ""
-	# 	self.left = text[len(self.prefix):value]
-	# 	self.right = text[value:len(text) - len(self.suffix)]
-	#
-	# 	if dift < 0:
-	# 		self.pos_Y = value + len(self.X)
-	# 		self.update_pos_X_Y_num_let(side="Y")
-	# 	else:
-	# 		self.pos_X = value
-	# 		self.update_pos_X_Y_num_let(side="X")
-	#
-	# 	self.text = self.get_new_text()
-	#
-	# def _process_letter_greater(self, value):
-	# 	text = self.prefix + self.left + self.mid
-	# 	self.left = text[len(self.prefix):value]
-	# 	self.mid = text[value:self.pos_Y]
-	# 	self.pos_X = value
-	#
-	# 	if self.switch < 0:
-	# 		self._switch_roles("num", "let", "Y", "X")
-	# 	self.update_pos_X_Y_num_let(side="Y")
-	# 	self.text = self.get_new_text()
-	#
-	# def _process_number_greater(self, value):
-	# 	text = self.prefix + self.left + self.mid + self.right + self.suffix
-	# 	self.mid = text[self.pos_X:value]
-	# 	self.right = text[value:len(text) - len(self.suffix)]
-	# 	self.pos_Y = value + len(self.X)
-	#
-	# 	if self.switch > 0:
-	# 		self._switch_roles("let", "num", "X", "Y")
-	# 	self.update_pos_X_Y_num_let(side="Y")
-	# 	self.text = self.get_new_text()
-	#
-	# def _switch_roles(self, new_X, new_Y, new_num_cod, new_let_cod):
-	# 	self.X, self.Y = getattr(self, new_X), getattr(self, new_Y)
-	# 	self.num_cod, self.let_cod = new_num_cod, new_let_cod
-	# 	self.switch = 0
-	#
-	# def _update_ui(self, pos_cur, value, widget_type):
-	# 	self.RenameWidget.LineEditor.AutoComplete_line_edit.setText(self.text)
-	# 	self.RenameWidget.LineEditor.AutoComplete_line_edit.setCursorPosition(pos_cur)
-	#
-	# 	if widget_type == "letter":
-	# 		self.LetterWidget.pos_let_slider.setValue(value)
-	# 	else:
-	# 		self.NumberWidget.pos_num_slider.setValue(value)
-	#
-	# 	self.info_attribute()
-	# #
-	# # ----------------------------------------------check--------------
+
 	def move_position_letter(self, value):
 
 		value_slider = self.LetterWidget.pos_let_slider.value()
@@ -544,7 +457,7 @@ class RenameGUI(QtWidgets.QWidget):
 			self.switch_X = dift
 			self.switch_Y = -dift
 
-		if self.pos_num < self.pos_let:
+		elif self.pos_num < self.pos_let:
 
 			text = self.prefix + self.left + self.mid
 			self.left = text[len(self.prefix): value]
@@ -959,7 +872,3 @@ class RenameGUI(QtWidgets.QWidget):
 				self.RenameWidget.LineEditor.AutoComplete_line_edit.setCursorPosition(y_end)
 		elif right_end < pos_cur <= suffix_end:
 			self.RenameWidget.LineEditor.AutoComplete_line_edit.setCursorPosition(right_end)
-
-
-
-
