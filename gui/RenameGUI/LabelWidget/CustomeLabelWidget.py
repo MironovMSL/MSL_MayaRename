@@ -11,53 +11,15 @@ import os
 
 class CustomeLabelWidget(QtWidgets.QLabel):
 
-	Style_btn = """
-	        QPushButton {
-	            background-color: rgb(50, 50, 50); /* Темно-серый фон */
-	            border-style: outset;
-	            border-width: 2px;
-	            border-radius: 8px;
-	            border-color: rgb(30, 30, 30); /* Темнее границы */
-	            font: bold 14px; /* Жирный шрифт */
-	            font-family: Arial; /* Шрифт Arial */
-	            color: rgb(200, 200, 200); /* Светло-серый текст */
-	            padding: 0px; /* Внутренние отступы */
-	        }
-
-	        QPushButton:hover {
-	            border-color: rgb(70, 70, 70); /* Светло-серая граница при наведении */
-	            background-color: rgb(80, 80, 80); /* Более светлый серый при наведении */
-	        }
-
-	        QPushButton:pressed {
-	            background-color: rgb(30, 30, 30); /* Почти черный при нажатии */
-	            border-style: inset; /* Впадение при нажатии */
-	            color: rgb(220, 220, 220); /* Почти белый текст при нажатии */
-	        }
-
-	        QPushButton:checked {
-	            background-color: rgb(80, 120, 80); /* Зеленоватый оттенок при нажатии (состояние check) */
-	            border-color: rgb(60, 90, 60); /* Темно-зеленая граница при нажатии */
-	            color: rgb(240, 240, 240); /* Белый текст */
-	        }
-
-	        QPushButton:checked:hover {
-	            background-color: rgb(100, 140, 100); /* Светлее при наведении в состоянии checked */
-	            border-color: rgb(80, 110, 80); /* Светлее при наведении в состоянии checked */
-	        }
-	    """
-
 	def __init__(self,parent=None):
 		super(CustomeLabelWidget, self).__init__(parent)
 		# Attribute---------------------------
-		self.tooltip  = f"Insert selected name. Display change name"
-		self.color_rename = "change name"
+		self.tooltip  = f"Display selected name and display change name"
+		self.color_rename = ""
 		self.selected_object = "selected object"
-		self.name = '<font color="red">selected</font> and <font color="blue">object</font>.'
 		# Setting---------------------------
-		self.setText(self.color_rename)
+		self.setText(self.selected_object)
 		self.setToolTip(self.tooltip)
-		self.setStyleSheet(self.Style_btn)
 		self.setAlignment(QtCore.Qt.AlignCenter)
 		# ---------------------------
 		self.default_style = "font-weight: normal;"  # Обычный текст
@@ -81,18 +43,27 @@ class CustomeLabelWidget(QtWidgets.QLabel):
 	def leaveEvent(self, event):
 		print("leave event")
 		self.setStyleSheet(self.default_style)
-		self.setText(self.color_rename)
+
+		if self.color_rename:
+			self.setText(self.color_rename)
+		else:
+			self.setText(self.selected_object)
+
 		super().leaveEvent(event)
 
-	def mousePressEvent(self, mouse_event):
+	def mousePressEvent(self, event):
 		print("Mouse Button Pressed")
 		self.setStyleSheet(self.hover_style)
 		self.setText(self.selected_object)
 
-	def mouseReleaseEvent(self, mouse_event):
+		super().mousePressEvent(event)
+
+	def mouseReleaseEvent(self, event):
 		print("Mouse Button Released")
 		self.setStyleSheet(self.default_style)
 		self.setText(self.selected_object)
+
+		super().mouseReleaseEvent(event)
 
 	def set_rename_color(self,text, prefix, left, X, mid, Y, right, suffix):
 		size = 14
@@ -106,8 +77,9 @@ class CustomeLabelWidget(QtWidgets.QLabel):
 							    f'<span style="font-size: {size}px;">{right}</span>'                    # Правый текст
 							    f'<span style="color: #DC143C; font-size: {size}px;">{suffix}</span>'   # Суффикс
 							)
+			self.setText(self.color_rename)
 		else:
-			self.color_rename = "change name"
+			self.color_rename = ""
+			self.setText(self.selected_object)
 
-		self.setText(self.color_rename)
 
