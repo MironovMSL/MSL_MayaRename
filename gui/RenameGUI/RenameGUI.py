@@ -130,6 +130,7 @@ class RenameGUI(QtWidgets.QWidget):
 		self.RenameWidget.LineEditor.AutoComplete_line_edit.selectionChanged.connect(self.check_selection_cursor)
 		self.SuffixPrefixWidget.itEditPrefix.connect(self.update_prefix)
 		self.SuffixPrefixWidget.itEditSuffix.connect(self.update_suffix)
+		self.LabelWidget.label_name.itLabelName.connect(self.get_select_name)
 
 	def init_attribute(self):
 
@@ -187,6 +188,21 @@ class RenameGUI(QtWidgets.QWidget):
 			print(f"Range: [{self.minR}]:[{self.maxR}]")
 			print(f'[{self.prefix}][{self.left}][{self.X}][{self.mid}][{self.Y}][{self.right}][{self.suffix}]: {self.info}')
 			print("--------------------------------------------")
+
+	def get_select_name(self, name):
+
+		text = self.get_text()
+		if name:
+			if text != name:
+				if text:
+					button_pressed = QtWidgets.QMessageBox.question(self, "Question", f"Would you like to change the name <span style='color: #669e62; font-size: {12}px;'>{text}</span> to <span style='color: #FF6347; font-size: {12}px;'>{name}</span>?")
+					if button_pressed == QtWidgets.QMessageBox.Yes:
+						self.do_text_edited("")
+						self.do_text_edited(name)
+					else:
+						print("Cancelled")
+				else:
+					self.do_text_edited(name)
 
 	def get_text(self):
 		return self.RenameWidget.LineEditor.AutoComplete_line_edit.text()

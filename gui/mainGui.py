@@ -85,6 +85,13 @@ class MainToolWindow(QtWidgets.QDialog):
 		# # self.main_layout.addWidget(self.conten4)
 		# # self.main_layout.addWidget(self.conten5)
 
+	def showEvent(self, e):
+		self.RenameGUI.LabelWidget.label_name.set_script_job_enabled(True)
+
+	def closeEvent(self, e):
+		self.RenameGUI.LabelWidget.label_name.set_script_job_enabled(False)
+
+
 def creat_gui():
 	if cmds.window("MainToolWindowID", exists=True):
 		cmds.deleteUI("MainToolWindowID")
