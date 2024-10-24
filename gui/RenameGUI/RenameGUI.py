@@ -191,18 +191,17 @@ class RenameGUI(QtWidgets.QWidget):
 
 	def get_select_name(self, name):
 
-		text = self.get_text()
-		if name:
-			if text != name:
-				if text:
-					button_pressed = QtWidgets.QMessageBox.question(self, "Question", f"Would you like to change the name <span style='color: #669e62; font-size: {12}px;'>{text}</span> to <span style='color: #FF6347; font-size: {12}px;'>{name}</span>?")
-					if button_pressed == QtWidgets.QMessageBox.Yes:
-						self.do_text_edited("")
-						self.do_text_edited(name)
-					else:
-						print("Cancelled")
-				else:
+		text = self.left + self.mid + self.right
+		if name and text != name:
+			if text:
+				button_pressed = QtWidgets.QMessageBox.question(self, "Question", f"Would you like to change the name <span style='color: #669e62; font-size: {12}px;'>{text}</span> to <span style='color: #FF6347; font-size: {12}px;'>{name}</span>?")
+				if button_pressed == QtWidgets.QMessageBox.Yes:
+					self.do_text_edited("")
 					self.do_text_edited(name)
+				else:
+					print("Cancelled")
+			else:
+				self.do_text_edited(name)
 
 	def get_text(self):
 		return self.RenameWidget.LineEditor.AutoComplete_line_edit.text()

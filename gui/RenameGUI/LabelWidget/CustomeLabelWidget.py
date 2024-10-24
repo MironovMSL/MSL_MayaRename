@@ -45,6 +45,7 @@ class CustomeLabelWidget(QtWidgets.QLabel):
 		# ---------------------------
 		self.default_style = "font-weight: normal;"  # Обычный текст
 		self.hover_style = "font-size: 10pt; font-weight: bold;"
+		self.enter_style = "font-size: 9pt; font-style: italic;"
 
 		self.setStyleSheet(self.default_style)
 
@@ -58,7 +59,7 @@ class CustomeLabelWidget(QtWidgets.QLabel):
 
 	def enterEvent(self, event):
 		# print("enter event")
-		self.setStyleSheet(self.default_style)
+		self.setStyleSheet(self.enter_style)
 		self.setText(self.selected_object)
 		super().enterEvent(event)
 
