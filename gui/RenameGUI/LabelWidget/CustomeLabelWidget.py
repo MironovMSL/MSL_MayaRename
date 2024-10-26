@@ -37,7 +37,6 @@ class CustomeLabelWidget(QtWidgets.QLabel):
 		self.tooltip  = f"Display selected name and display change name"
 		self.color_rename = ""
 		self.selected_object = "Select object"
-		self.script_job_number = -1
 		# Setting---------------------------
 		self.setText(self.selected_object)
 		self.setToolTip(self.tooltip)
@@ -52,7 +51,7 @@ class CustomeLabelWidget(QtWidgets.QLabel):
 		Font = QtGui.QFont("Arial", 10, QtGui.QFont.Normal)
 
 		self.create_connections()
-		self.update_selection()
+		# self.update_selection()
 
 	def create_connections(self):
 		pass
@@ -108,23 +107,12 @@ class CustomeLabelWidget(QtWidgets.QLabel):
 			self.color_rename = ""
 			self.setText(self.selected_object)
 
-	def update_selection(self):
-		selection = cmds.ls(selection=True)
+	def update_selection(self, name):
 
-		if selection:
-			self.selected_object = selection[0]
+		if name:
+			self.selected_object = name[0].split("|")[-1]
 		else:
 			self.selected_object = "Select object"
 
 		if not self.color_rename:
 			self.setText(self.selected_object)
-		else:
-			pass
-
-	def set_script_job_enabled(self, enabled):
-		if enabled and self.script_job_number < 0:
-			self.script_job_number = cmds.scriptJob(event=["SelectionChanged", partial(self.update_selection)],
-			                                        protected=True)
-		elif not enabled and self.script_job_number >= 0:
-			cmds.scriptJob(kill=self.script_job_number, force=True)
-			self.script_job_number = -1

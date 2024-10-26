@@ -128,6 +128,7 @@ class RenameGUI(QtWidgets.QWidget):
 		self.RenameWidget.LineEditor.AutoComplete_line_edit.itDropName.connect(self.drop_text)
 		self.RenameWidget.LineEditor.AutoComplete_line_edit.cursorPositionChanged.connect(self.check_position_cursor)
 		self.RenameWidget.LineEditor.AutoComplete_line_edit.selectionChanged.connect(self.check_selection_cursor)
+		self.RenameWidget.LineEditor.completer.itCompleterName.connect(self.on_complet_name)
 		self.SuffixPrefixWidget.itEditPrefix.connect(self.update_prefix)
 		self.SuffixPrefixWidget.itEditSuffix.connect(self.update_suffix)
 		self.LabelWidget.label_name.itLabelName.connect(self.get_select_name)
@@ -189,6 +190,16 @@ class RenameGUI(QtWidgets.QWidget):
 			print(f'[{self.prefix}][{self.left}][{self.X}][{self.mid}][{self.Y}][{self.right}][{self.suffix}]: {self.info}')
 			print("--------------------------------------------")
 
+	def on_complet_name(self, text):
+		print(text)
+		suffix = text[len(self.text) - len(self.suffix):]
+		if suffix == self.suffix and self.suffix:
+			self.RenameWidget.LineEditor.completer.popup().hide()
+			return
+
+		self.pos_cur = len(text)
+		self.do_text_edited(text)
+
 	def get_select_name(self, name):
 
 		text = self.left + self.mid + self.right
@@ -205,6 +216,11 @@ class RenameGUI(QtWidgets.QWidget):
 
 	def get_text(self):
 		return self.RenameWidget.LineEditor.AutoComplete_line_edit.text()
+
+	def check_in_name_suffix(self, text):
+		suffix = text[ len(self.text) - len(self.suffix): ]
+		print(suffix)
+		return
 
 	def get_new_text(self):
 		text = self.prefix + self.left + self.X + self.mid + self.Y + self.right + self.suffix
@@ -344,7 +360,6 @@ class RenameGUI(QtWidgets.QWidget):
 	def move_position_letter(self, value):
 
 		value_slider = self.LetterWidget.pos_let_slider.value()
-		self.pos_let = value
 		pos_cur = self.pos_cur
 		dift = value - value_slider
 
@@ -354,7 +369,7 @@ class RenameGUI(QtWidgets.QWidget):
 
 		self.info = (f"Update position letter {value}, {value_slider}!={value}")
 		self.move = True
-
+		self.pos_let = value
 		if self.pos_num == self.pos_let:
 			if dift < 0:
 				text = self.prefix + self.left + self.mid + self.right + self.suffix
@@ -439,7 +454,6 @@ class RenameGUI(QtWidgets.QWidget):
 	def move_position_number(self, value):
 
 		value_slider         = self.NumberWidget.pos_num_slider.value()
-		self.pos_num         = value
 		pos_cur              = self.pos_cur
 		dift                 = value - value_slider
 
@@ -449,6 +463,7 @@ class RenameGUI(QtWidgets.QWidget):
 
 		self.info = (f"Update position number {value}, {value_slider}!={value}")
 		self.move = True
+		self.pos_num = value
 
 		if self.pos_num == self.pos_let:
 			if dift < 0:
@@ -575,18 +590,17 @@ class RenameGUI(QtWidgets.QWidget):
 		self.prefix, self.suffix = self.handle_prefix_suffix()
 
 		if self.mode_button:
+			self.info = (f'New prefix: [{self.prefix}]')
 			if text:
 				new_text = self.get_new_text()
 				new_cur = self.pos_cur + dift
 				self.update_pos_X_Y_num_let(side="X", items_dift=dift)
 				self.update_range()
 				self.update_ui_elements(new_text, new_cur)
-
-			self.info = (f'New prefix: [{self.prefix}]')
 		else:
 			self.info = (f'Button mode "{self.mode_button}", Initialization prefix: [{prefix}]')
+			self.info_attribute()
 
-		self.info_attribute()
 		self.set_label_rename_color()
 
 	def update_suffix(self, suffix):
@@ -872,6 +886,12 @@ class RenameGUI(QtWidgets.QWidget):
 		self.set_label_rename_color()
 
 	def drop_text(self, text, pos_cur):
+		suffix = text[len(self.text) - len(self.suffix):]
+		print(suffix)
+		if suffix == self.suffix and self.suffix:
+			self.RenameWidget.LineEditor.completer.popup().hide()
+			return
+
 		self.pos_cur = pos_cur
 		self.do_text_edited(text)
 

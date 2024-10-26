@@ -36,13 +36,8 @@ class LineEditorPrefSufWidget(QtWidgets.QWidget):
 
 	def create_widgets(self):
 
-		self.completer = CustomCompleter(self.word_list)
-		self.AutoComplete_line_edit = AutoCompleteLineEdit(self.completer, self.NameHolder,self.Width, self)
-		self.model = QtCore.QStringListModel()  # model for list name.
+		self.AutoComplete_line_edit = AutoCompleteLineEdit(self.NameHolder,self.Width, self)
 
-		# List of words for autocompletion
-		self.completer.setModel(self.model)
-		self.model.setStringList(self.word_list)
 
 	def create_layouts(self):
 
@@ -86,7 +81,7 @@ class AutoCompleteLineEdit(QtWidgets.QLineEdit):
 	    }
 	"""
 
-	def __init__(self, completer, NameHolder, Width, parent=None):
+	def __init__(self, NameHolder, Width, parent=None):
 		super(AutoCompleteLineEdit, self).__init__(parent)
 
 		# Attribute---------------------------
@@ -95,7 +90,7 @@ class AutoCompleteLineEdit(QtWidgets.QLineEdit):
 		self.NameHolder  = NameHolder
 		ToolTip          = "Texting edit for Rename"
 		Font             = QtGui.QFont("Arial", 10, QtGui.QFont.Normal)
-		self.completer   = completer
+		# self.completer   = completer
 		self.oldCursor   = self.cursorPosition()
 		self.oldMineData = ""
 
@@ -105,7 +100,7 @@ class AutoCompleteLineEdit(QtWidgets.QLineEdit):
 		self.setPlaceholderText(self.NameHolder)
 		self.setToolTip(ToolTip)
 		self.setFont(Font)
-		self.setCompleter(self.completer)
+
 		self.setAttribute(QtCore.Qt.WA_InputMethodEnabled)
 		self.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
 		self.setClearButtonEnabled(True)
@@ -114,34 +109,8 @@ class AutoCompleteLineEdit(QtWidgets.QLineEdit):
 		self.installEventFilter(self)
 		self.setStyleSheet(self.Style_lineEdit)
 		#---------------------------
-		self.create_connections()
+		# self.create_connections()
 
-	def create_connections(self):
-		self.textEdited.connect(self.on_text_edited)
-
-	def on_text_edited(self, text):
-		self.completer.update_completer(text) # Update the compliterator when the text changes
-
-	def keyPressEvent(self, event):
-		if event.key() == QtCore.Qt.Key_Tab:  # Checking the TAB key press
-
-			filtered_words = self.completer.model().stringList()  # We get a list of words (w..) -->[wrist, wing]
-			if filtered_words:  # If there are matches
-				current_index = self.completer.popup().currentIndex()
-				if not current_index.isValid():
-					completion = filtered_words[0]  # We take the first match
-					cursor_pos = self.cursorPosition()
-					text = self.text()
-					new_text = text[:text.rfind('_') + 1] + completion # Replace part of the text with autocomplete
-					self.setText(new_text)
-					self.setCursorPosition(len(new_text))  # Place the cursor at the end
-			self.completer.popup().hide()
-			event.accept()  # Stop further processing TAB
-			return
-		super().keyPressEvent(event)
-
-	def focusNextPrevChild(self, next): # Intercept focusNextPrevChild to prevent focus switching
-		return False # Stop focus switching when pressing TAB
 
 	def dragLeaveEvent(self, event):
 		text = self.text()
@@ -223,38 +192,3 @@ class AutoCompleteLineEdit(QtWidgets.QLineEdit):
 			self.itDropName.emit(NewText, pos_cur)
 
 		event.source().setVisible(True)
-
-
-class CustomCompleter(QtWidgets.QCompleter):
-	def __init__(self, words, parent=None):
-		QtWidgets.QCompleter.__init__(self, parent)
-
-		self.words = words
-
-		self.setCompletionMode(QtWidgets.QCompleter.PopupCompletion)  # PopupCompletion , InlineCompletion , UnfilteredPopupCompletion
-		self.setCaseSensitivity(QtCore.Qt.CaseInsensitive)
-		self.setWrapAround(False)
-
-	def update_completer(self, text):
-		parts = text.split('_')
-		if len(parts) > 1:
-			prefix = parts[-1]  # Use the part after the last '_'
-			if not prefix:  # If there is nothing after '_', we don't show the hint
-				self.model().setStringList([])
-				return
-		else:
-			prefix = text  # If there is no '_', use the whole text
-
-		filtered_words = [word for word in self.words if word.startswith(prefix)] # Filter words based on prefix
-		self.model().setStringList(filtered_words)
-
-	def pathFromIndex(self, index):
-		path = QtWidgets.QCompleter.pathFromIndex(self, index) # Get the selected word [name]
-		lst = str(self.widget().text()).split('_') # We get a list of words split by '_' [name, prefix, name]
-		if len(lst) > 1:
-			path = f"{'_'.join(lst[:-1])}_{path}" # Replace part of the word on the selected word in autocomplete
-		return path
-
-	def splitPath(self, path):
-		PATH = str(path.split('_')[-1]).lstrip(' ') # get the last word after '_' [prefix_name_se] ---> [se]
-		return [PATH]

@@ -1,7 +1,11 @@
+from encodings.punycode import selective_len
+
 try:
     from PySide2 import QtWidgets, QtGui, QtCore
 except:
     from PySide6 import QtWidgets, QtGui, QtCore
+
+from functools import partial
 
 from MSL_MayaRename.core.resources import Resources
 from MSL_MayaRename.core.config import Configurator
@@ -10,6 +14,7 @@ from MSL_MayaRename.gui.RenameGUI.LabelWidget.PushButtonModeBTN import PushButto
 from MSL_MayaRename.gui.RenameGUI.LabelWidget.CustomeLabelWidget import CustomeLabelWidget
 import os
 import maya.cmds as cmds
+
 
 root_ = os.path.dirname(__file__) #...\LabelWidget
 new_root = os.path.abspath(os.path.join(root_, '..', '..')) # ...\gui
@@ -57,6 +62,7 @@ class LabelWidget(QtWidgets.QWidget):
 
 
         self.FixedHeight = 25
+        self.script_job_number = -1
 
         self.setObjectName("LabelWidget")
         self.setFixedHeight(self.FixedHeight)
@@ -64,6 +70,7 @@ class LabelWidget(QtWidgets.QWidget):
         self.create_Widgets()
         self.create_layouts()
         self.create_connections()
+        self.update_selection()
 
     def create_Widgets(self):
 
@@ -93,6 +100,20 @@ class LabelWidget(QtWidgets.QWidget):
 
     def create_connections(self):
         pass
+
+    def update_selection(self):
+        selection = cmds.ls(selection=True)
+        self.label_name.update_selection(selection)
+        self.list_selected_btn.setText(str(len(selection)))
+
+
+    def set_script_job_enabled(self, enabled):
+        if enabled and self.script_job_number < 0:
+            self.script_job_number = cmds.scriptJob(event=["SelectionChanged", partial(self.update_selection)],
+                                                    protected=True)
+        elif not enabled and self.script_job_number >= 0:
+            cmds.scriptJob(kill=self.script_job_number, force=True)
+            self.script_job_number = -1
 
 
 

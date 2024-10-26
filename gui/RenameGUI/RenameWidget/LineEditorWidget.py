@@ -130,8 +130,10 @@ class AutoCompleteLineEdit(QtWidgets.QLineEdit):
 					cursor_pos = self.cursorPosition()
 					text = self.text()
 					new_text = text[:text.rfind('_') + 1] + completion # Replace part of the text with autocomplete
-					self.setText(new_text)
-					self.setCursorPosition(len(new_text))  # Place the cursor at the end
+					# self.setText(new_text)
+					# self.setCursorPosition(len(new_text))  # Place the cursor at the end
+					print(new_text)
+					self.itDropName.emit(new_text, len(new_text))
 			self.completer.popup().hide()
 			event.accept()  # Stop further processing TAB
 			return
@@ -222,6 +224,9 @@ class AutoCompleteLineEdit(QtWidgets.QLineEdit):
 		event.source().setVisible(True)
 
 class CustomCompleter(QtWidgets.QCompleter):
+
+	itCompleterName = QtCore.Signal(str)
+
 	def __init__(self, words, parent=None):
 		QtWidgets.QCompleter.__init__(self, parent)
 
@@ -230,6 +235,14 @@ class CustomCompleter(QtWidgets.QCompleter):
 		self.setCompletionMode(QtWidgets.QCompleter.PopupCompletion)  # PopupCompletion , InlineCompletion , UnfilteredPopupCompletion
 		self.setCaseSensitivity(QtCore.Qt.CaseInsensitive)
 		self.setWrapAround(False)
+
+		self.create_connections()
+
+	def create_connections(self):
+		self.highlighted.connect(self.on_text_choose)
+
+	def on_text_choose(self, text):
+		self.itCompleterName.emit(text)
 
 	def update_completer(self, text):
 		parts = text.split('_')

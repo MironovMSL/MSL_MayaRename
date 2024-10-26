@@ -84,7 +84,9 @@ class SuffixPrefixWidget(QtWidgets.QWidget):
 
     def create_connections(self):
         self.prefix_Editline.AutoComplete_line_edit.textEdited.connect(self.edit_prefix)
+        self.prefix_Editline.AutoComplete_line_edit.itDropName.connect(self.edit_prefix)
         self.suffix_Editline.AutoComplete_line_edit.textEdited.connect(self.edit_suffix)
+        self.suffix_Editline.AutoComplete_line_edit.itDropName.connect(self.edit_suffix)
         self.prefix_add_btn.clicked.connect(self.do_prefix)
         self.suffix_add_btn.clicked.connect(self.do_suffix)
 

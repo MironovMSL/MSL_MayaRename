@@ -86,10 +86,10 @@ class MainToolWindow(QtWidgets.QDialog):
 		# # self.main_layout.addWidget(self.conten5)
 
 	def showEvent(self, e):
-		self.RenameGUI.LabelWidget.label_name.set_script_job_enabled(True)
+		self.RenameGUI.LabelWidget.set_script_job_enabled(True)
 
 	def closeEvent(self, e):
-		self.RenameGUI.LabelWidget.label_name.set_script_job_enabled(False)
+		self.RenameGUI.LabelWidget.set_script_job_enabled(False)
 
 
 def creat_gui():
