@@ -4,12 +4,10 @@ except:
 	from PySide6 import QtWidgets, QtGui, QtCore
 
 from MSL_MayaRename.core.resources import Resources
-from MSL_MayaRename.core.config import Configurator
-from MSL_MayaRename.core.common import *
-import os
 
 
 class PushButtonModeBTN(QtWidgets.QPushButton):
+
 	changeStateButtonMode = QtCore.Signal(bool)
 	Style_btn = """
 	        QPushButton {
@@ -49,6 +47,7 @@ class PushButtonModeBTN(QtWidgets.QPushButton):
 
 	def __init__(self, name="", width=25,height=25,icon="", parent=None):
 		super(PushButtonModeBTN, self).__init__(parent)
+
 		# Attribute---------------------------
 		self.resources = Resources.get_instance()
 		self.QSettings = QtCore.QSettings(self.resources.config_path, QtCore.QSettings.IniFormat)
@@ -65,9 +64,8 @@ class PushButtonModeBTN(QtWidgets.QPushButton):
 		self.setIcon(self.icon)
 		self.setCheckable(True)
 		self.setChecked(self.has_state)
-		# ---------------------------
+		# Run functions ---------------------------
 		self.create_connections()
-
 
 	def create_connections(self):
 		self.clicked.connect(self.is_active_mode)

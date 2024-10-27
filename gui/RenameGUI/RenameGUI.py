@@ -7,10 +7,11 @@ from MSL_MayaRename.core.resources import Resources
 from MSL_MayaRename.core.config import Configurator
 from MSL_MayaRename.gui.RenameGUI.FunctionWidget.FunctionWidget import FunctionWidget
 from MSL_MayaRename.gui.RenameGUI.RenameWidget.RenameWidget import RenameWidget
+from MSL_MayaRename.gui.RenameGUI.RenameWidget.RenameButtonWidget import RemoveButtonWidget
 from MSL_MayaRename.gui.RenameGUI.NumberWidget.NumberWidget import NumberWidget
 from MSL_MayaRename.gui.RenameGUI.LetterWidget.LetterWidget import LetterWidget
 from MSL_MayaRename.gui.RenameGUI.SuffixPrefixWidget.SuffixPrefixWidget import SuffixPrefixWidget
-from MSL_MayaRename.gui.RenameGUI.LabelWidget.LabelWidget import LabelWidget, new_root
+from MSL_MayaRename.gui.RenameGUI.LabelWidget.LabelWidget import LabelWidget
 from MSL_MayaRename.gui.RenameGUI.QuickListButtonName.QuickListButtonName import QuickListButtonName
 from MSL_MayaRename.gui.RenameGUI.CasheNameWidget.CasheNameWidget import CasheNameWidget
 
@@ -73,8 +74,7 @@ class RenameGUI(QtWidgets.QWidget):
 
 		self.FunctionWidget      = FunctionWidget()
 		self.LabelWidget         = LabelWidget()
-		self.RenameButton        = QtWidgets.QPushButton("Rename")
-		self.RenameButton.setFixedSize(50, 75)
+		self.RenameButton        = RemoveButtonWidget("Rename", 50, 75)
 		self.RenameWidget        = RenameWidget()
 		self.NumberWidget        = NumberWidget()
 		self.LetterWidget        = LetterWidget()

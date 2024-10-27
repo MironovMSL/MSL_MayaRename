@@ -88,7 +88,7 @@ class AutoCompleteLineEdit(QtWidgets.QLineEdit):
 		self.Width       = Width
 		Height           = 25
 		self.NameHolder  = NameHolder
-		ToolTip          = "Texting edit for Rename"
+		ToolTip          = "Texting edit"
 		Font             = QtGui.QFont("Arial", 10, QtGui.QFont.Normal)
 		# self.completer   = completer
 		self.oldCursor   = self.cursorPosition()

@@ -15,13 +15,15 @@ import maya.cmds as cmds
 class LabelWidget(QtWidgets.QWidget):
 
     def __init__(self, parent=None):
+        super(LabelWidget, self).__init__(parent)
+
         # Attribute ---------------------------
         self.FixedHeight = 25
         self.script_job_number = -1
         # Setting ---------------------------
-        self.setObjectName("LabelWidget")
+        self.setObjectName("LabelWidgetID")
         self.setFixedHeight(self.FixedHeight)
-        # run functions ---------------------------
+        # Run functions ---------------------------
         self.create_Widgets()
         self.create_layouts()
         self.create_connections()

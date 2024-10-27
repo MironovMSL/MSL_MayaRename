@@ -4,12 +4,10 @@ except:
 	from PySide6 import QtWidgets, QtGui, QtCore
 
 from MSL_MayaRename.core.resources import Resources
-from MSL_MayaRename.core.config import Configurator
-from MSL_MayaRename.core.common import *
-import os
 
 
 class NumberModeButton(QtWidgets.QPushButton):
+
 	changeStateNumberMode = QtCore.Signal(bool)
 	Style_btn = """
 	        QPushButton {
@@ -49,14 +47,15 @@ class NumberModeButton(QtWidgets.QPushButton):
 
 	def __init__(self, name="", width=25,height=25,icon="", parent=None):
 		super(NumberModeButton, self).__init__(parent)
-		# Attribute---------------------------
+
+		# Modul---------------------------
 		self.resources = Resources.get_instance()
-		self.QSettings = QtCore.QSettings(self.resources.config_path, QtCore.QSettings.IniFormat)
+		# Attribute---------------------------
 		self.width     = width
 		self.height    = height
 		self.tooltip   = f"Numeric Mode: Adds Numbers to Words"
 		self.icon      = self.resources.get_icon_from_resources(icon if icon else "cooperate-svgrepo-com.svg")
-		self.has_state = self.QSettings.value("startup/mode_number", False, bool)
+		self.has_state = self.resources.config.get_variable("startup", "mode_number", False, bool)
 		# Setting---------------------------
 		self.setText(name)
 		self.setFixedSize(self.width,self.height)
@@ -65,7 +64,7 @@ class NumberModeButton(QtWidgets.QPushButton):
 		self.setIcon(self.icon)
 		self.setCheckable(True)
 		self.setChecked(self.has_state)
-		# ---------------------------
+		# Run functions ---------------------------
 		self.create_connections()
 
 	def create_connections(self):

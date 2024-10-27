@@ -4,8 +4,6 @@ except:
 	from PySide6 import QtWidgets, QtGui, QtCore
 
 from MSL_MayaRename.core.resources import Resources
-from MSL_MayaRename.core.common import *
-import os
 
 
 class SelectedObjectsViewerButton(QtWidgets.QPushButton):
@@ -48,6 +46,7 @@ class SelectedObjectsViewerButton(QtWidgets.QPushButton):
 
 	def __init__(self, name="", width=25,height=25, parent=None):
 		super(SelectedObjectsViewerButton, self).__init__(parent)
+
 		# Modul---------------------------
 		self.resources = Resources.get_instance()
 		# Attribute---------------------------
@@ -63,13 +62,12 @@ class SelectedObjectsViewerButton(QtWidgets.QPushButton):
 		self.setStyleSheet(self.Style_btn)
 		self.setCheckable(True)
 		self.setChecked(self.has_state)
-		# ---------------------------
+		# Run functions ---------------------------
 		self.create_connections()
 
 	def create_connections(self):
 		self.clicked.connect(self.is_active_mode)
 
-	def is_active_mode(self, Checkable):
-		self.resources.config.set_variable("selected_objects", "selected_mode", Checkable)
-		print(Checkable)
-
+	def is_active_mode(self, state):
+		self.resources.config.set_variable("selected_objects", "selected_mode", state)
+		print(f"TODO: Selected Objects Viewer: {'Open UI' if state else 'Close UI'}:")
