@@ -1,5 +1,3 @@
-from encodings.punycode import selective_len
-
 try:
     from PySide2 import QtWidgets, QtGui, QtCore
 except:
@@ -7,113 +5,69 @@ except:
 
 from functools import partial
 
-from MSL_MayaRename.core.resources import Resources
-from MSL_MayaRename.core.config import Configurator
 from MSL_MayaRename.gui.RenameGUI.LabelWidget.NumberModeButton import NumberModeButton
 from MSL_MayaRename.gui.RenameGUI.LabelWidget.PushButtonModeBTN import PushButtonModeBTN
 from MSL_MayaRename.gui.RenameGUI.LabelWidget.CustomeLabelWidget import CustomeLabelWidget
-import os
+from MSL_MayaRename.gui.RenameGUI.LabelWidget.SelectedObjectsViewerButton import SelectedObjectsViewerButton
+
 import maya.cmds as cmds
 
-
-root_ = os.path.dirname(__file__) #...\LabelWidget
-new_root = os.path.abspath(os.path.join(root_, '..', '..')) # ...\gui
-
 class LabelWidget(QtWidgets.QWidget):
-    Style_btn = """
-        QPushButton {
-            background-color: rgb(50, 50, 50); /* Темно-серый фон */
-            border-style: outset;
-            border-width: 2px;
-            border-radius: 8px;
-            border-color: rgb(30, 30, 30); /* Темнее границы */
-            font: bold 14px; /* Жирный шрифт */
-            font-family: Arial; /* Шрифт Arial */
-            color: rgb(200, 200, 200); /* Светло-серый текст */
-            padding: 0px; /* Внутренние отступы */
-        }
 
-        QPushButton:hover {
-            border-color: rgb(70, 70, 70); /* Светло-серая граница при наведении */
-            background-color: rgb(80, 80, 80); /* Более светлый серый при наведении */
-        }
-
-        QPushButton:pressed {
-            background-color: rgb(30, 30, 30); /* Почти черный при нажатии */
-            border-style: inset; /* Впадение при нажатии */
-            color: rgb(220, 220, 220); /* Почти белый текст при нажатии */
-        }
-
-        QPushButton:checked {
-            background-color: rgb(80, 120, 80); /* Зеленоватый оттенок при нажатии (состояние check) */
-            border-color: rgb(60, 90, 60); /* Темно-зеленая граница при нажатии */
-            color: rgb(240, 240, 240); /* Белый текст */
-        }
-
-        QPushButton:checked:hover {
-            background-color: rgb(100, 140, 100); /* Светлее при наведении в состоянии checked */
-            border-color: rgb(80, 110, 80); /* Светлее при наведении в состоянии checked */
-        }
-    """
     def __init__(self, parent=None):
-        super(LabelWidget, self).__init__(parent)
-
-        self.resoures = Resources.get_instance()
-
-
+        # Attribute ---------------------------
         self.FixedHeight = 25
         self.script_job_number = -1
-
+        # Setting ---------------------------
         self.setObjectName("LabelWidget")
         self.setFixedHeight(self.FixedHeight)
-
+        # run functions ---------------------------
         self.create_Widgets()
         self.create_layouts()
         self.create_connections()
         self.update_selection()
 
     def create_Widgets(self):
-
-        Width = 90
-        # button add prefix
-        self.list_selected_btn = QtWidgets.QPushButton("0")
-        self.list_selected_btn.setFixedWidth(25)
-
-        # label
-        self.label_name = CustomeLabelWidget()
-
-        # namber mode
-        self.number_mode = NumberModeButton("",25,25,)
-        # button mode
-        self.button_mode = PushButtonModeBTN("", 25, 25)
+        # button list ---------------------------
+        self.list_selected_btn = SelectedObjectsViewerButton("0", 25, 25)
+        # label ---------------------------
+        self.label_name        = CustomeLabelWidget()
+        # namber mode ---------------------------
+        self.number_mode       = NumberModeButton("",25, 25,)
+        # button mode ---------------------------
+        self.button_mode       = PushButtonModeBTN("", 25, 25)
 
     def create_layouts(self):
+        # main layout---------------------------
         self.main_layout = QtWidgets.QHBoxLayout(self)
         self.main_layout.setContentsMargins(0, 0, 0, 0)
         self.main_layout.setSpacing(0)
-
+        # add widget---------------------------
         self.main_layout.addWidget(self.list_selected_btn)
         self.main_layout.addWidget(self.label_name)
         self.main_layout.addWidget(self.number_mode)
         self.main_layout.addWidget(self.button_mode)
 
-
     def create_connections(self):
         pass
 
     def update_selection(self):
-        selection = cmds.ls(selection=True)
+        """
+        Updates the current selection of objects in the scene and reflects this in the UI.
+        """
+        selection = cmds.ls(selection=True,  l=True)
+
         self.label_name.update_selection(selection)
         self.list_selected_btn.setText(str(len(selection)))
-
+        #TODO: creat UI selected objects and give list.
 
     def set_script_job_enabled(self, enabled):
+        """
+        Enables or disables a script job that monitors selection changes in the Maya scene.
+        """
         if enabled and self.script_job_number < 0:
             self.script_job_number = cmds.scriptJob(event=["SelectionChanged", partial(self.update_selection)],
                                                     protected=True)
         elif not enabled and self.script_job_number >= 0:
             cmds.scriptJob(kill=self.script_job_number, force=True)
             self.script_job_number = -1
-
-
-

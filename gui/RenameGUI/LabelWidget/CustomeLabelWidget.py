@@ -51,19 +51,16 @@ class CustomeLabelWidget(QtWidgets.QLabel):
 		Font = QtGui.QFont("Arial", 10, QtGui.QFont.Normal)
 
 		self.create_connections()
-		# self.update_selection()
 
 	def create_connections(self):
 		pass
 
 	def enterEvent(self, event):
-		# print("enter event")
 		self.setStyleSheet(self.enter_style)
 		self.setText(self.selected_object)
 		super().enterEvent(event)
 
 	def leaveEvent(self, event):
-		# print("leave event")
 		self.setStyleSheet(self.default_style)
 
 		if self.color_rename:
@@ -74,7 +71,6 @@ class CustomeLabelWidget(QtWidgets.QLabel):
 		super().leaveEvent(event)
 
 	def mousePressEvent(self, event):
-		# print("Mouse Button Pressed")
 		if self.selected_object != "Select object":
 			self.setStyleSheet(self.hover_style)
 			self.setText(self.selected_object)
@@ -82,12 +78,11 @@ class CustomeLabelWidget(QtWidgets.QLabel):
 		super().mousePressEvent(event)
 
 	def mouseReleaseEvent(self, event):
-		# print("Mouse Button Released")
-		if self.selected_object != "Select object":
-			self.setStyleSheet(self.default_style)
-			self.setText(self.selected_object)
-			self.itLabelName.emit(self.selected_object)
-
+		if self.rect().contains(event.pos()):
+			if self.selected_object != "Select object":
+				self.setStyleSheet(self.default_style)
+				self.setText(self.selected_object)
+				self.itLabelName.emit(self.selected_object)
 		super().mouseReleaseEvent(event)
 
 	def set_rename_color(self,text, prefix, left, X, mid, Y, right, suffix):
@@ -108,7 +103,6 @@ class CustomeLabelWidget(QtWidgets.QLabel):
 			self.setText(self.selected_object)
 
 	def update_selection(self, name):
-
 		if name:
 			self.selected_object = name[0].split("|")[-1]
 		else:

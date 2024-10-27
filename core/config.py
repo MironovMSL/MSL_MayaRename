@@ -51,10 +51,10 @@ class Configurator(object):
 		"""
 		Initialize default configuration if it does not exist.
 		"""
-		# Initialize the "startup" group and set default values
+		# Initialize the "All" group and set default values
 		if not self.config.contains("startup/name_tool"):
 
-			self.config.beginGroup("startup")
+			self.config.beginGroup("startup") # startup group
 
 			self.config.setValue("name_tool", "MSL Rename")
 			self.config.setValue("name", "test")
@@ -71,13 +71,19 @@ class Configurator(object):
 
 			self.config.endGroup()  # End the group
 
+			self.config.beginGroup("selected_objects") # selected_objects group
+
+			self.config.setValue("selected_mode", False)
+
+			self.config.endGroup() # End the group
+
 	def get_info_all_keys(self):
-		# print config.ini
-		keys = self.config.allKeys()
+			# print config.ini
+			keys = self.config.allKeys()
 
-		for key in keys:
-			value = self.config.value(key)
-			parts = key.split('/')
+			for key in keys:
+				value = self.config.value(key)
+				parts = key.split('/')
 
-			log(message=f"[{parts[0]}] {parts[1]} = {value}", category="config.ini")
+				log(message=f"[{parts[0]}] {parts[1]} = {value}", category="config.ini")
 

@@ -4,13 +4,12 @@ except:
 	from PySide6 import QtWidgets, QtGui, QtCore
 
 from MSL_MayaRename.core.resources import Resources
-from MSL_MayaRename.core.config import Configurator
 from MSL_MayaRename.core.common import *
 import os
 
 
-class NumberModeButton(QtWidgets.QPushButton):
-	changeStateNumberMode = QtCore.Signal(bool)
+class SelectedObjectsViewerButton(QtWidgets.QPushButton):
+
 	Style_btn = """
 	        QPushButton {
 	            background-color: rgb(50, 50, 50); /* Темно-серый фон */
@@ -18,7 +17,7 @@ class NumberModeButton(QtWidgets.QPushButton):
 	            border-width: 2px;
 	            border-radius: 8px;
 	            border-color: rgb(30, 30, 30); /* Темнее границы */
-	            font: bold 14px; /* Жирный шрифт */
+	            font: bold 12px; /* Жирный шрифт */
 	            font-family: Arial; /* Шрифт Arial */
 	            color: rgb(200, 200, 200); /* Светло-серый текст */
 	            padding: 0px; /* Внутренние отступы */
@@ -47,22 +46,21 @@ class NumberModeButton(QtWidgets.QPushButton):
 	        }
 	    """
 
-	def __init__(self, name="", width=25,height=25,icon="", parent=None):
-		super(NumberModeButton, self).__init__(parent)
-		# Attribute---------------------------
+	def __init__(self, name="", width=25,height=25, parent=None):
+		super(SelectedObjectsViewerButton, self).__init__(parent)
+		# Modul---------------------------
 		self.resources = Resources.get_instance()
-		self.QSettings = QtCore.QSettings(self.resources.config_path, QtCore.QSettings.IniFormat)
+		# Attribute---------------------------
+		self.name      = name
 		self.width     = width
 		self.height    = height
-		self.tooltip   = f"Numeric Mode: Adds Numbers to Words"
-		self.icon      = self.resources.get_icon_from_resources(icon if icon else "cooperate-svgrepo-com.svg")
-		self.has_state = self.QSettings.value("startup/mode_number", False, bool)
+		self.tooltip   = f"Selected objects viewer"
+		self.has_state = self.resources.config.get_variable("selected_objects","selected_mode", False, bool)
 		# Setting---------------------------
-		self.setText(name)
+		self.setText(self.name)
 		self.setFixedSize(self.width,self.height)
 		self.setToolTip(self.tooltip)
 		self.setStyleSheet(self.Style_btn)
-		self.setIcon(self.icon)
 		self.setCheckable(True)
 		self.setChecked(self.has_state)
 		# ---------------------------
@@ -72,5 +70,6 @@ class NumberModeButton(QtWidgets.QPushButton):
 		self.clicked.connect(self.is_active_mode)
 
 	def is_active_mode(self, Checkable):
-		self.resources.config.set_variable("startup", "mode_number", Checkable)
-		self.changeStateNumberMode.emit(Checkable)
+		self.resources.config.set_variable("selected_objects", "selected_mode", Checkable)
+		print(Checkable)
+
