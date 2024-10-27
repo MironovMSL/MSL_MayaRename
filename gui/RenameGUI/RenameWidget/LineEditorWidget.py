@@ -269,4 +269,3 @@ class CustomCompleter(QtWidgets.QCompleter):
 		return [PATH]
 
 	# TODO when text has more than cursor pos - need hide pop ui comleter
-	# TODO when copleter work need to add in text function. self.do_text() in RenameWidget.py

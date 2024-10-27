@@ -191,7 +191,6 @@ class RenameGUI(QtWidgets.QWidget):
 			print("--------------------------------------------")
 
 	def on_complet_name(self, text):
-		print(text)
 		suffix = text[len(self.text) - len(self.suffix):]
 		if suffix == self.suffix and self.suffix:
 			self.RenameWidget.LineEditor.completer.popup().hide()
@@ -659,12 +658,11 @@ class RenameGUI(QtWidgets.QWidget):
 					self.pos_let = self.pos_let + items_dift
 
 	def do_text_edited(self, text):
-
 		pos_cur    = self.pos_cur
 		items_dift = len(text) - len(self.text)
 
 		if self.text and len(text) > len(self.prefix)+ len(self.X) + len(self.Y) + len(self.suffix):
-			if items_dift > 0:  # Added items
+			if items_dift >= 0:  # Added items
 				newText, new_cur = self._handle_addition(text, items_dift, pos_cur)
 			elif items_dift < 0:  # Removed items
 				newText, new_cur = self._handle_deletion(text, items_dift, pos_cur)
