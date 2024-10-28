@@ -77,6 +77,12 @@ class Configurator(object):
 
 			self.config.endGroup() # End the group
 
+			self.config.beginGroup("library")  # library group
+
+			self.config.setValue("library_mode", False)
+
+			self.config.endGroup()  # End the group
+
 	def get_info_all_keys(self):
 			# print config.ini
 			keys = self.config.allKeys()

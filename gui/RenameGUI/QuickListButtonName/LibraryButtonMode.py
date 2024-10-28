@@ -6,9 +6,8 @@ except:
 from MSL_MayaRename.core.resources import Resources
 
 
-class PushButtonModeBTN(QtWidgets.QPushButton):
+class LibraryButtonMode(QtWidgets.QPushButton):
 
-	changeStateButtonMode = QtCore.Signal(bool)
 	Style_btn = """
 	        QPushButton {
 	            background-color: rgb(50, 50, 50); /* Темно-серый фон */
@@ -45,19 +44,18 @@ class PushButtonModeBTN(QtWidgets.QPushButton):
 	        }
 	    """
 
-	def __init__(self, name="", width=25,height=25,icon="", parent=None):
-		super(PushButtonModeBTN, self).__init__(parent)
+	def __init__(self, width=25,height=25, parent=None):
+		super(LibraryButtonMode, self).__init__(parent)
 
 		# Modul---------------------------
 		self.resources = Resources.get_instance()
 		# Attribute---------------------------
 		self.width     = width
 		self.height    = height
-		self.tooltip   = f"Button mode: clicking on buttons adds name to Words"
-		self.icon      = self.resources.get_icon_from_resources(icon if icon else "interact-svgrepo-com.svg")
-		self.has_state = self.resources.config.get_variable("startup", "mode_button", False, bool)
+		self.tooltip   = f"Library"
+		self.icon      = self.resources.get_icon_from_resources("pen-svgrepo-com.svg")
+		self.has_state = self.resources.config.get_variable("library", "library_mode", False, bool)
 		# Setting---------------------------
-		self.setText(name)
 		self.setFixedSize(self.width,self.height)
 		self.setToolTip(self.tooltip)
 		self.setStyleSheet(self.Style_btn)
@@ -70,9 +68,6 @@ class PushButtonModeBTN(QtWidgets.QPushButton):
 	def create_connections(self):
 		self.clicked.connect(self.is_active_mode)
 
-	def is_active_mode(self, Checkable):
-		self.resources.config.set_variable("startup", "mode_button", Checkable)
-		self.changeStateButtonMode.emit(Checkable)
-
-
-
+	def is_active_mode(self, state):
+		self.resources.config.set_variable("library", "library_mode", state)
+		print(f"TODO: library: {'Open UI' if state else 'Close UI'}:")

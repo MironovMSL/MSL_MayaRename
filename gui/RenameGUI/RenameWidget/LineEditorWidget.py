@@ -23,10 +23,10 @@ class LineEditorWidget(QtWidgets.QWidget):
 	def __init__(self, parent=None):
 		super(LineEditorWidget, self).__init__(parent)
 
+		# Modul---------------------------
+		self.resources = Resources.get_instance()
 		# Attribute---------------------------
-		self.resource: Resources = Resources.get_instance()
-		self.word_list = self.resource.all_item_json # list of all words library.
-
+		self.word_list = self.resources.all_item_json # list of all words library.
 		# Run function---------------------------
 		self.create_widgets()
 		self.create_layouts()

@@ -44,7 +44,7 @@ class Resources(object):
 	def get_all_itemJSON(self):
 
 		self.all_item_json = []
-		data_json = read_json(os.path.join(self.listButtonsName_json_path))
+		data_json = self.read_json(os.path.join(self.listButtonsName_json_path))
 
 		for key, value in data_json.items():
 			if isinstance(value, list):  # Check if a value is a list
@@ -59,9 +59,27 @@ class Resources(object):
 								self.all_item_json.append(item)
 		return self.all_item_json
 
+	def read_json(self, path=None):
+		assert path is not None, "path is None"
+
+		file = QtCore.QFile(path)
+		if not file.open(QtCore.QIODevice.ReadOnly | QtCore.QIODevice.Text):
+			raise Exception(f"Failed to open file: {path}")
+
+		json_data = file.readAll()
+		file.close()
+
+		json_doc = QtCore.QJsonDocument.fromJson(json_data)
+		if json_doc.isNull():
+			raise ValueError("Invalid JSON format")
+
+		return json_doc.toVariant()
+
+
+
 	def get_itemJSON_from_key(self, dictionary_name):
 		word_list = []
-		data_json = read_json(os.path.join(root_, "resources", "listButtonsName.json"))
+		data_json = self.read_json(os.path.join(root_, "resources", "listButtonsName.json"))
 
 		if dictionary_name in data_json:  # Check if the given dictionary exists in JSON
 			word_list = data_json[dictionary_name]
