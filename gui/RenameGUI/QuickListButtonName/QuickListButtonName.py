@@ -1,11 +1,13 @@
 try:
-    from PySide2 import QtWidgets, QtGui, QtCore, QtSvg
+    from PySide2 import QtWidgets, QtGui, QtCore
 except:
-    from PySide6 import QtWidgets, QtGui, QtCore, QtSvg
+    from PySide6 import QtWidgets, QtGui, QtCore
 
 from MSL_MayaRename.core.common import *
 from MSL_MayaRename.core.resources import Resources
 from MSL_MayaRename.gui.RenameGUI.QuickListButtonName.LibraryButtonMode import LibraryButtonMode
+from MSL_MayaRename.gui.RenameGUI.QuickListButtonName.CustomButtonLibrary import CustomButtonLibrary
+
 import os
 import maya.cmds as cmds
 
@@ -74,9 +76,9 @@ class QuickListButtonName(QtWidgets.QWidget):
 
         list_BTN = get_list_itemJSON("fast_access")
         for i in list_BTN:
-            self.fast_access_BTN = QtWidgets.QPushButton(i)
-            self.fast_access_BTN.setMaximumSize(40, 25)
-            self.main_layout.addWidget(self.fast_access_BTN)
+            self.btn = CustomButtonLibrary(i, 40,25)
+            self.main_layout.addWidget(self.btn)
+
 
         self.main_layout.addStretch()
         self.main_layout.addWidget(self.library_BTN)

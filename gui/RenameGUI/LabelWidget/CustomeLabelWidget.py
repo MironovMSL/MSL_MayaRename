@@ -30,11 +30,13 @@ class CustomeLabelWidget(QtWidgets.QLabel):
 		pass
 
 	def enterEvent(self, event):
+		self.setCursor(QtCore.Qt.PointingHandCursor)
 		self.setStyleSheet(self.enter_style)
 		self.setText(self.selected_object)
 		super().enterEvent(event)
 
 	def leaveEvent(self, event):
+		self.setCursor(QtCore.Qt.ArrowCursor)
 		self.setStyleSheet(self.default_style)
 		if self.color_rename:
 			self.setText(self.color_rename)

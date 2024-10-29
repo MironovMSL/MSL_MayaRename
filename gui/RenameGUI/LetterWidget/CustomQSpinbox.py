@@ -48,7 +48,7 @@ class CustomQSpinbox(QtWidgets.QSpinBox):
 			    }
 			"""
 
-	def __init__(self,width=55, height=25, start_Value=int,range=[], prefix="", tooltip="", parent=None):
+	def __init__(self, width=55, height=25, start_Value=int,range=[], prefix="", tooltip="", parent=None):
 		super(CustomQSpinbox, self).__init__(parent)
 
 		# Attribute----------------------
