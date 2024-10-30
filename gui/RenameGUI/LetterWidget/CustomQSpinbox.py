@@ -66,8 +66,6 @@ class CustomQSpinbox(QtWidgets.QSpinBox):
 
 		self.mode_letter = self.QSettings.value("startup/mode_letter", str)
 
-
-
 		# Check tooltip----------------------
 		if self.tooltip == "Position of letters":
 			self.name = self.tooltip

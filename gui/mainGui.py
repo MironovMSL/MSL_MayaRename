@@ -86,10 +86,18 @@ class MainToolWindow(QtWidgets.QDialog):
 		# # self.main_layout.addWidget(self.conten5)
 
 	def showEvent(self, e):
+
 		self.RenameGUI.LabelWidget.set_script_job_enabled(True)
 
 	def closeEvent(self, e):
+		print("!!!!!!!")
 		self.RenameGUI.LabelWidget.set_script_job_enabled(False)
+
+	def keyPressEvent(self, event):
+		if event.key() == QtCore.Qt.Key_Escape:
+			event.ignore()
+		else:
+			super().keyPressEvent(event)
 
 
 def creat_gui():
