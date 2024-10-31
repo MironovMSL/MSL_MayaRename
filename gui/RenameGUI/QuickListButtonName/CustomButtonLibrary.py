@@ -37,7 +37,6 @@ class CustomButtonLibrary(QtWidgets.QPushButton):
 		        color: rgb(220, 220, 220); /* Почти белый текст при нажатии */
 		    }
 		"""
-
 	Style_btn = """
 	    QPushButton {
 	        background-color: rgb(50, 50, 50);
@@ -59,6 +58,8 @@ class CustomButtonLibrary(QtWidgets.QPushButton):
 	        color: rgb(220, 220, 220);
 	    }
 	"""
+
+	# TODO: neede choose style one
 
 	def __init__(self, name="", width = 40, height = 25, parent=None):
 		super(CustomButtonLibrary, self).__init__(parent)
@@ -102,13 +103,17 @@ class CustomButtonLibrary(QtWidgets.QPushButton):
 		pop-up window's line edit changes.
 		"""
 		old_name  = self.name
-		self.name = text
-		self.setText(self.name)
+		self.set_new_name(text)
 		self.pop_up_window.button_delete.set_new_name(text)
 		self.pop_up_window.rename_linEdit.set_new_name(text)
-		self.toolTip = f"Button name [{self.name}]"
-		self.setToolTip(self.toolTip)
 		self.adjust_font_size()
+
+	def set_new_name(self, new_name):
+		if new_name != self.name:
+			self.name = new_name
+			self.setText(self.name)
+			self.toolTip = f"Button name [{self.name}]"
+			self.setToolTip(self.toolTip)
 
 	def adjust_font_size(self):
 		"""
