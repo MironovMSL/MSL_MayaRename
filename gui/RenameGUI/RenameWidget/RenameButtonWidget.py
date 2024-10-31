@@ -18,7 +18,7 @@ class RemoveButtonWidget(QtWidgets.QPushButton):
 	        border-radius: 8px;
 	        border-color: rgb(30, 30, 30); /* Темнее границы */
 	        font: normal 12px; /* Жирный шрифт */
-	        font-family: Roboto; /* Шрифт Arial */ Helvetica, Calibri, Verdana, Tahoma, Segoe UI, Open Sans, Roboto, Source Sans Pro
+	        font-family: Roboto; /* Шрифт Arial  Helvetica, Calibri, Verdana, Tahoma, Segoe UI, Open Sans, Roboto, Source Sans Pro */
 	        color: rgb(200, 200, 200); /* Светло-серый текст */
 	        padding: 0px; /* Внутренние отступы */
 	    }
