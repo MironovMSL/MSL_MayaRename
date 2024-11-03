@@ -15,6 +15,7 @@ class CustomButtonLibrary(QtWidgets.QPushButton):
 	"""
 
 	itClickedName = QtCore.Signal(str)
+	drag_button_name = QtCore.Signal(object)
 	Style_btn = """
 		    QPushButton {
 		        background-color: rgb(50, 50, 50); /* Темно-серый фон */
@@ -40,6 +41,7 @@ class CustomButtonLibrary(QtWidgets.QPushButton):
 	Style_btn = """
 	    QPushButton {
 	        background-color: rgb(50, 50, 50);
+	        
 	        border-style: outset;
 	        border-width: 2px;
 	        border-radius: 8px;
@@ -65,10 +67,10 @@ class CustomButtonLibrary(QtWidgets.QPushButton):
 		super(CustomButtonLibrary, self).__init__(parent)
 		
 		# Attribute---------------------------
-		self.name = name
-		self._width    = width
+		self.name       = name
+		self._width     = width
 		self._height    = height
-		self.toolTip = f"Button name [{self.name}]"
+		self.toolTip    = f"Button name [{self.name}]"
 		# Setting---------------------------
 		self.setFixedSize(self._width, self._height)
 		self.setText(self.name)
@@ -80,7 +82,11 @@ class CustomButtonLibrary(QtWidgets.QPushButton):
 		self.create_widgets()
 		self.create_layouts()
 		self.create_connections()
-
+		self.adjust_font_size()
+	
+	def __repr__(self):
+		return f"CustomButtonLibrary:[{self.name}]"
+	
 	def create_widgets(self):
 		self.pop_up_window   = PopUpWindow(self.name, self)
 
@@ -151,7 +157,6 @@ class CustomButtonLibrary(QtWidgets.QPushButton):
 		"""
 		Emits the signal when the button is clicked.
 		"""
-		print(f"TODO: clocked {self.name}")
 		self.itClickedName.emit(self.text())
 
 	def on_delete_btn(self):
@@ -181,29 +186,40 @@ class CustomButtonLibrary(QtWidgets.QPushButton):
 		else:
 			middle_button = QtCore.Qt.MidButton  # Для Qt5
 
-		if event.buttons() != middle_button:
+		if event.button() != middle_button:
 			return
 
-		self.setVisible(0)
-		mimeData = NameMIMEData()
-		mimeData.Name_Btn = self.text()
-
-		# Creat ghost image
-		self.pixmap = self.grab()
+		# Скрываем кнопку
+		# self.setVisible(False)
+		
+		self.drag_button_name.emit(self)
+		# Create MIME data and set text
+		mimeData = QtCore.QMimeData()
+		mimeData.setText(self.text())
+		# Capture the button image
+		self.pixmap  = self.grab()
+		radius       = 8 # Set the rounding radius
+		rounded_mask = QtGui.QBitmap(self.pixmap.size()) # Create a circular mask taking into account the radius
+		rounded_mask.fill(QtCore.Qt.color0)  # Fully transparent background for the mask
+		painter      = QtGui.QPainter(rounded_mask)
+		painter.setRenderHint(QtGui.QPainter.Antialiasing)
+		painter.setBrush(QtCore.Qt.color1)  # Color that will be visible
+		painter.drawRoundedRect(self.pixmap.rect(), radius, radius)  # Rounded rectangle to fit button size
+		painter.end()
+		# Set a mask on the image
+		self.pixmap.setMask(rounded_mask)
+		# Darken the image to create a "ghost"
 		painter = QtGui.QPainter(self.pixmap)
-
-		painter.setCompositionMode(painter.CompositionMode_DestinationIn)
-		painter.fillRect(self.pixmap.rect(), QtGui.QColor(80, 80, 80, 100))
-		painter.end
-
-		# start drag and drop
+		painter.setCompositionMode(QtGui.QPainter.CompositionMode_DestinationIn)
+		painter.fillRect(self.pixmap.rect(), QtGui.QColor(80, 80, 80, 200)) # Only transparency is applied, RGB color is not applied
+		painter.end()
+		# Create a QDrag object and configure it
 		drag = QtGui.QDrag(self)
 		drag.setMimeData(mimeData)
 		drag.setPixmap(self.pixmap)
-		drag.setHotSpot(event.pos())
-
-		drag.exec_(QtCore.Qt.LinkAction | QtCore.Qt.MoveAction)
-
+		drag.setHotSpot(event.pos())  # Set the capture point
+		
+		drag.exec_(QtCore.Qt.LinkAction | QtCore.Qt.MoveAction) # Start the drag and drop action
 
 class PopUpWindow(QtWidgets.QWidget):
 	"""

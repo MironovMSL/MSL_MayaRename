@@ -6,13 +6,11 @@ except:
 from MSL_MayaRename.core.common import *
 from MSL_MayaRename.core.resources import Resources
 from MSL_MayaRename.gui.RenameGUI.QuickListButtonName.LibraryButtonMode import LibraryButtonMode
-from MSL_MayaRename.gui.RenameGUI.QuickListButtonName.CustomButtonLibrary import CustomButtonLibrary
+# from MSL_MayaRename.gui.RenameGUI.QuickListButtonName.CustomButtonLibrary import CustomButtonLibrary
+from MSL_MayaRename.gui.RenameGUI.QuickListButtonName.CustomScrollArea import CustomScrollArea
 
 import os
 import maya.cmds as cmds
-
-root_ = os.path.dirname(__file__) #...\QuickListButtonName
-new_root = os.path.abspath(os.path.join(root_, '..', '..')) # ...\gui
 
 class QuickListButtonName(QtWidgets.QWidget):
 
@@ -56,7 +54,7 @@ class QuickListButtonName(QtWidgets.QWidget):
         super(QuickListButtonName, self).__init__(parent)
 
         # Attribute---------------------------
-        self.FixedHeight = 25
+        self.FixedHeight = 30
         # Setting---------------------------
         self.setObjectName("QuickListButtonNameID")
         self.setFixedHeight(self.FixedHeight)
@@ -68,19 +66,14 @@ class QuickListButtonName(QtWidgets.QWidget):
 
     def create_Widgets(self):
         self.library_BTN = LibraryButtonMode(25, 25)
+        self.Scroll_Area = CustomScrollArea()
 
     def create_layouts(self):
         self.main_layout = QtWidgets.QHBoxLayout(self)
         self.main_layout.setContentsMargins(0, 0, 0, 0)
         self.main_layout.setSpacing(0)
 
-        list_BTN = get_list_itemJSON("fast_access")
-        for i in list_BTN:
-            self.btn = CustomButtonLibrary(i, 40,25)
-            self.main_layout.addWidget(self.btn)
-
-
-        self.main_layout.addStretch()
+        self.main_layout.addWidget(self.Scroll_Area)
         self.main_layout.addWidget(self.library_BTN)
 
 

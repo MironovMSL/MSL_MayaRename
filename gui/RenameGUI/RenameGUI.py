@@ -27,7 +27,7 @@ class RenameGUI(QtWidgets.QWidget):
 		# Attribute----------------------
 		self.resources   = Resources.get_instance()
 		self.QSettings   = QtCore.QSettings(self.resources.config_path, QtCore.QSettings.IniFormat)
-		self.FixedHeigt  = 200
+		self.FixedHeigt  = 205
 		# mode----------------------------
 		self.mode_button = None # mode button for button and lineEdits
 		self.mode_number = None # mode number for Numeric

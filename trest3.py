@@ -194,3 +194,469 @@ if __name__ == "__main__":
 
     toolbox_dialog = ToolboxDialog()
     toolbox_dialog.show()
+
+import sys
+
+from PySide2 import QtCore
+from PySide2 import QtGui
+from PySide2 import QtWidgets
+from shiboken2 import wrapInstance
+
+import maya.cmds as cmds
+import maya.OpenMayaUI as omui
+
+
+def maya_main_window():
+    """
+    Return the Maya main window widget as a Python object
+    """
+    main_window_ptr = omui.MQtUtil.mainWindow()
+    if sys.version_info.major >= 3:
+        return wrapInstance(int(main_window_ptr), QtWidgets.QWidget)
+    else:
+        return wrapInstance(long(main_window_ptr), QtWidgets.QWidget)
+
+
+class DragAndDropNodeListWidget(QtWidgets.QListWidget):
+    nodes_dropped = QtCore.Signal(list)
+    
+    def __init__(self, parent=None):
+        super(DragAndDropNodeListWidget, self).__init__(parent)
+        
+        self.setDragEnabled(True)
+        self.setAcceptDrops(True)
+    
+    def startDrag(self, supported_actions):
+        items = self.selectedItems()
+        nodes = []
+        for item in items:
+            nodes.append(item.data(QtCore.Qt.UserRole))
+        
+        nodes_str = " ".join(nodes)
+        
+        mime_data = QtCore.QMimeData()
+        
+        if sys.version_info.major >= 3:
+            mime_data.setData("zurbrigg/node_list", nodes_str.encode())
+        else:
+            mime_data.setData("zurbrigg/node_list", QtCore.QByteArray(str(nodes_str)))
+        
+        drag = QtGui.QDrag(self)
+        drag.setMimeData(mime_data)
+        
+        drag.exec_()
+    
+    def dragEnterEvent(self, drag_event):
+        if drag_event.mimeData().hasFormat("zurbrigg/node_list"):
+            drag_event.acceptProposedAction()
+    
+    def dragMoveEvent(self, drag_event):
+        pass
+    
+    def dropEvent(self, drop_event):
+        mime_data = drop_event.mimeData()
+        
+        if mime_data.hasFormat("zurbrigg/node_list"):
+            nodes_byte_array = mime_data.data("zurbrigg/node_list")
+            
+            if sys.version_info.major >= 3:
+                nodes_str = nodes_byte_array.data().decode()
+            else:
+                nodes_str = str(nodes_byte_array)
+            
+            nodes = nodes_str.split(" ")
+            
+            self.nodes_dropped.emit(nodes)
+
+
+class MeshVisibilityDialog(QtWidgets.QDialog):
+    WINDOW_TITLE = "Mesh Visibility"
+    
+    def __init__(self, parent=maya_main_window()):
+        super(MeshVisibilityDialog, self).__init__(parent)
+        
+        self.setWindowTitle(self.WINDOW_TITLE)
+        if cmds.about(ntOS=True):
+            self.setWindowFlags(self.windowFlags() ^ QtCore.Qt.WindowContextHelpButtonHint)
+        elif cmds.about(macOS=True):
+            self.setWindowFlags(QtCore.Qt.Tool)
+        
+        self.create_widgets()
+        self.create_layout()
+        self.create_connections()
+        
+        self.refresh_lists()
+    
+    def create_widgets(self):
+        self.visible_mesh_list_wdg = DragAndDropNodeListWidget()
+        self.visible_mesh_list_wdg.setSelectionMode(QtWidgets.QAbstractItemView.ExtendedSelection)
+        
+        self.hidden_mesh_list_wdg = DragAndDropNodeListWidget()
+        self.hidden_mesh_list_wdg.setSelectionMode(QtWidgets.QAbstractItemView.ExtendedSelection)
+        
+        self.hide_btn = QtWidgets.QPushButton(">>")
+        self.hide_btn.setFixedWidth(24)
+        self.show_btn = QtWidgets.QPushButton("<<")
+        self.show_btn.setFixedWidth(24)
+        
+        self.refresh_btn = QtWidgets.QPushButton("Refresh")
+        self.close_btn = QtWidgets.QPushButton("Close")
+    
+    def create_layout(self):
+        visible_mesh_layout = QtWidgets.QVBoxLayout()
+        visible_mesh_layout.addWidget(QtWidgets.QLabel("Visible Meshes:"))
+        visible_mesh_layout.addWidget(self.visible_mesh_list_wdg)
+        
+        hidden_mesh_layout = QtWidgets.QVBoxLayout()
+        hidden_mesh_layout.addWidget(QtWidgets.QLabel("Hidden Meshes:"))
+        hidden_mesh_layout.addWidget(self.hidden_mesh_list_wdg)
+        
+        show_hide_button_layout = QtWidgets.QVBoxLayout()
+        show_hide_button_layout.addStretch()
+        show_hide_button_layout.addWidget(self.hide_btn)
+        show_hide_button_layout.addWidget(self.show_btn)
+        show_hide_button_layout.addStretch()
+        
+        list_layout = QtWidgets.QHBoxLayout()
+        list_layout.addLayout(visible_mesh_layout)
+        list_layout.addLayout(show_hide_button_layout)
+        list_layout.addLayout(hidden_mesh_layout)
+        
+        button_layout = QtWidgets.QHBoxLayout()
+        button_layout.setSpacing(4)
+        button_layout.addStretch()
+        button_layout.addWidget(self.refresh_btn)
+        button_layout.addWidget(self.close_btn)
+        
+        main_layout = QtWidgets.QVBoxLayout(self)
+        main_layout.setContentsMargins(2, 2, 2, 2)
+        main_layout.addLayout(list_layout)
+        main_layout.addStretch()
+        main_layout.addLayout(button_layout)
+    
+    def create_connections(self):
+        self.hide_btn.clicked.connect(self.hide_selected)
+        self.show_btn.clicked.connect(self.show_selected)
+        
+        self.visible_mesh_list_wdg.nodes_dropped.connect(self.show_nodes)
+        self.hidden_mesh_list_wdg.nodes_dropped.connect(self.hide_nodes)
+        
+        self.refresh_btn.clicked.connect(self.refresh_lists)
+        self.close_btn.clicked.connect(self.close)
+    
+    def refresh_lists(self):
+        self.visible_mesh_list_wdg.clear()
+        self.hidden_mesh_list_wdg.clear()
+        
+        meshes = cmds.ls(type="mesh", long=True)
+        meshes.sort()
+        
+        for mesh in meshes:
+            transform_short_name = cmds.listRelatives(mesh, parent=True, type="transform")[0]
+            transform_long_name = cmds.listRelatives(mesh, parent=True, type="transform", fullPath=True)[0]
+            
+            item = QtWidgets.QListWidgetItem(transform_short_name)
+            item.setData(QtCore.Qt.UserRole, transform_long_name)
+            
+            if self.is_node_visible(transform_long_name):
+                self.visible_mesh_list_wdg.addItem(item)
+            else:
+                self.hidden_mesh_list_wdg.addItem(item)
+    
+    def is_node_visible(self, name):
+        return cmds.getAttr("{0}.visibility".format(name))
+    
+    def set_node_visible(self, name, visible):
+        cmds.setAttr("{0}.visibility".format(name), visible)
+    
+    def show_nodes(self, nodes):
+        for node in nodes:
+            self.set_node_visible(node, True)
+        
+        self.refresh_lists()
+        
+        for i in range(self.visible_mesh_list_wdg.count()):
+            item = self.visible_mesh_list_wdg.item(i)
+            if item.data(QtCore.Qt.UserRole) in nodes:
+                self.visible_mesh_list_wdg.setCurrentRow(i, QtCore.QItemSelectionModel.Select)
+    
+    def hide_nodes(self, nodes):
+        for node in nodes:
+            self.set_node_visible(node, False)
+        
+        self.refresh_lists()
+        
+        for i in range(self.hidden_mesh_list_wdg.count()):
+            item = self.hidden_mesh_list_wdg.item(i)
+            if item.data(QtCore.Qt.UserRole) in nodes:
+                self.hidden_mesh_list_wdg.setCurrentRow(i, QtCore.QItemSelectionModel.Select)
+    
+    def show_selected(self):
+        nodes = []
+        selected_items = self.hidden_mesh_list_wdg.selectedItems()
+        
+        for item in selected_items:
+            nodes.append(item.data(QtCore.Qt.UserRole))
+        
+        self.show_nodes(nodes)
+    
+    def hide_selected(self):
+        nodes = []
+        selected_items = self.visible_mesh_list_wdg.selectedItems()
+        for item in selected_items:
+            nodes.append(item.data(QtCore.Qt.UserRole))
+        
+        self.hide_nodes(nodes)
+
+
+if __name__ == "__main__":
+    
+    try:
+        mesh_dialog.close()  # pylint: disable=E0601
+        mesh_dialog.deleteLater()
+    except:
+        pass
+    
+    mesh_dialog = MeshVisibilityDialog()
+    mesh_dialog.show()
+    
+    
+import sys
+
+from PySide2 import QtCore
+from PySide2 import QtGui
+from PySide2 import QtWidgets
+from shiboken2 import wrapInstance
+
+import maya.cmds as cmds
+import maya.OpenMayaUI as omui
+
+
+def maya_main_window():
+    """
+    Return the Maya main window widget as a Python object
+    """
+    main_window_ptr = omui.MQtUtil.mainWindow()
+    if sys.version_info.major >= 3:
+        return wrapInstance(int(main_window_ptr), QtWidgets.QWidget)
+    else:
+        return wrapInstance(long(main_window_ptr), QtWidgets.QWidget)
+
+
+class TextEditor(QtWidgets.QPlainTextEdit):
+
+    def __init__(self, parent=None):
+        super(TextEditor, self).__init__(parent)
+
+    def open_file(self, file_path):
+        if file_path:
+            file_info = QtCore.QFileInfo(file_path)
+            if file_info.exists() and file_info.isFile():
+
+                f = QtCore.QFile(file_info.absoluteFilePath())
+                if f.open(QtCore.QFile.ReadOnly | QtCore.QFile.Text):
+                    text_stream = QtCore.QTextStream(f)
+                    text_stream.setCodec("UTF-8")
+
+                    text = text_stream.readAll()
+
+                    f.close()
+
+                    self.setPlainText(text)
+
+    def dragEnterEvent(self, drag_event):
+        if drag_event.mimeData().hasText() or drag_event.mimeData().hasUrls():
+            drag_event.acceptProposedAction()
+
+    def dropEvent(self, drop_event):
+        if drop_event.mimeData().hasUrls():
+            urls = drop_event.mimeData().urls()
+
+            file_path = urls[0].toLocalFile()
+            self.open_file(file_path)
+
+            return
+
+        super(TextEditor, self).dropEvent(drop_event)
+
+
+class TextEditorDialog(QtWidgets.QDialog):
+
+    WINDOW_TITLE = "File Explorer Drag and Drop"
+
+    def __init__(self, parent=maya_main_window()):
+        super(TextEditorDialog, self).__init__(parent)
+
+        self.setWindowTitle(self.WINDOW_TITLE)
+        if cmds.about(ntOS=True):
+            self.setWindowFlags(self.windowFlags() ^ QtCore.Qt.WindowContextHelpButtonHint)
+        elif cmds.about(macOS=True):
+            self.setWindowFlags(QtCore.Qt.Tool)
+
+        self.setMinimumSize(800, 400)
+
+        self.create_widgets()
+        self.create_layout()
+        self.create_connections()
+
+    def create_widgets(self):
+        self.editor = TextEditor()
+
+        self.clear_btn = QtWidgets.QPushButton("Clear")
+        self.close_btn = QtWidgets.QPushButton("Close")
+
+        self.create_tree_view()
+
+    def create_tree_view(self):
+        root_path = "{0}scripts".format(cmds.internalVar(userAppDir=True))
+
+        self.model = QtWidgets.QFileSystemModel()
+        self.model.setRootPath(root_path)
+
+        self.tree_view = QtWidgets.QTreeView()
+        self.tree_view.setModel(self.model)
+        self.tree_view.setRootIndex(self.model.index(root_path))
+        self.tree_view.hideColumn(1)
+        self.tree_view.hideColumn(3)
+        self.tree_view.setColumnWidth(0, 240)
+        self.tree_view.setFixedWidth(360)
+
+        self.tree_view.setDragEnabled(True)
+
+        self.model.setNameFilters(["*.py"])
+        self.model.setNameFilterDisables(False)
+
+    def create_layout(self):
+        side_bar_layout = QtWidgets.QHBoxLayout()
+        side_bar_layout.addWidget(self.tree_view)
+        side_bar_layout.addWidget(self.editor)
+
+        button_layout = QtWidgets.QHBoxLayout()
+        button_layout.setSpacing(4)
+        button_layout.addStretch()
+        button_layout.addWidget(self.clear_btn)
+        button_layout.addWidget(self.close_btn)
+
+        main_layout = QtWidgets.QVBoxLayout(self)
+        main_layout.setContentsMargins(2, 2, 2, 2)
+        main_layout.addLayout(side_bar_layout)
+        main_layout.addLayout(button_layout)
+
+    def create_connections(self):
+        self.tree_view.doubleClicked.connect(self.open_file)
+
+        self.clear_btn.clicked.connect(self.clear_editor)
+        self.close_btn.clicked.connect(self.close)
+
+    def clear_editor(self):
+        self.editor.setPlainText("")
+
+    def open_file(self, index):
+        if not self.model.isDir(index):
+            file_path = self.model.filePath(index)
+            self.editor.open_file(file_path)
+
+
+if __name__ == "__main__":
+
+    try:
+        text_editor_dialog.close() # pylint: disable=E0601
+        text_editor_dialog.deleteLater()
+    except:
+        pass
+
+    text_editor_dialog = TextEditorDialog()
+    text_editor_dialog.show()
+
+import sys
+from Piside6.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout, QPushButton, QScrollArea
+from Piside6.QtCore import Qt, QMimeData, QDrag, QTimer
+
+
+class DraggableButton(QPushButton):
+    def __init__(self, text):
+        super().__init__(text)
+        self.setAcceptDrops(True)
+    
+    def mousePressEvent(self, event):
+        if event.button() == Qt.LeftButton:
+            # Начинаем перетаскивание
+            drag = QDrag(self)
+            mime_data = QMimeData()
+            mime_data.setText(self.text())
+            drag.setMimeData(mime_data)
+            drag.exec_(Qt.MoveAction)
+
+
+class ScrollableWidget(QScrollArea):
+    def __init__(self):
+        super().__init__()
+        self.setWidgetResizable(True)
+        self.setAcceptDrops(True)
+        
+        # Внутренний виджет
+        self.content_widget = QWidget()
+        self.layout = QVBoxLayout(self.content_widget)
+        self.setWidget(self.content_widget)
+        
+        # Таймер для прокрутки
+        self.scroll_timer = QTimer(self)
+        self.scroll_timer.timeout.connect(self.scroll_content)
+        
+        # Переменная для направления прокрутки
+        self.scroll_direction = 0
+    
+    def add_button(self, button):
+        self.layout.addWidget(button)
+    
+    def enterEvent(self, event):
+        # Остановить таймер при входе в область
+        self.scroll_timer.stop()
+        super().enterEvent(event)
+    
+    def leaveEvent(self, event):
+        # Остановить таймер при выходе из области
+        self.scroll_timer.stop()
+        super().leaveEvent(event)
+    
+    def mouseMoveEvent(self, event):
+        # Проверяем позицию курсора
+        cursor_pos = event.pos()
+        if cursor_pos.x() < 10:  # Левый край
+            self.scroll_direction = -1
+            self.scroll_timer.start(100)  # Запуск таймера
+        elif cursor_pos.x() > self.width() - 10:  # Правый край
+            self.scroll_direction = 1
+            self.scroll_timer.start(100)  # Запуск таймера
+        else:
+            self.scroll_direction = 0
+            self.scroll_timer.stop()  # Остановить таймер
+        super().mouseMoveEvent(event)
+    
+    def scroll_content(self):
+        if self.scroll_direction != 0:
+            self.verticalScrollBar().setValue(self.verticalScrollBar().value() + self.scroll_direction * 10)
+
+
+class MainWindow(QMainWindow):
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle('Drag and Drop с прокруткой')
+        
+        # Создаем ScrollableWidget
+        self.scroll_area = ScrollableWidget()
+        self.setCentralWidget(self.scroll_area)
+        
+        # Добавляем перетаскиваемые кнопки
+        for i in range(20):
+            button = DraggableButton(f'Кнопка {i + 1}')
+            self.scroll_area.add_button(button)
+
+
+if __name__ == '__main__':
+    app = QApplication(sys.argv)
+    window = MainWindow()
+    window.resize(300, 200)
+    window.show()
+    sys.exit(app.exec_())
+

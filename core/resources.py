@@ -75,9 +75,10 @@ class Resources(object):
 
 		return json_doc.toVariant()
 
-
-
 	def get_itemJSON_from_key(self, dictionary_name):
+		"""
+		 Retrieves a list of words from a JSON file by the specified key.
+	    """
 		word_list = []
 		data_json = self.read_json(os.path.join(root_, "resources", "listButtonsName.json"))
 
@@ -87,6 +88,9 @@ class Resources(object):
 		return word_list
 
 	def get_icon_from_resources(self, name=""):
+		"""
+		Retrieves an icon from the resources directory by the specified name.
+		"""
 		icon = QtGui.QIcon(os.path.join(root_, "resources", "icon", name))
 		return icon
 

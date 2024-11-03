@@ -26,7 +26,7 @@ class MainToolWindow(QtWidgets.QDialog):
 		self.setWindowTitle("MSL Rename")
 		self.setObjectName("MainToolWindowID")
 		self.setWindowIcon(QtGui.QIcon(os.path.join(root_,"resources", "icon", "earth-svgrepo-com.svg")))  # crab-svgrepo-com  pen-svgrepo-com earth-svgrepo-com
-		self.setMinimumWidth(300)
+		self.setMinimumWidth(305)
 		self.setMinimumHeight(250)
 		self.resize(300,250)
 
@@ -86,11 +86,9 @@ class MainToolWindow(QtWidgets.QDialog):
 		# # self.main_layout.addWidget(self.conten5)
 
 	def showEvent(self, e):
-
 		self.RenameGUI.LabelWidget.set_script_job_enabled(True)
 
 	def closeEvent(self, e):
-		print("!!!!!!!")
 		self.RenameGUI.LabelWidget.set_script_job_enabled(False)
 
 	def keyPressEvent(self, event):
