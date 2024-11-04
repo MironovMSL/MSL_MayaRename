@@ -16,28 +16,7 @@ class CustomButtonLibrary(QtWidgets.QPushButton):
 
 	itClickedName = QtCore.Signal(str)
 	drag_button_name = QtCore.Signal(object)
-	Style_btn = """
-		    QPushButton {
-		        background-color: rgb(50, 50, 50); /* Темно-серый фон */
-		        border-style: outset;
-		        border-width: 2px;
-		        border-radius: 8px;
-		        border-color: rgb(30, 30, 30); /* Темнее границы */
-		        font: normal 12px; /* Жирный шрифт */
-		        font-family: Roboto; /* Шрифт Arial */ Helvetica, Calibri, Verdana, Tahoma, Segoe UI, Open Sans, Roboto, Source Sans Pro
-		        color: rgb(200, 200, 200); /* Светло-серый текст */
-		        padding: 0px; /* Внутренние отступы */
-		    }
-		    QPushButton:hover {
-		        border-color: rgb(70, 70, 70); /* Светло-серая граница при наведении */
-		        background-color: rgb(80, 80, 80); /* Более светлый серый при наведении */
-		    }
-		    QPushButton:pressed {
-		        background-color: rgb(30, 30, 30); /* Почти черный при нажатии */
-		        border-style: inset; /* Впадение при нажатии */
-		        color: rgb(220, 220, 220); /* Почти белый текст при нажатии */
-		    }
-		"""
+
 	Style_btn = """
 	    QPushButton {
 	        background-color: rgb(50, 50, 50);
@@ -189,10 +168,8 @@ class CustomButtonLibrary(QtWidgets.QPushButton):
 		if event.button() != middle_button:
 			return
 
-		# Скрываем кнопку
-		# self.setVisible(False)
-		
 		self.drag_button_name.emit(self)
+		
 		# Create MIME data and set text
 		mimeData = QtCore.QMimeData()
 		mimeData.setText(self.text())
@@ -370,4 +347,3 @@ class CustomPushButtonLibraryPopUP(QtWidgets.QPushButton):
 	def leaveEvent(self, event):
 		self.setCursor(QtCore.Qt.ArrowCursor)
 		super(CustomPushButtonLibraryPopUP, self).leaveEvent(event)
-

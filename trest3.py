@@ -423,10 +423,10 @@ if __name__ == "__main__":
     
 import sys
 
-from PySide2 import QtCore
-from PySide2 import QtGui
-from PySide2 import QtWidgets
-from shiboken2 import wrapInstance
+from PySide6 import QtCore
+from PySide6 import QtGui
+from PySide6 import QtWidgets
+from shiboken6 import wrapInstance
 
 import maya.cmds as cmds
 import maya.OpenMayaUI as omui
@@ -567,96 +567,3 @@ if __name__ == "__main__":
 
     text_editor_dialog = TextEditorDialog()
     text_editor_dialog.show()
-
-import sys
-from Piside6.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout, QPushButton, QScrollArea
-from Piside6.QtCore import Qt, QMimeData, QDrag, QTimer
-
-
-class DraggableButton(QPushButton):
-    def __init__(self, text):
-        super().__init__(text)
-        self.setAcceptDrops(True)
-    
-    def mousePressEvent(self, event):
-        if event.button() == Qt.LeftButton:
-            # Начинаем перетаскивание
-            drag = QDrag(self)
-            mime_data = QMimeData()
-            mime_data.setText(self.text())
-            drag.setMimeData(mime_data)
-            drag.exec_(Qt.MoveAction)
-
-
-class ScrollableWidget(QScrollArea):
-    def __init__(self):
-        super().__init__()
-        self.setWidgetResizable(True)
-        self.setAcceptDrops(True)
-        
-        # Внутренний виджет
-        self.content_widget = QWidget()
-        self.layout = QVBoxLayout(self.content_widget)
-        self.setWidget(self.content_widget)
-        
-        # Таймер для прокрутки
-        self.scroll_timer = QTimer(self)
-        self.scroll_timer.timeout.connect(self.scroll_content)
-        
-        # Переменная для направления прокрутки
-        self.scroll_direction = 0
-    
-    def add_button(self, button):
-        self.layout.addWidget(button)
-    
-    def enterEvent(self, event):
-        # Остановить таймер при входе в область
-        self.scroll_timer.stop()
-        super().enterEvent(event)
-    
-    def leaveEvent(self, event):
-        # Остановить таймер при выходе из области
-        self.scroll_timer.stop()
-        super().leaveEvent(event)
-    
-    def mouseMoveEvent(self, event):
-        # Проверяем позицию курсора
-        cursor_pos = event.pos()
-        if cursor_pos.x() < 10:  # Левый край
-            self.scroll_direction = -1
-            self.scroll_timer.start(100)  # Запуск таймера
-        elif cursor_pos.x() > self.width() - 10:  # Правый край
-            self.scroll_direction = 1
-            self.scroll_timer.start(100)  # Запуск таймера
-        else:
-            self.scroll_direction = 0
-            self.scroll_timer.stop()  # Остановить таймер
-        super().mouseMoveEvent(event)
-    
-    def scroll_content(self):
-        if self.scroll_direction != 0:
-            self.verticalScrollBar().setValue(self.verticalScrollBar().value() + self.scroll_direction * 10)
-
-
-class MainWindow(QMainWindow):
-    def __init__(self):
-        super().__init__()
-        self.setWindowTitle('Drag and Drop с прокруткой')
-        
-        # Создаем ScrollableWidget
-        self.scroll_area = ScrollableWidget()
-        self.setCentralWidget(self.scroll_area)
-        
-        # Добавляем перетаскиваемые кнопки
-        for i in range(20):
-            button = DraggableButton(f'Кнопка {i + 1}')
-            self.scroll_area.add_button(button)
-
-
-if __name__ == '__main__':
-    app = QApplication(sys.argv)
-    window = MainWindow()
-    window.resize(300, 200)
-    window.show()
-    sys.exit(app.exec_())
-

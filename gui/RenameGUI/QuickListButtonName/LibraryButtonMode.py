@@ -4,6 +4,7 @@ except:
 	from PySide6 import QtWidgets, QtGui, QtCore
 
 from MSL_MayaRename.core.resources import Resources
+from MSL_MayaRename.gui.RenameGUI.QuickListButtonName.LibraryGUI.LibraryGUI import LibraryWindow
 
 
 class LibraryButtonMode(QtWidgets.QPushButton):
@@ -52,7 +53,7 @@ class LibraryButtonMode(QtWidgets.QPushButton):
 		# Attribute---------------------------
 		self.width     = width
 		self.height    = height
-		self.tooltip   = f"Library"
+		self.tooltip   = f"Library of names"
 		self.icon      = self.resources.get_icon_from_resources("pen-svgrepo-com.svg")
 		self.has_state = self.resources.config.get_variable("library", "library_mode", False, bool)
 		# Setting---------------------------
@@ -63,11 +64,39 @@ class LibraryButtonMode(QtWidgets.QPushButton):
 		self.setCheckable(True)
 		self.setChecked(self.has_state)
 		# Run functions ---------------------------
+		self.create_widgets()
 		self.create_connections()
-
+		self.show_library(self.has_state)
+	
+	def create_widgets(self):
+		self.Library_Win = LibraryWindow()
+	
 	def create_connections(self):
 		self.clicked.connect(self.is_active_mode)
+		self.Library_Win.library_show.connect(self.state_button)
 
 	def is_active_mode(self, state):
 		self.resources.config.set_variable("library", "library_mode", state)
+		self.state_button(state)
+		self.show_library(state)
+	
+	
+	def state_button(self, state):
+		self.has_state = state
+		self.setChecked(self.has_state)
 		print(f"TODO: library: {'Open UI' if state else 'Close UI'}:")
+	
+	def show_library(self, state):
+		if state:
+			self.Library_Win.show()
+			# mainWindow = self.parent().parent().parent()
+			#
+			# # posX = mainWindow.geometry().left() + mainWindow.geometry().width()
+			# posX = mainWindow.geometry().left()
+			# posY = mainWindow.y() + mainWindow.frameGeometry().height()
+			self.Library_Win.move(-338, 740) # -338 740
+			self.Library_Win.show()
+			# print(posX, posY, )
+		else:
+			self.Library_Win.close()
+		

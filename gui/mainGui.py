@@ -4,12 +4,14 @@ try:
 except:
 	from PySide6 import QtWidgets, QtGui, QtCore
 	from shiboken6 import wrapInstance
-
+	
+from MSL_MayaRename.core.resources import Resources
 import sys
 import os
 import maya.OpenMayaUI as omui
 import maya.cmds as cmds
 from MSL_MayaRename.gui.RenameGUI.RenameGUI import RenameGUI
+
 
 root_ = os.path.dirname(__file__)
 
@@ -19,13 +21,18 @@ def maya_main_window():
 
 
 class MainToolWindow(QtWidgets.QDialog):
+	
+	WINDOW_TITLE = "MSL Rename"
 
 	def __init__(self, parent=maya_main_window()):
-		super().__init__(parent)
+		super(MainToolWindow, self).__init__(parent)
+		
+		self.resources = Resources.get_instance()
+		self.icon = self.resources.get_icon_from_resources("earth-svgrepo-com.svg")
 
-		self.setWindowTitle("MSL Rename")
-		self.setObjectName("MainToolWindowID")
-		self.setWindowIcon(QtGui.QIcon(os.path.join(root_,"resources", "icon", "earth-svgrepo-com.svg")))  # crab-svgrepo-com  pen-svgrepo-com earth-svgrepo-com
+		self.setWindowTitle(self.WINDOW_TITLE)
+		self.setObjectName("MainRenameToolWindowID")
+		self.setWindowIcon(self.icon)  # crab-svgrepo-com  pen-svgrepo-com earth-svgrepo-com
 		self.setMinimumWidth(305)
 		self.setMinimumHeight(250)
 		self.resize(300,250)
@@ -99,8 +106,17 @@ class MainToolWindow(QtWidgets.QDialog):
 
 
 def creat_gui():
-	if cmds.window("MainToolWindowID", exists=True):
-		cmds.deleteUI("MainToolWindowID")
+	if cmds.window("MainRenameToolWindowID", exists=True):
+		cmds.deleteUI("MainRenameToolWindowID")
+
+	if cmds.windowPref("MainRenameToolWindowID", exists=1):
+		cmds.windowPref("MainRenameToolWindowID", remove=1)
+	
+	# try:
+	# 	win.close()  # pylint: disable=E0601
+	# 	win.deleteLater()
+	# except:
+	# 	pass
 
 	win = MainToolWindow()
 	win.show()

@@ -123,9 +123,11 @@ class ScrolContentWidget(QtWidgets.QWidget):
 		self.scroll_timer.timeout.connect(self.scroll_content)
 
 	def get_info(self):
-		print(self.info)
-		print(self.dragged_button)
-		print(self.placeholder_index)
+		state = False
+		if state:
+			print(self.info)
+			print(self.dragged_button)
+			print(self.placeholder_index)
 	
 	def add_content(self):
 		"""
@@ -133,21 +135,6 @@ class ScrolContentWidget(QtWidgets.QWidget):
 		Ensures that no duplicate buttons are added.
 		"""
 
-		# for i in self.word_list:
-		#     button = CustomButtonLibrary(i, self._width,self._height)
-		#     self.main_layout.addWidget(button)
-		#     button.itClickedName.connect(self.emit_signal)
-		#     button.drag_button_name.connect(self.set_dragged_button)
-		#
-		# for i in self.word_list:
-		# 	button = CustomButtonLibrary(i, self._width, self._height)
-		# 	self.main_layout.addWidget(button)
-		# 	button.itClickedName.connect(self.emit_signal)
-		# 	button.drag_button_name.connect(self.set_dragged_button)
-
-		for word in self.word_list:
-			self.add_button(word)
-		
 		for word in self.word_list:
 			self.add_button(word)
 
