@@ -64,7 +64,7 @@ class CustomButtonLibrary(QtWidgets.QPushButton):
 		self.adjust_font_size()
 	
 	def __repr__(self):
-		return f"CustomButtonLibrary:[{self.name}]"
+		return f"Class: CustomButtonLibrary - [{self.name}]"
 	
 	def create_widgets(self):
 		self.pop_up_window   = PopUpWindow(self.name, self)

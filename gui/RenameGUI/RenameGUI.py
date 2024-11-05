@@ -841,6 +841,7 @@ class RenameGUI(QtWidgets.QWidget):
 	def _reset_text(self, text, items_dift):
 		if items_dift > 0:
 			self.left   = text
+			self.minR   = len(self.prefix)
 			self.maxR   = len(text) + len(self.prefix)
 			pos_X       = len(text) + len(self.prefix)
 			new_cur     = len(text) + len(self.prefix)
@@ -849,6 +850,7 @@ class RenameGUI(QtWidgets.QWidget):
 			self.update_pos_X_Y_num_let(items_dift=pos_X, side="X", len_X=0)
 			self.RenameWidget.LineEditor.AutoComplete_line_edit.setClearButtonEnabled(True)
 			self.info = " ___ADD___ --> [prefix][number][letter][suffix]"
+
 		else:
 			new_cur    = 0
 			newText    = ""

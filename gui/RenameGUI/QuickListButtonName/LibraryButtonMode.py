@@ -1,3 +1,7 @@
+from logging import fatal
+
+from imath import trunc
+
 try:
 	from PySide2 import QtWidgets, QtGui, QtCore
 except:
@@ -76,19 +80,20 @@ class LibraryButtonMode(QtWidgets.QPushButton):
 		self.Library_Win.library_show.connect(self.state_button)
 
 	def is_active_mode(self, state):
-		self.resources.config.set_variable("library", "library_mode", state)
-		self.state_button(state)
 		self.show_library(state)
-	
+		self.state_button(state)
+		
 	
 	def state_button(self, state):
-		self.has_state = state
-		self.setChecked(self.has_state)
-		print(f"TODO: library: {'Open UI' if state else 'Close UI'}:")
-	
+		if  not self.state_close_window:
+			self.resources.config.set_variable("library", "library_mode", state)
+			self.has_state = state
+			self.setChecked(self.has_state)
+			print(f"TODO: library: {'Open UI' if state else 'Close UI'}:")
+		self.state_close_window = False
+		
 	def show_library(self, state):
 		if state:
-			self.Library_Win.show()
 			# mainWindow = self.parent().parent().parent()
 			#
 			# # posX = mainWindow.geometry().left() + mainWindow.geometry().width()
@@ -96,7 +101,10 @@ class LibraryButtonMode(QtWidgets.QPushButton):
 			# posY = mainWindow.y() + mainWindow.frameGeometry().height()
 			self.Library_Win.move(-338, 740) # -338 740
 			self.Library_Win.show()
+			self.state_close_window = False
+			
 			# print(posX, posY, )
 		else:
+			self.state_close_window = True
 			self.Library_Win.close()
-		
+	
