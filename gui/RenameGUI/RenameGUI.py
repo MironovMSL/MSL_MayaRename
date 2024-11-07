@@ -12,7 +12,7 @@ from MSL_MayaRename.gui.RenameGUI.NumberWidget.NumberWidget import NumberWidget
 from MSL_MayaRename.gui.RenameGUI.LetterWidget.LetterWidget import LetterWidget
 from MSL_MayaRename.gui.RenameGUI.SuffixPrefixWidget.SuffixPrefixWidget import SuffixPrefixWidget
 from MSL_MayaRename.gui.RenameGUI.LabelWidget.LabelWidget import LabelWidget
-from MSL_MayaRename.gui.RenameGUI.QuickListButtonName.QuickListButtonName import QuickListButtonName
+from MSL_MayaRename.gui.RenameGUI.QuickListButtonNameWidget.QuickListButtonNameWidget import QuickListButtonNameWidget
 from MSL_MayaRename.gui.RenameGUI.CasheNameWidget.CasheNameWidget import CasheNameWidget
 
 import os
@@ -79,7 +79,7 @@ class RenameGUI(QtWidgets.QWidget):
 		self.NumberWidget        = NumberWidget()
 		self.LetterWidget        = LetterWidget()
 		self.SuffixPrefixWidget  = SuffixPrefixWidget()
-		self.QuickListButtonName = QuickListButtonName()
+		self.QuickListButtonName = QuickListButtonNameWidget()
 		self.CasheNameWidget     = CasheNameWidget()
 
 	def create_layouts(self):
@@ -103,7 +103,7 @@ class RenameGUI(QtWidgets.QWidget):
 		self.main_rename_layout.addLayout(self.left_layout)
 		self.main_rename_layout.addLayout(self.Right_lyout)
 
-		# add LabelWidget RenameWidget, NumberWidget, LetterWidget, RenameButton, SuffixPrefixWidget, QuickListButtonName
+		# add LabelWidget RenameWidget, NumberWidget, LetterWidget, RenameButton, SuffixPrefixWidget, QuickListButtonNameWidget
 		self.main_layout.addWidget(self.FunctionWidget)
 		self.main_layout.addWidget(self.LabelWidget)
 		self.main_layout.addLayout(self.main_rename_layout)
@@ -177,7 +177,7 @@ class RenameGUI(QtWidgets.QWidget):
 		self.info        = "Initialization attribute"
 
 	def info_attribute(self):
-		state = True
+		state = False
 
 		if state:
 			print("--------------------------------------------")

@@ -162,11 +162,12 @@
         ]
     },
     "fast_accessDefault": [
-        "_",
+        "loc",
         "geo",
         "grp",
         "jnt",
         "ctrl",
+        "crv",
         "end"
     ],
     "fast_access": [

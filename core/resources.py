@@ -25,10 +25,11 @@ class Resources(object):
 		self.icon_path = os.path.join(root_, "resources", "icon")  # icon path
 		self.listButtonsName_json_path = os.path.join(root_, "resources", "listButtonsName.json")  # listButtonsName.json path
 		self.all_item_json = [] # list all name from JSON
+
 		self.config: Configurator = None
 
 		self.get_config()
-		self.get_info()
+		# self.get_info()
 		self.get_all_itemJSON()
 
 
@@ -39,7 +40,7 @@ class Resources(object):
 		"""
 		self.config = Configurator(config_path=self.config_path)
 		self.config.init_config()
-		self.config.get_info_all_keys()
+		# self.config.get_info_all_keys()
 
 	def get_all_itemJSON(self):
 
@@ -58,22 +59,22 @@ class Resources(object):
 							if item not in self.all_item_json:
 								self.all_item_json.append(item)
 		return self.all_item_json
+	
+	def get_key_name_JSON(self, key = "ListName"):
+		data_json = self.read_json(os.path.join(root_, "resources", "listButtonsName.json"))
+		
+		# Check that the key exists in the JSON data and that the data is a dictionary
+		if key in data_json and isinstance(data_json[key], dict):
+			return data_json[key].keys()
+		else:
+			print(f"Key '{key}' was not found or is not a dictionary in the JSON data.")
+			return []
 
 	def read_json(self, path=None):
 		assert path is not None, "path is None"
-
-		file = QtCore.QFile(path)
-		if not file.open(QtCore.QIODevice.ReadOnly | QtCore.QIODevice.Text):
-			raise Exception(f"Failed to open file: {path}")
-
-		json_data = file.readAll()
-		file.close()
-
-		json_doc = QtCore.QJsonDocument.fromJson(json_data)
-		if json_doc.isNull():
-			raise ValueError("Invalid JSON format")
-
-		return json_doc.toVariant()
+		
+		with open(path, 'r', encoding='utf-8') as file:
+			return json.load(file)
 
 	def get_itemJSON_from_key(self, dictionary_name):
 		"""

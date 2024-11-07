@@ -5,17 +5,17 @@ except:
 
 from MSL_MayaRename.core.common import *
 from MSL_MayaRename.core.resources import Resources
-from MSL_MayaRename.gui.RenameGUI.QuickListButtonName.LibraryButtonMode import LibraryButtonMode
-# from MSL_MayaRename.gui.RenameGUI.QuickListButtonName.CustomButtonLibrary import CustomButtonLibrary
-from MSL_MayaRename.gui.RenameGUI.QuickListButtonName.CustomScrollArea import CustomScrollArea
+from MSL_MayaRename.gui.RenameGUI.QuickListButtonNameWidget.LibraryButtonMode import LibraryButtonMode
+# from MSL_MayaRename.gui.RenameGUI.QuickListButtonNameWidget.CustomButtonLibrary import CustomButtonLibrary
+from MSL_MayaRename.gui.RenameGUI.QuickListButtonNameWidget.CustomScrollArea import CustomScrollArea
 
 import os
 import maya.cmds as cmds
 
-class QuickListButtonName(QtWidgets.QWidget):
+class QuickListButtonNameWidget(QtWidgets.QWidget):
 
     def __init__(self, parent=None):
-        super(QuickListButtonName, self).__init__(parent)
+        super(QuickListButtonNameWidget, self).__init__(parent)
 
         # Attribute---------------------------
         self.FixedHeight = 30

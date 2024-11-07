@@ -17,7 +17,7 @@ class CasheNameWidget(QtWidgets.QWidget):
 
         self.FixedHeight = 25
 
-        self.setObjectName("QuickListButtonName")
+        self.setObjectName("QuickListButtonNameWidget")
         self.setFixedHeight(self.FixedHeight)
 
         self.create_Widgets()

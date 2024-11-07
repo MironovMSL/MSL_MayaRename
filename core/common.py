@@ -54,3 +54,13 @@ def get_list_itemJSON(dictionary_name):
 		word_list = data_json[dictionary_name]
 
 	return word_list
+	
+def generate_random_color(self):
+	# Генерируем случайные значения для R, G, B
+	r = random.randint(0, 255)
+	g = random.randint(0, 255)
+	b = random.randint(0, 255)
+	
+	# Формируем строку цвета в формате hex (#RRGGBB)
+	color = f"#{r:02x}{g:02x}{b:02x}"
+	return color

@@ -8,7 +8,7 @@ except:
 	from PySide6 import QtWidgets, QtGui, QtCore
 
 from MSL_MayaRename.core.resources import Resources
-from MSL_MayaRename.gui.RenameGUI.QuickListButtonName.LibraryGUI.LibraryGUI import LibraryWindow
+from MSL_MayaRename.gui.RenameGUI.QuickListButtonNameWidget.LibraryGUI.LibraryGUI import LibraryWindow
 
 
 class LibraryButtonMode(QtWidgets.QPushButton):

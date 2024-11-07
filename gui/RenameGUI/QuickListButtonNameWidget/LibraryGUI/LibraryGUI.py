@@ -6,6 +6,7 @@ except:
 	from shiboken6 import wrapInstance
 	
 from MSL_MayaRename.core.resources import Resources
+from MSL_MayaRename.gui.RenameGUI.QuickListButtonNameWidget.LibraryGUI.LibraryScrollAreaWidget.MainScrollAreaLibraryWidget import MainScrollAreaLibraryWidget
 import maya.OpenMayaUI as omui
 import maya.cmds as cmds
 import sys
@@ -47,20 +48,18 @@ class LibraryWindow(QtWidgets.QDialog):
 		self.create_connections()
 		
 	def __repr__(self):
-		return f"Class: [LibraryWindow], name = [{self.objectName()}]"
+		return f"Class: [LibraryWindow], name - [{self.objectName()}]"
 	
 	def create_widgets(self):
 		FixedHeigt = 25
+		
+		self.MainScrollArea = MainScrollAreaLibraryWidget()
 		
 		self.conten = QtWidgets.QWidget()
 		self.conten.setStyleSheet("background-color: #555555; border-radius: 10px;")
 		self.conten.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
 		self.conten.setFixedHeight(25)
-		
-		self.conten2 = QtWidgets.QWidget()
-		self.conten2.setStyleSheet("background-color: #555580; border-radius: 10px;")
-		self.conten2.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
-		self.conten2.setFixedHeight(250)
+
 		
 		self.conten3 = QtWidgets.QWidget()
 		self.conten3.setStyleSheet("background-color: #955890; border-radius: 10px;")
@@ -84,7 +83,7 @@ class LibraryWindow(QtWidgets.QDialog):
 		self.main_layout.setAlignment(QtCore.Qt.AlignTop)
 		
 		self.main_layout.addWidget(self.conten)
-		self.main_layout.addWidget(self.conten2)
+		self.main_layout.addWidget(self.MainScrollArea)
 		self.main_layout.addWidget(self.conten3)
 		self.main_layout.addWidget(self.conten4)
 		self.main_layout.addWidget(self.conten5)
