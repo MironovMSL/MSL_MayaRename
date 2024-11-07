@@ -155,9 +155,11 @@ class CustomButtonLibrary(QtWidgets.QPushButton):
 
 	def mouseReleaseEvent(self, event):
 		super(CustomButtonLibrary, self).mouseReleaseEvent(event)
+		self.setCursor(QtCore.Qt.PointingHandCursor)
 
 	def mousePressEvent(self, event):
 		super(CustomButtonLibrary, self).mousePressEvent(event)
+		
 
 		if hasattr(QtCore.Qt, "MiddleButton"):
 			middle_button = QtCore.Qt.MiddleButton  # Для Qt6
@@ -166,7 +168,8 @@ class CustomButtonLibrary(QtWidgets.QPushButton):
 
 		if event.button() != middle_button:
 			return
-
+		
+		self.setCursor(QtCore.Qt.ClosedHandCursor)
 		self.drag_button_name.emit(self)
 		
 		# Create MIME data and set text

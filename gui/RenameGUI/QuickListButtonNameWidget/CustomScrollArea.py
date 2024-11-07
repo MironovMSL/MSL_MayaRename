@@ -354,4 +354,20 @@ class CustemQScrollBar(QtWidgets.QScrollBar):
 		# Limit the value within the acceptable range
 		self.setValue(max(self.minimum(), min(self.value(), self.maximum())))
 		
+	def enterEvent(self, event):
+		super(CustemQScrollBar, self).enterEvent(event)
+		self.setCursor(QtCore.Qt.OpenHandCursor)
+	
+	def leaveEvent(self, event):
+		super(CustemQScrollBar, self).leaveEvent(event)
+		self.setCursor(QtCore.Qt.ArrowCursor)
+	
+	def mouseReleaseEvent(self, event):
+		super(CustemQScrollBar, self).mouseReleaseEvent(event)
+		self.setCursor(QtCore.Qt.OpenHandCursor)
+	
+	def mousePressEvent(self, event):
+		super(CustemQScrollBar, self).mousePressEvent(event)
+		self.setCursor(QtCore.Qt.ClosedHandCursor)
+		
 		
