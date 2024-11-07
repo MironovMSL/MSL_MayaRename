@@ -48,4 +48,12 @@ class CategoryWidget(QtWidgets.QWidget):
 	def create_connections(self):
 		self.category_button.itClickedName.connect(lambda name: self.itClickedName.emit(name))
 		self.category_button.drag_button_category.connect(lambda: self.drag_button_category.emit(self))
-		
+		# self.category_button.itDeleteCategory.connect(lambda: self.deleteLater())
+		self.category_button.itDeleteCategory.connect(self.on_delete_btn)
+	
+	def on_delete_btn(self):
+		"""
+		Deletes the button from the layout.
+		"""
+		print(f"Delete Category [{self.name}]")
+		self.deleteLater()

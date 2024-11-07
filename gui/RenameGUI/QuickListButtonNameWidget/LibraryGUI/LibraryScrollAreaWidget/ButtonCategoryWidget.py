@@ -14,8 +14,9 @@ class ButtonCategoryWidget(QtWidgets.QPushButton):
 	a context menu for additional options like renaming and deletion.
 	"""
 	
-	itClickedName = QtCore.Signal(str)
+	itClickedName        = QtCore.Signal(str)
 	drag_button_category = QtCore.Signal()
+	itDeleteCategory     = QtCore.Signal()
 	
 	Style_btn_category = """
 	    QPushButton {
@@ -75,9 +76,9 @@ class ButtonCategoryWidget(QtWidgets.QPushButton):
 	
 	def create_connections(self):
 		
-		self.clicked.connect(self.on_clicked)
+		self.clicked.connect(lambda: self.itClickedName.emit(self.text()))
 		self.customContextMenuRequested.connect(self.show_pop_up_window)
-		self.pop_up_window.button_delete.clicked.connect(self.on_delete_btn)
+		self.pop_up_window.button_delete.clicked.connect(lambda: self.itDeleteCategory.emit())
 		self.pop_up_window.rename_linEdit.textEdited.connect(self.on_change_text)
 		self.pop_up_window.rename_linEdit.returnPressed.connect(self.pop_up_window.close)
 	
@@ -132,19 +133,6 @@ class ButtonCategoryWidget(QtWidgets.QPushButton):
 		
 		self.pop_up_window.show()
 	
-	def on_clicked(self):
-		"""
-		Emits the signal when the button is clicked.
-		"""
-		self.itClickedName.emit(self.text())
-	
-	def on_delete_btn(self):
-		"""
-		Deletes the button from the layout.
-		"""
-		print(f"Delete button [{self.name}]")
-		self.deleteLater()
-	
 	def enterEvent(self, event):
 		super(ButtonCategoryWidget, self).enterEvent(event)
 		self.setCursor(QtCore.Qt.PointingHandCursor)
@@ -156,6 +144,7 @@ class ButtonCategoryWidget(QtWidgets.QPushButton):
 	
 	def mouseReleaseEvent(self, event):
 		super(ButtonCategoryWidget, self).mouseReleaseEvent(event)
+		self.setCursor(QtCore.Qt.PointingHandCursor)
 	
 	def mousePressEvent(self, event):
 		super(ButtonCategoryWidget, self).mousePressEvent(event)
@@ -167,7 +156,7 @@ class ButtonCategoryWidget(QtWidgets.QPushButton):
 		
 		if event.button() != middle_button:
 			return
-
+		self.setCursor(QtCore.Qt.ClosedHandCursor)
 		self.drag_button_category.emit()
 		
 		# Create MIME data and set text
@@ -323,15 +312,14 @@ class CustomPushButtonLibraryPopUP(QtWidgets.QPushButton):
 	
 	def __init__(self, name="", width=25, height=25, parent=None):
 		super(CustomPushButtonLibraryPopUP, self).__init__(parent)
-		
 		# Modul---------------------------
 		self.resources = Resources.get_instance()
 		# Attribute---------------------------
-		self.icon = self.resources.get_icon_from_resources("delete-svgrepo-com.svg")
-		self.name = name
-		self._width = width
-		self._height = height
-		self.toolTip = f"Delete button [{self.name}]"
+		self.icon      = self.resources.get_icon_from_resources("delete-svgrepo-com.svg")
+		self.name      = name
+		self._width    = width
+		self._height   = height
+		self.toolTip   = f"Delete button [{self.name}]"
 		# Setting---------------------------
 		self.setFixedSize(self._width, self._height)
 		self.setStyleSheet(self.Style_btn)

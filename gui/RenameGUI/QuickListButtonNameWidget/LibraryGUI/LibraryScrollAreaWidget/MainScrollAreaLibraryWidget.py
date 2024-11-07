@@ -128,7 +128,7 @@ class ScrolContentWidget(QtWidgets.QWidget):
 		self.scroll_timer.timeout.connect(self.scroll_content)
 	
 	def get_info(self):
-		state = True
+		state = False
 		if state:
 			print(self.info)
 			print(self.dragged_category)
@@ -247,13 +247,12 @@ class ScrolContentWidget(QtWidgets.QWidget):
 		if widget_under_cursor is None:
 				self.placeholder_index = self.main_layout.count() - 1
 				print("No widget under cursor")
-
 		else:
-			# Обрабатываем случай, когда виджет под курсором найден
+			# Handle the case when the widget under the cursor is found
 			if widget_under_cursor == self.placeholder:
 				self.placeholder_index = self.main_layout.indexOf(widget_under_cursor)
 			else:
-				# Ищем родительский виджет этого дочернего виджета
+				# Find the parent widget of this child widget
 				parent_widget = widget_under_cursor.parentWidget()
 				if parent_widget:
 					print(f"Main widget under cursor: {parent_widget}")
@@ -264,7 +263,6 @@ class ScrolContentWidget(QtWidgets.QWidget):
 				else:
 					print("Parent widget not found.")
 					self.placeholder_index = self.main_layout.count() - 1
-			
 		
 		self.main_layout.insertWidget(self.placeholder_index, self.placeholder)
 		
@@ -386,3 +384,19 @@ class CustemQScrollBar(QtWidgets.QScrollBar):
 		
 		# Limit the value within the acceptable range
 		self.setValue(max(self.minimum(), min(self.value(), self.maximum())))
+	
+	def enterEvent(self, event):
+		super(CustemQScrollBar, self).enterEvent(event)
+		self.setCursor(QtCore.Qt.OpenHandCursor)
+	
+	def leaveEvent(self, event):
+		super(CustemQScrollBar, self).leaveEvent(event)
+		self.setCursor(QtCore.Qt.ArrowCursor)
+	
+	def mouseReleaseEvent(self, event):
+		super(CustemQScrollBar, self).mouseReleaseEvent(event)
+		self.setCursor(QtCore.Qt.OpenHandCursor)
+	
+	def mousePressEvent(self, event):
+		super(CustemQScrollBar, self).mousePressEvent(event)
+		self.setCursor(QtCore.Qt.ClosedHandCursor)
