@@ -97,6 +97,8 @@ class ScrolContentWidget(QtWidgets.QWidget):
 		self.info              = None
 		self.dragged_category  = None  # Variable to store the draggable button
 		self.placeholder_index = None  # Index for pos widget
+		self._Drop_from_ButtonLibraryWidget = False
+		self._Move_from_ButtonLibraryWidget = False
 		# Setting---------------------------
 		self.setAcceptDrops(True)
 		# Run functions ---------------------------
@@ -104,6 +106,9 @@ class ScrolContentWidget(QtWidgets.QWidget):
 		self.creat_layout()
 		self.create_connections()
 		self.add_content()
+	
+	def __repr__(self):
+		return f"Class: Main ScrolContentWidget - [{self.dragged_category}]"
 	
 	def create_widgets(self):
 		self.scroll_timer = QtCore.QTimer(self)
@@ -210,6 +215,9 @@ class ScrolContentWidget(QtWidgets.QWidget):
 	
 	def dragLeaveEvent(self, event):
 		print("dragLeaveEvent")
+		if self._Move_from_ButtonLibraryWidget:
+			event.ignore()
+			return
 		
 		if self.dragged_category:
 			self.main_layout.insertWidget(self.placeholder_index, self.dragged_category)
@@ -217,6 +225,10 @@ class ScrolContentWidget(QtWidgets.QWidget):
 		self.placeholder.hide()
 	
 	def dragEnterEvent(self, event):
+		if self._Move_from_ButtonLibraryWidget:
+			event.ignore()
+			return
+			
 		self.info = "dragEnterEvent"
 		if event.mimeData().hasText():
 			self.scroll_area = self.parent().parent()
@@ -229,11 +241,15 @@ class ScrolContentWidget(QtWidgets.QWidget):
 		"""
 		Event handler for when a dragged item is moved within the widget. Updates the placeholder position.
 		"""
+		if self._Move_from_ButtonLibraryWidget:
+			event.ignore()
+			return
+		
 		pos_in_widget = event.pos()
 		pos_in_scroll_area = self.mapToParent(pos_in_widget).x()
 		pos_in_scroll_area_Y = self.mapToParent(pos_in_widget).y()
 		widget_under_cursor = self.childAt(pos_in_widget)
-		print(self.dragged_category)
+
 		if pos_in_scroll_area_Y < 25:
 			
 			if widget_under_cursor is None:
@@ -285,7 +301,6 @@ class ScrolContentWidget(QtWidgets.QWidget):
 				             f"mimeData     - [{event.mimeData().text()}], Timer - {part}, {self.placeholder_index}: {self.main_layout.count()}")
 				
 				self.get_info()
-				
 		else:
 			if self.dragged_category:
 				self.main_layout.insertWidget(self.placeholder_index, self.dragged_category)
