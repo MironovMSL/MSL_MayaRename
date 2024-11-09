@@ -23,17 +23,19 @@ class LibraryWindow(QtWidgets.QDialog):
 	def __init__(self, parent=maya_main_window()):
 		super(LibraryWindow, self).__init__(parent)
 		# Modul---------------------------
-		self.resources = Resources.get_instance()
+		self.resources   = Resources.get_instance()
 		# Attribute---------------------------
-		self.icon = self.resources.get_icon_from_resources("earth-svgrepo-com.svg")
+		self.icon        = self.resources.get_icon_from_resources("earth-svgrepo-com.svg")
+		self.step_width  = 60
+		self.step_height = 20
+		self.target_size = None
 		# Setting---------------------------
 		self.setWindowTitle(self.WINDOW_TITLE)
 		self.setObjectName("LibraryWindowRenameToolWindowID")
 		self.setWindowIcon(self.icon)
 		self.setMinimumSize(180, 200)
-		self.setMaximumSize(420, 350)
-		self.resize(300, 350)
-		
+		self.setMaximumSize(420, 365)
+		self.resize(300, 365)
 		# On macOS make the window a Tool to keep it on top of Maya
 		if sys.platform == "darwin":
 			self.setWindowFlag(QtCore.Qt.Tool, True)
@@ -51,6 +53,9 @@ class LibraryWindow(QtWidgets.QDialog):
 		return f"Class: [LibraryWindow], name - [{self.objectName()}]"
 	
 	def create_widgets(self):
+		self.resize_timer = QtCore.QTimer()
+		self.resize_timer.setSingleShot(True)
+		
 		FixedHeigt = 25
 		
 		self.MainScrollArea = MainScrollAreaLibraryWidget()
@@ -77,11 +82,12 @@ class LibraryWindow(QtWidgets.QDialog):
 		self.conten5.setFixedHeight(FixedHeigt)
 	
 	def create_layouts(self):
+		# main layout---------------------------
 		self.main_layout = QtWidgets.QVBoxLayout(self)
 		self.main_layout.setContentsMargins(0, 0, 0, 0)
 		self.main_layout.setSpacing(0)
 		self.main_layout.setAlignment(QtCore.Qt.AlignTop)
-		
+		# add widget---------------------------
 		self.main_layout.addWidget(self.conten)
 		self.main_layout.addWidget(self.MainScrollArea)
 		self.main_layout.addWidget(self.conten3)
@@ -89,8 +95,40 @@ class LibraryWindow(QtWidgets.QDialog):
 		self.main_layout.addWidget(self.conten5)
 	
 	def create_connections(self):
-		pass
+		self.resize_timer.timeout.connect(self.applyStepResize)
 	
 	def closeEvent(self, event):
 		self.library_show.emit(False)
+	
+	def resizeEvent(self, event):
+		width = event.size().width()
+		height = event.size().height()
+		
+		# Round the width and height to the nearest step
+		new_width = (width // self.step_width) * self.step_width
+		new_height = ((height - 5) // self.step_height) * self.step_height + (5)
+		
+		# Check if the size needs to be increased or decreased
+		width_diff = width - new_width
+		height_diff = height - new_height
+		
+		if width_diff > self.step_width / 2:
+			new_width += self.step_width
+		elif width_diff < -self.step_width / 2:
+			new_width -= self.step_width
+		
+		if height_diff > self.step_height / 2:
+			new_height += self.step_height
+		elif height_diff < -self.step_height / 2:
+			new_height -= self.step_height
+		
+		# Set the target size
+		self.target_size = QtCore.QSize(new_width, new_height)
+		
+		self.resize_timer.start(300)
+		super().resizeEvent(event)
+	
+	def applyStepResize(self):
+		self.resize(self.target_size)
+		
 		

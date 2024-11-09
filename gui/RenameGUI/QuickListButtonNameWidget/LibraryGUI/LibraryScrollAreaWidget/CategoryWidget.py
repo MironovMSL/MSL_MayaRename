@@ -7,12 +7,14 @@ except:
 
 from MSL_MayaRename.core.resources import Resources
 from MSL_MayaRename.gui.RenameGUI.QuickListButtonNameWidget.LibraryGUI.LibraryScrollAreaWidget.ButtonCategoryWidget import ButtonCategoryWidget
+from MSL_MayaRename.gui.RenameGUI.QuickListButtonNameWidget.LibraryGUI.LibraryScrollAreaWidget.ScrollAreaCategoryWidget import ScrollAreaCategoryWidget
 import time
 
 class CategoryWidget(QtWidgets.QWidget):
 	
 	itClickedName = QtCore.Signal(str)
 	drag_button_category = QtCore.Signal(object)
+	itDeleteCategory = QtCore.Signal(object)
 	
 	def __init__(self, name, width = 60, height = 25, parent = None):
 		super(CategoryWidget, self).__init__(parent)
@@ -35,7 +37,7 @@ class CategoryWidget(QtWidgets.QWidget):
 	
 	def create_widgets(self):
 		self.category_button = ButtonCategoryWidget(self.name,self._width, self._height)
-		self.category_widget = QtWidgets.QWidget()
+		self.category_widget = ScrollAreaCategoryWidget(self.name, self._width, 20)
 		
 	def create_layouts(self):
 		self.main_layout = QtWidgets.QVBoxLayout(self)
@@ -47,13 +49,12 @@ class CategoryWidget(QtWidgets.QWidget):
 	
 	def create_connections(self):
 		self.category_button.itClickedName.connect(lambda name: self.itClickedName.emit(name))
+		self.category_widget.itClickedName.connect(lambda name: self.itClickedName.emit(name))
 		self.category_button.drag_button_category.connect(lambda: self.drag_button_category.emit(self))
-		# self.category_button.itDeleteCategory.connect(lambda: self.deleteLater())
-		self.category_button.itDeleteCategory.connect(self.on_delete_btn)
-	
-	def on_delete_btn(self):
-		"""
-		Deletes the button from the layout.
-		"""
-		print(f"Delete Category [{self.name}]")
+		self.category_button.itDeleteCategory.connect(self.on_delete_widget)
+		
+	def on_delete_widget(self):
+		self.itDeleteCategory.emit(self)
 		self.deleteLater()
+		
+

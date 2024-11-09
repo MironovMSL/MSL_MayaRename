@@ -5,7 +5,6 @@ except:
 
 from MSL_MayaRename.core.resources import Resources
 from MSL_MayaRename.gui.RenameGUI.QuickListButtonNameWidget.LibraryGUI.LibraryScrollAreaWidget.CategoryWidget import CategoryWidget
-from MSL_MayaRename.gui.RenameGUI.QuickListButtonNameWidget.LibraryGUI.LibraryScrollAreaWidget.ButtonLibraryWidget import ButtonLibraryWidget
 import time
 import random
 
@@ -16,7 +15,7 @@ class MainScrollAreaLibraryWidget(QtWidgets.QScrollArea):
 	"""
 	itClickedName = QtCore.Signal(str)
 	
-	def __init__(self, key=None, parent=None, ):
+	def __init__(self, parent=None, ):
 		super(MainScrollAreaLibraryWidget, self).__init__(parent)
 		# Modul---------------------------
 		self.resources = Resources.get_instance()
@@ -27,11 +26,10 @@ class MainScrollAreaLibraryWidget(QtWidgets.QScrollArea):
 		self.ScrollBar        = CustemQScrollBar(self.button_width, self)
 		# Setting---------------------------
 		self.setObjectName("CustomScrollAreaID")
-		# self.setFixedWidth(300)
 		self.setWidgetResizable(True)
 		self.setFocusPolicy(QtCore.Qt.NoFocus)
 		self.setFrameShape(QtWidgets.QFrame.NoFrame)
-		# self.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
+		self.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
 		self.setHorizontalScrollBar(self.ScrollBar)
 		# Run functions ---------------------------
 		self.create_widgets()
@@ -50,7 +48,7 @@ class MainScrollAreaLibraryWidget(QtWidgets.QScrollArea):
 	
 	
 	def emit_signal(self, text):
-		print(f"The button is clicked 'MainScrollAreaLibraryWidget' -  [{text}]")
+		print(f"The button is clicked [MainScrollAreaLibraryWidget] -  [{text}]")
 		self.itClickedName.emit(text)
 	
 	def wheelEvent(self, event):
@@ -88,21 +86,19 @@ class ScrolContentWidget(QtWidgets.QWidget):
 		
 		# Modul---------------------------
 		# Attribute---------------------------
-		self._height = height
-		self._width = width
+		self._height  = height
+		self._width   = width
 		self.key_name = key_name
 		# Attribute scroll---------------------------
-		self.scroll_direction = 0  # Variable for scroll direction
-		self.start_time = None  # Countdown start time
-		self.scroll_area = None  # Assume that MyWidget is nested in QScrollArea
-		self.scroll_width = None  # Scroll area width
-		self.info = None
-		self.dragged_category = None  # Variable to store the draggable button
+		self.scroll_direction  = 0  # Variable for scroll direction
+		self.start_time        = None  # Countdown start time
+		self.scroll_area       = None  # Assume that MyWidget is nested in QScrollArea
+		self.scroll_width      = None  # Scroll area width
+		self.info              = None
+		self.dragged_category  = None  # Variable to store the draggable button
 		self.placeholder_index = None  # Index for pos widget
 		# Setting---------------------------
 		self.setAcceptDrops(True)
-		# self.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
-
 		# Run functions ---------------------------
 		self.create_widgets()
 		self.creat_layout()
@@ -144,17 +140,7 @@ class ScrolContentWidget(QtWidgets.QWidget):
 			
 		for word in self.key_name:
 			self.add_category(word)
-	
-	def generate_random_color(self):
-		# Генерируем случайные значения для R, G, B
-		r = random.randint(0, 255)
-		g = random.randint(0, 255)
-		b = random.randint(0, 255)
 		
-		# Формируем строку цвета в формате hex (#RRGGBB)
-		color = f"#{r:02x}{g:02x}{b:02x}"
-		return color
-	
 	def add_category(self, word):
 		"""
 		Adds a button with the given text to the layout if it doesn't already exist.
@@ -167,22 +153,25 @@ class ScrolContentWidget(QtWidgets.QWidget):
 		
 		# If the button is not found, create and add a new one
 		category = CategoryWidget(word, self._width, self._height)
-		category.category_widget.setStyleSheet(
-			f"background-color: {self.generate_random_color()}; border-radius: 10px;")
 		category.drag_button_category.connect(self.set_dragged_category)
 		category.itClickedName.connect(lambda name: self.itClickedName.emit(name))
+		category.itDeleteCategory.connect(self.check_delete_Category)
 		
 		self.main_layout.addWidget(category)
 		
 		return category
 	
-	def set_dragged_category(self, button):
+	def check_delete_Category(self, object):
+		if self.dragged_category:
+			if self.dragged_category == object:
+				self.dragged_category = None
+	
+	def set_dragged_category(self, category):
 		"""
 		Sets the currently dragged button to the specified button.
 		"""
-		self.dragged_category = button
+		self.dragged_category = category
 
-		
 	def scroll_content(self):
 		"""
 		Handles the scrolling logic for the widget based on the current scroll direction.
@@ -242,58 +231,67 @@ class ScrolContentWidget(QtWidgets.QWidget):
 		"""
 		pos_in_widget = event.pos()
 		pos_in_scroll_area = self.mapToParent(pos_in_widget).x()
+		pos_in_scroll_area_Y = self.mapToParent(pos_in_widget).y()
 		widget_under_cursor = self.childAt(pos_in_widget)
-
-		if widget_under_cursor is None:
-				self.placeholder_index = self.main_layout.count() - 1
-				print("No widget under cursor")
-		else:
-			# Handle the case when the widget under the cursor is found
-			if widget_under_cursor == self.placeholder:
-				self.placeholder_index = self.main_layout.indexOf(widget_under_cursor)
-			else:
-				# Find the parent widget of this child widget
-				parent_widget = widget_under_cursor.parentWidget()
-				if parent_widget:
-					print(f"Main widget under cursor: {parent_widget}")
-					# Получаем индекс родительского виджета в лейауте
-					self.placeholder_index = self.main_layout.indexOf(parent_widget)
-					if self.placeholder_index == -1:
-						print("No valid index found.")
-				else:
-					print("Parent widget not found.")
+		print(self.dragged_category)
+		if pos_in_scroll_area_Y < 25:
+			
+			if widget_under_cursor is None:
 					self.placeholder_index = self.main_layout.count() - 1
-		
-		self.main_layout.insertWidget(self.placeholder_index, self.placeholder)
-		
-		if self.dragged_category:
-			self.dragged_category.setVisible(False)
-		self.placeholder.show()
-		
-		if event.mimeData().hasText():
-			part = "None"
-			if self.width() > self.scroll_width:
-				
-				if pos_in_scroll_area < 25:
-					part = "Left edge"
-					self.scroll_direction = -1
-					self.start_scroll_timer()
-				elif pos_in_scroll_area > self.scroll_width - 25:
-					part = "Right Edge"
-					self.scroll_direction = 1
-					self.start_scroll_timer()
+					print("No widget under cursor")
+			else:
+				# Handle the case when the widget under the cursor is found
+				if widget_under_cursor == self.placeholder:
+					self.placeholder_index = self.main_layout.indexOf(widget_under_cursor)
 				else:
-					part = "Stop the timer"
-					self.scroll_direction = 0
-					self.scroll_timer.stop()
-					self.start_time = None
+					# Find the parent widget of this child widget
+					parent_widget = widget_under_cursor.parentWidget()
+					if parent_widget:
+						print(f"Main widget under cursor: {parent_widget}")
+						# Получаем индекс родительского виджета в лейауте
+						self.placeholder_index = self.main_layout.indexOf(parent_widget)
+						if self.placeholder_index == -1:
+							print("No valid index found.")
+					else:
+						print("Parent widget not found.")
+						self.placeholder_index = self.main_layout.count() - 1
 			
-			self.info = (f"Widget pos   - [{pos_in_widget.x()}]:[{pos_in_scroll_area}] - Scroll pos,\n"
-			             f"Scroll width - [{self.scroll_width}]:[{self.width()}] - Widget width,\n"
-			             f"mimeData     - [{event.mimeData().text()}], Timer - {part}, {self.placeholder_index}: {self.main_layout.count()}")
+			self.main_layout.insertWidget(self.placeholder_index, self.placeholder)
 			
-			self.get_info()
+			if self.dragged_category:
+				self.dragged_category.setVisible(False)
+			self.placeholder.show()
 		
+			if event.mimeData().hasText():
+				part = "None"
+				if self.width() > self.scroll_width:
+					
+					if pos_in_scroll_area < 25:
+						part = "Left edge"
+						self.scroll_direction = -1
+						self.start_scroll_timer()
+					elif pos_in_scroll_area > self.scroll_width - 25:
+						part = "Right Edge"
+						self.scroll_direction = 1
+						self.start_scroll_timer()
+					else:
+						part = "Stop the timer"
+						self.scroll_direction = 0
+						self.scroll_timer.stop()
+						self.start_time = None
+				
+				self.info = (f"Widget pos   - [{pos_in_widget.x()}]:[{pos_in_scroll_area}] - Scroll pos,\n"
+				             f"Scroll width - [{self.scroll_width}]:[{self.width()}] - Widget width,\n"
+				             f"mimeData     - [{event.mimeData().text()}], Timer - {part}, {self.placeholder_index}: {self.main_layout.count()}")
+				
+				self.get_info()
+				
+		else:
+			if self.dragged_category:
+				self.main_layout.insertWidget(self.placeholder_index, self.dragged_category)
+				self.dragged_category.setVisible(True)
+			self.placeholder.hide()
+			
 		event.acceptProposedAction()
 	
 	def start_scroll_timer(self):

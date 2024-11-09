@@ -41,16 +41,16 @@ class ButtonCategoryWidget(QtWidgets.QPushButton):
 	"""
 	
 	# TODO: neede choose style one
-	
+
 	def __init__(self, name="", width=40, height=25, parent=None):
 		super(ButtonCategoryWidget, self).__init__(parent)
-		
+
 		# Attribute---------------------------
-		self.name = name
-		self._width = width
+		self.name    = name
+		self._width  = width
 		self._height = height
 		self.toolTip = f"Button name [{self.name}]"
-		# Setting---------------------------
+		# Setting-----------------------------
 		self.setFixedSize(self._width, self._height)
 		self.setText(self.name)
 		self.setStyleSheet(self.Style_btn_category)
@@ -119,8 +119,6 @@ class ButtonCategoryWidget(QtWidgets.QPushButton):
 		self.setFont(font)
 		self.update()  # Forced interface update
 	
-	# print(f"Current font size: {font.pointSize()}")
-	
 	def show_pop_up_window(self, pos):
 		"""
 		Displays the pop-up window at the position of the button.
@@ -162,6 +160,7 @@ class ButtonCategoryWidget(QtWidgets.QPushButton):
 		# Create MIME data and set text
 		mimeData = QtCore.QMimeData()
 		mimeData.setText(self.text())
+		
 		# Capture the button image
 		self.pixmap = self.parent().grab()
 		radius = 8  # Set the rounding radius
@@ -177,9 +176,9 @@ class ButtonCategoryWidget(QtWidgets.QPushButton):
 		# Darken the image to create a "ghost"
 		painter = QtGui.QPainter(self.pixmap)
 		painter.setCompositionMode(QtGui.QPainter.CompositionMode_DestinationIn)
-		painter.fillRect(self.pixmap.rect(),
-		                 QtGui.QColor(80, 80, 80, 200))  # Only transparency is applied, RGB color is not applied
+		painter.fillRect(self.pixmap.rect(), QtGui.QColor(80, 80, 80, 200))  # Only transparency is applied, RGB color is not applied
 		painter.end()
+		
 		# Create a QDrag object and configure it
 		drag = QtGui.QDrag(self)
 		drag.setMimeData(mimeData)
@@ -187,7 +186,6 @@ class ButtonCategoryWidget(QtWidgets.QPushButton):
 		drag.setHotSpot(event.pos())  # Set the capture point
 		
 		drag.exec_(QtCore.Qt.LinkAction | QtCore.Qt.MoveAction)  # Start the drag and drop action
-
 
 class PopUpWindow(QtWidgets.QWidget):
 	"""
@@ -202,14 +200,14 @@ class PopUpWindow(QtWidgets.QWidget):
 		# Setting---------------------------
 		self.setWindowTitle(f"{self.name} Options")
 		self.setWindowFlags(QtCore.Qt.Popup)
-		self.setFixedSize(105, 35)
+		self.setFixedSize(117, 35)
 		# Run functions ---------------------------
 		self.create_widgets()
 		self.create_layout()
 	
 	def create_widgets(self):
-		self.rename_linEdit = CustomQLineEditLibraryPopUP(self.name, 68, 25)
-		self.button_delete = CustomPushButtonLibraryPopUP(self.name, 25, 25)
+		self.rename_linEdit = CustomQLineEditLibraryPopUP(self.name, 80, 25)
+		self.button_delete  = CustomPushButtonLibraryPopUP(self.name, 25, 25)
 	
 	def create_layout(self):
 		# main layout---------------------------
@@ -223,7 +221,6 @@ class PopUpWindow(QtWidgets.QWidget):
 	
 	def create_connections(self):
 		pass
-
 
 class CustomQLineEditLibraryPopUP(QtWidgets.QLineEdit):
 	"""
@@ -280,7 +277,6 @@ class CustomQLineEditLibraryPopUP(QtWidgets.QLineEdit):
 	
 	def contextMenuEvent(self, event):
 		pass
-
 
 class CustomPushButtonLibraryPopUP(QtWidgets.QPushButton):
 	"""

@@ -69,6 +69,21 @@ class Resources(object):
 		else:
 			print(f"Key '{key}' was not found or is not a dictionary in the JSON data.")
 			return []
+		
+	def get_values_by_known_key(self, main_key="ListName", sub_key="Base"):
+		# Читаем JSON данные
+		data_json = self.read_json(os.path.join(root_, "resources", "listButtonsName.json"))
+		
+		# Проверка наличия основного и вложенного ключей
+		if main_key in data_json and isinstance(data_json[main_key], dict):
+			if sub_key in data_json[main_key] and isinstance(data_json[main_key][sub_key], list):
+				return data_json[main_key][sub_key]
+			else:
+				print(f"Sub-key '{sub_key}' was not found or is not a list in '{main_key}'.")
+				return []
+		else:
+			print(f"Main key '{main_key}' was not found or is not a dictionary in the JSON data.")
+			return []
 
 	def read_json(self, path=None):
 		assert path is not None, "path is None"
