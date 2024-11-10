@@ -127,6 +127,7 @@ class ScrolContentWidget(QtWidgets.QWidget):
 	
 	def create_connections(self):
 		self.scroll_timer.timeout.connect(self.scroll_content)
+		self.outside_tracking_timer.timeout.connect(self.check_mouse_status)
 	
 	def get_info(self):
 		state = False
@@ -135,14 +136,38 @@ class ScrolContentWidget(QtWidgets.QWidget):
 			print(self.dragged_category)
 			print(self.placeholder_index)
 	
+	def check_mouse_status(self):
+		# Check if the mouse is outside the widget and perform actions
+
+		widget = self.mapFromGlobal(QtGui.QCursor.pos()).y()
+		if not self.rect().contains(self.mapFromGlobal(QtGui.QCursor.pos())) or widget > 25:
+			print(f"The mouse has moved outside the widget  {self.dragged_category}.")
+			if QtWidgets.QApplication.mouseButtons() == QtCore.Qt.NoButton:
+				self.drop_event_outside()
+	
+	def drop_event_outside(self):
+		# Action to perform when button is released outside widget
+		self.stop_check_mouse_status_timer()
+		if self.dragged_category:
+			self.dragged_category = None
+
+		print(f"Released the button outside the widget {self.dragged_category}.")
+	
+	def start_check_mouse_status_timer(self):
+		if self.dragged_category:
+			self.outside_tracking_timer.start(100)
+			print("Timer started")
+
+	def stop_check_mouse_status_timer(self):
+		if self.outside_tracking_timer.isActive():  # Check if timer is running
+			self.outside_tracking_timer.stop()
+			print("Timer stopped")
+	
 	def add_content(self):
 		"""
 		Adds buttons to the widget based on the self.key_name attribute.
 		Ensures that no duplicate buttons are added.
 		"""
-		for word in self.key_name:
-			self.add_category(word)
-			
 		for word in self.key_name:
 			self.add_category(word)
 		
@@ -160,17 +185,10 @@ class ScrolContentWidget(QtWidgets.QWidget):
 		category = CategoryWidget(word, self._width, self._height)
 		category.drag_button_category.connect(self.set_dragged_category)
 		category.itClickedName.connect(lambda name: self.itClickedName.emit(name))
-		category.itDeleteCategory.connect(self.check_delete_Category)
-		
 		self.main_layout.addWidget(category)
 		
 		return category
-	
-	def check_delete_Category(self, object):
-		if self.dragged_category:
-			if self.dragged_category == object:
-				self.dragged_category = None
-	
+		
 	def set_dragged_category(self, category):
 		"""
 		Sets the currently dragged button to the specified button.
@@ -215,10 +233,12 @@ class ScrolContentWidget(QtWidgets.QWidget):
 	
 	def dragLeaveEvent(self, event):
 		print("dragLeaveEvent")
+		
 		if self._Move_from_ButtonLibraryWidget:
 			event.ignore()
 			return
 		
+		self.start_check_mouse_status_timer()
 		if self.dragged_category:
 			self.main_layout.insertWidget(self.placeholder_index, self.dragged_category)
 			self.dragged_category.setVisible(True)
@@ -228,7 +248,8 @@ class ScrolContentWidget(QtWidgets.QWidget):
 		if self._Move_from_ButtonLibraryWidget:
 			event.ignore()
 			return
-			
+		
+		self.stop_check_mouse_status_timer()
 		self.info = "dragEnterEvent"
 		if event.mimeData().hasText():
 			self.scroll_area = self.parent().parent()
@@ -302,6 +323,7 @@ class ScrolContentWidget(QtWidgets.QWidget):
 				
 				self.get_info()
 		else:
+			self.start_check_mouse_status_timer()
 			if self.dragged_category:
 				self.main_layout.insertWidget(self.placeholder_index, self.dragged_category)
 				self.dragged_category.setVisible(True)
