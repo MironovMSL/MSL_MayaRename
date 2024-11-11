@@ -1,11 +1,10 @@
 {
     "ListNameDefault": {
         "Postfixes": [
-            "_",
-            "front",
-            "back",
             "R_",
             "L_",
+            "front",
+            "back",
             "low",
             "top",
             "mid",
@@ -82,11 +81,10 @@
     },
     "ListName": {
         "Postfixes": [
-            "_",
-            "front",
-            "back",
             "R_",
             "L_",
+            "front",
+            "back",
             "low",
             "top",
             "mid",

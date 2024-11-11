@@ -25,7 +25,6 @@ class ScrollAreaCategoryWidget(QtWidgets.QScrollArea):
 		self.button_width = width
 		self.button_height = height
 		self.ScrollBar = CustemQScrollBar(self.button_width, self)
-
 		# Setting---------------------------
 		self.setObjectName("CustomScrollAreaID")
 		self.setFixedWidth(width)
@@ -64,7 +63,6 @@ class ScrollAreaCategoryWidget(QtWidgets.QScrollArea):
 		# Limit the value within the acceptable range
 		new_value = max(0, min(new_value, self.verticalScrollBar().maximum()))
 		self.verticalScrollBar().setValue(new_value)
-
 
 class ScrolContentWidget(QtWidgets.QWidget):
 	"""
@@ -110,7 +108,6 @@ class ScrolContentWidget(QtWidgets.QWidget):
 	
 	def create_widgets(self):
 		self.scroll_timer = QtCore.QTimer(self)
-		# check mouseDrop if it leave widget
 		self.outside_tracking_timer = QtCore.QTimer(self)
 		
 		self.placeholder = QtWidgets.QFrame(self)
@@ -131,65 +128,48 @@ class ScrolContentWidget(QtWidgets.QWidget):
 	def get_info(self):
 		state = False
 		if state:
-			# print(self.info)
-			print(self.dragged_button)
-			print(self.placeholder_index)
+			print(self.info)
 	
 	def check_mouse_status(self):
-		# Check if the mouse is outside the widget and perform actions
+		"""
+		Check if the mouse is outside the widget and perform actions
+		"""
 		if not self.rect().contains(self.mapFromGlobal(QtGui.QCursor.pos())):
-			print("The mouse has moved outside the widget.")
-
 			if QtWidgets.QApplication.mouseButtons() == QtCore.Qt.NoButton:
 				self.drop_event_outside()
-			
-
-
 
 	def drop_event_outside(self):
-		# Action to perform when button is released outside widget
+		"""
+		Action to perform when button is released outside widget
+		"""
 		self.stop_check_mouse_status_timer()
-		print(f"drop Batton : {self.parent().parent().parent().parent()._Drop_from_ButtonLibraryWidget}")
-		print(f"Move Burron : {self.parent().parent().parent().parent()._Move_from_ButtonLibraryWidget}")
 		if self.parent().parent().parent().parent()._Drop_from_ButtonLibraryWidget:
 			self.parent().parent().parent().parent()._Drop_from_ButtonLibraryWidget = False
 			if self.dragged_button:
 				self.main_layout.insertWidget(self.placeholder_index, self.dragged_button)
-				
 				self.placeholder.hide()
 				self.dragged_button.deleteLater()
 				self.dragged_button = None
 		else:
 			self.placeholder.hide()
 			self.dragged_button.setVisible(True)
-			
-		
+
 		if self.parent().parent().parent().parent()._Move_from_ButtonLibraryWidget:
 			self.parent().parent().parent().parent()._Move_from_ButtonLibraryWidget = False
-			
-
-		print(f"drop Batton : {self.parent().parent().parent().parent()._Drop_from_ButtonLibraryWidget}")
-		print(f"Move Burron : {self.parent().parent().parent().parent()._Move_from_ButtonLibraryWidget}")
-		print("Released the button outside the widget")
-
+		
 	def start_check_mouse_status_timer(self):
 		if self.dragged_button:
-			print(self)
 			self.outside_tracking_timer.start(100)
-			print("Timer started")
 
 	def stop_check_mouse_status_timer(self):
 		if self.outside_tracking_timer.isActive():  # Check if timer is running
 			self.outside_tracking_timer.stop()
-			print("Timer stopped")
-		
-	
+
 	def add_content(self):
 		"""
 		Adds buttons to the widget based on the word_list attribute.
 		Ensures that no duplicate buttons are added.
 		"""
-		
 		for word in self.word_list:
 			self.add_button(word)
 	
@@ -203,11 +183,11 @@ class ScrolContentWidget(QtWidgets.QWidget):
 				print(f"Button with name '{text}' already exists, adding cancelled.")
 				return
 		
-		# If the button is not found, create and add a new one
 		button = ButtonLibraryWidget(text, self._width, self._height)
-		self.main_layout.addWidget(button)
 		button.itClickedName.connect(lambda name: self.itClickedName.emit(name))
 		button.drag_button_name.connect(self.set_dragged_button)
+		
+		self.main_layout.addWidget(button)
 		
 		return button
 	
@@ -255,7 +235,6 @@ class ScrolContentWidget(QtWidgets.QWidget):
 	
 	def dragLeaveEvent(self, event):
 		self.scroll_timer.stop()
-		print("dragLeaveEvent ScrolContentWidget")
 		self.start_check_mouse_status_timer()
 		if self.dragged_button:
 			self.main_layout.insertWidget(self.placeholder_index, self.dragged_button)
@@ -265,33 +244,29 @@ class ScrolContentWidget(QtWidgets.QWidget):
 	
 	def dragEnterEvent(self, event):
 		self.stop_check_mouse_status_timer()
-		self.info = "dragEnterEvent"
 		self.outside_tracking_timer.stop()
 		if event.mimeData().hasText():
-			self.scroll_area = self.parent().parent()
+			self.scroll_area   = self.parent().parent()
 			self.scroll_height = self.scroll_area.height()
-			
-			self.get_info()
+
 			event.acceptProposedAction()
 	
 	def dragMoveEvent(self, event):
 		"""
 		Event handler for when a dragged item is moved within the widget. Updates the placeholder position.
 		"""
-		
 		pos_in_widget = event.pos()
 		pos_in_scroll_area = self.mapToParent(pos_in_widget).y()
 		widget_under_cursor = self.childAt(pos_in_widget)
 		
 		if widget_under_cursor is None:
 			self.placeholder_index = self.main_layout.count() - 1
-
 		else:
 			if widget_under_cursor == self.placeholder:
 				self.placeholder_index = self.main_layout.indexOf(self.childAt(pos_in_widget))
 			else:
 				self.placeholder_index = self.main_layout.indexOf(self.childAt(pos_in_widget))
-				print(f"the widget under cursor: {widget_under_cursor}")
+				# print(f"the widget under cursor: {widget_under_cursor}")
 		
 		self.main_layout.insertWidget(self.placeholder_index, self.placeholder)
 		
@@ -347,24 +322,18 @@ class ScrolContentWidget(QtWidgets.QWidget):
 				self.dragged_button.setVisible(True)
 				self.parent().parent().parent().parent()._Drop_from_ButtonLibraryWidget = False
 				self.dragged_button = None
-				
 			else:
-				# Create a new button if dragged_button is not set
 				new_button = self.add_button(text)
 				if new_button:
 					self.main_layout.insertWidget(self.placeholder_index, new_button)
-				
 				self.parent().parent().parent().parent()._Drop_from_ButtonLibraryWidget = True
 			
 			self.parent().parent().parent().parent()._Move_from_ButtonLibraryWidget = False
-			
 			self.placeholder.hide()
 			self.placeholder_index = None
+			
 			event.acceptProposedAction()
 			
-		
-
-
 class CustemQScrollBar(QtWidgets.QScrollBar):
 	"""
 	A custom horizontal scrollbar with a specific style and behavior for horizontal scrolling.
@@ -433,4 +402,3 @@ class CustemQScrollBar(QtWidgets.QScrollBar):
 	def mousePressEvent(self, event):
 		super(CustemQScrollBar, self).mousePressEvent(event)
 		self.setCursor(QtCore.Qt.ClosedHandCursor)
-

@@ -154,6 +154,7 @@ class ButtonCategoryWidget(QtWidgets.QPushButton):
 		
 		if event.button() != middle_button:
 			return
+		
 		self.setCursor(QtCore.Qt.ClosedHandCursor)
 		self.drag_button_category.emit()
 		

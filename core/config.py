@@ -80,6 +80,8 @@ class Configurator(object):
 			self.config.beginGroup("library")  # library group
 
 			self.config.setValue("library_mode", False)
+			self.config.setValue("category_mode", False)
+			self.config.setValue("sub_category_mode", False)
 
 			self.config.endGroup()  # End the group
 

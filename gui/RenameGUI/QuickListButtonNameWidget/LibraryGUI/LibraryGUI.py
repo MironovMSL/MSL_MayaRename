@@ -7,6 +7,7 @@ except:
 	
 from MSL_MayaRename.core.resources import Resources
 from MSL_MayaRename.gui.RenameGUI.QuickListButtonNameWidget.LibraryGUI.LibraryScrollAreaWidget.MainScrollAreaLibraryWidget import MainScrollAreaLibraryWidget
+from MSL_MayaRename.gui.RenameGUI.QuickListButtonNameWidget.LibraryGUI.AdditionButtonsWidget.AdditionButtonsWidget import AdditionButtonsWidget
 import maya.OpenMayaUI as omui
 import maya.cmds as cmds
 import sys
@@ -17,7 +18,7 @@ def maya_main_window():
 	return wrapInstance(int(main_window_ptr), QtWidgets.QWidget)
 
 class LibraryWindow(QtWidgets.QDialog):
-	WINDOW_TITLE = "Library Rename Tool"
+	WINDOW_TITLE = "Library"
 	library_show = QtCore.Signal(bool)
 	
 	def __init__(self, parent=maya_main_window()):
@@ -56,31 +57,16 @@ class LibraryWindow(QtWidgets.QDialog):
 		self.resize_timer = QtCore.QTimer()
 		self.resize_timer.setSingleShot(True)
 		
-		FixedHeigt = 25
-		
 		self.MainScrollArea = MainScrollAreaLibraryWidget()
+		self.AdditionButtonsWidget = AdditionButtonsWidget()
+		
 		
 		self.conten = QtWidgets.QWidget()
 		self.conten.setStyleSheet("background-color: #555555; border-radius: 10px;")
 		self.conten.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
 		self.conten.setFixedHeight(25)
 
-		
-		self.conten3 = QtWidgets.QWidget()
-		self.conten3.setStyleSheet("background-color: #955890; border-radius: 10px;")
-		self.conten3.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
-		self.conten3.setFixedHeight(FixedHeigt)
-		
-		self.conten4 = QtWidgets.QWidget()
-		self.conten4.setStyleSheet("background-color: #55aaff; border-radius: 10px;")
-		self.conten4.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
-		self.conten4.setFixedHeight(FixedHeigt)
-		
-		self.conten5 = QtWidgets.QWidget()
-		self.conten5.setStyleSheet("background-color: #ffaa7f; border-radius: 10px;")
-		self.conten5.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
-		self.conten5.setFixedHeight(FixedHeigt)
-	
+
 	def create_layouts(self):
 		# main layout---------------------------
 		self.main_layout = QtWidgets.QVBoxLayout(self)
@@ -90,9 +76,7 @@ class LibraryWindow(QtWidgets.QDialog):
 		# add widget---------------------------
 		self.main_layout.addWidget(self.conten)
 		self.main_layout.addWidget(self.MainScrollArea)
-		self.main_layout.addWidget(self.conten3)
-		self.main_layout.addWidget(self.conten4)
-		self.main_layout.addWidget(self.conten5)
+		self.main_layout.addWidget(self.AdditionButtonsWidget)
 	
 	def create_connections(self):
 		self.resize_timer.timeout.connect(self.applyStepResize)
