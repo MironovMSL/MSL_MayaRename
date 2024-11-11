@@ -1,0 +1,10 @@
+<RCC>
+    <qresource>
+        <file>icon/cell-phone-svgrepo-com.svg</file>
+        <file>icon/cooperate-svgrepo-com.svg</file>
+        <file>icon/crab-svgrepo-com.svg</file>
+        <file>icon/delete-svgrepo-com.svg</file>
+        <file>icon/earth-svgrepo-com.svg</file>
+        <file>icon/golf.png</file>
+    </qresource>
+</RCC>

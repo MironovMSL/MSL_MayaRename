@@ -60,12 +60,10 @@ class LibraryWindow(QtWidgets.QDialog):
 		self.MainScrollArea = MainScrollAreaLibraryWidget()
 		self.AdditionButtonsWidget = AdditionButtonsWidget()
 		
-		
 		self.conten = QtWidgets.QWidget()
-		self.conten.setStyleSheet("background-color: #555555; border-radius: 10px;")
+		self.conten.setStyleSheet("background-color: #D17535; border-radius: 10px;")
 		self.conten.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
 		self.conten.setFixedHeight(25)
-
 
 	def create_layouts(self):
 		# main layout---------------------------

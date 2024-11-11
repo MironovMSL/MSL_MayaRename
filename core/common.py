@@ -5,7 +5,7 @@ except:
 
 import json
 import os
-
+import random
 
 root_ = os.path.dirname(__file__) # ...\MSL_MayaRename\core
 new_root = os.path.abspath(os.path.join(root_, '..')) # ...\MSL_MayaRename
