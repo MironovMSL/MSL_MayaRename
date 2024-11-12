@@ -7,6 +7,7 @@ from MSL_MayaRename.core.resources import Resources
 from MSL_MayaRename.gui.RenameGUI.QuickListButtonNameWidget.LibraryGUI.AdditionButtonsWidget.addCategoryButtonWidget import addCategoryButtonWidget
 from MSL_MayaRename.gui.RenameGUI.QuickListButtonNameWidget.LibraryGUI.AdditionButtonsWidget.addCategoryWidget import addCategoryWidget
 from MSL_MayaRename.gui.RenameGUI.QuickListButtonNameWidget.LibraryGUI.AdditionButtonsWidget.addSubCategoryButtonWidget import addSubCategoryButtonWidget
+from MSL_MayaRename.gui.RenameGUI.QuickListButtonNameWidget.LibraryGUI.AdditionButtonsWidget.addSubCategoryWidget import addSubCategoryWidget
 
 class AdditionButtonsWidget(QtWidgets.QWidget):
 
@@ -28,10 +29,9 @@ class AdditionButtonsWidget(QtWidgets.QWidget):
 		self.addCategory = addCategoryButtonWidget()
 		self.addSubCategory = addSubCategoryButtonWidget()
 		self.addCategoryWidget = addCategoryWidget()
-	
+		self.addSubCategoryWidget = addSubCategoryWidget()
 
 	def create_layouts(self):
-		pass
 		# main layout---------------------------
 		self.main_layout = QtWidgets.QHBoxLayout(self)
 		self.main_layout.setContentsMargins(0, 0, 0, 0)
@@ -41,7 +41,7 @@ class AdditionButtonsWidget(QtWidgets.QWidget):
 		self.main_layout.addWidget(self.addCategory)
 		self.main_layout.addWidget(self.addSubCategory)
 		self.main_layout.addWidget(self.addCategoryWidget)
-		
+		self.main_layout.addWidget(self.addSubCategoryWidget)
 
 	def create_connections(self):
 		pass
