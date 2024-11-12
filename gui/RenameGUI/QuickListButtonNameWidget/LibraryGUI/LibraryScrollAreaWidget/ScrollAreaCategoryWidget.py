@@ -77,7 +77,7 @@ class ScrolContentWidget(QtWidgets.QWidget):
 		    border-radius: 10px;
 		    color: rgb(180, 180, 180);
 		"""
-	
+
 	def __init__(self, width=40, height=25, word_list=[], parent=None):
 		super(ScrolContentWidget, self).__init__(parent)
 		

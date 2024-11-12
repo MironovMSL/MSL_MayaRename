@@ -29,6 +29,7 @@ class AdditionButtonsWidget(QtWidgets.QWidget):
 		self.addCategory = addCategoryButtonWidget()
 		self.addSubCategory = addSubCategoryButtonWidget()
 		self.addCategoryWidget = addCategoryWidget()
+		self.addCategoryWidget.setVisible(False)
 		self.addSubCategoryWidget = addSubCategoryWidget()
 
 	def create_layouts(self):
