@@ -1,5 +1,3 @@
-from maya.cmds import parent
-
 try:
 	from PySide2 import QtWidgets, QtGui, QtCore
 except:

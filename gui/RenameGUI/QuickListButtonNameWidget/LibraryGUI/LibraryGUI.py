@@ -30,13 +30,14 @@ class LibraryWindow(QtWidgets.QDialog):
 		self.step_width  = 60
 		self.step_height = 20
 		self.target_size = None
+		self.resize_anim = None
 		# Setting---------------------------
 		self.setWindowTitle(self.WINDOW_TITLE)
 		self.setObjectName("LibraryWindowRenameToolWindowID")
 		self.setWindowIcon(self.icon)
-		self.setMinimumSize(180, 200)
-		self.setMaximumSize(420, 365)
-		self.resize(300, 365)
+		self.setMinimumSize(240, 200)
+		self.setMaximumSize(420, 355)
+		self.resize(300, 355)
 		# On macOS make the window a Tool to keep it on top of Maya
 		if sys.platform == "darwin":
 			self.setWindowFlag(QtCore.Qt.Tool, True)
@@ -83,12 +84,15 @@ class LibraryWindow(QtWidgets.QDialog):
 		self.library_show.emit(False)
 	
 	def resizeEvent(self, event):
+		if self.resize_anim:
+			if self.resize_anim.state() == QtCore.QAbstractAnimation.Running:
+				return
 		width = event.size().width()
 		height = event.size().height()
 		
 		# Round the width and height to the nearest step
 		new_width = (width // self.step_width) * self.step_width
-		new_height = ((height - 5) // self.step_height) * self.step_height + (5)
+		new_height = ((height - 15) // self.step_height) * self.step_height + (15)
 		
 		# Check if the size needs to be increased or decreased
 		width_diff = width - new_width
@@ -111,6 +115,13 @@ class LibraryWindow(QtWidgets.QDialog):
 		super().resizeEvent(event)
 	
 	def applyStepResize(self):
-		self.resize(self.target_size)
+		# self.resize(self.target_size)
+		start_size = self.size()
+		
+		self.resize_anim = QtCore.QPropertyAnimation(self, b"size")
+		self.resize_anim.setStartValue(start_size)
+		self.resize_anim.setEndValue(self.target_size)
+		self.resize_anim.setDuration(100)
+		self.resize_anim.start()
 		
 		

@@ -45,25 +45,22 @@ class addSubCategoryButtonWidget(QtWidgets.QPushButton):
 	        }
 	    """
 
-	def __init__(self, name="", width=25,height=25,icon="", parent=None):
+	def __init__(self, state = False, parent = None):
 		super(addSubCategoryButtonWidget, self).__init__(parent)
 
 		# Modul---------------------------
 		self.resources = Resources.get_instance()
 		# Attribute---------------------------
-		self.width     = width
-		self.height    = height
 		self.tooltip   = f"Subcategory Mode: Addition of a subcategory name"
 		self.icon      = self.resources.get_icon_from_resources("cell-phone-svgrepo-com.svg")
-		self.has_state = self.resources.config.get_variable("library", "sub_category_mode", False, bool)
+		self.state     = state
 		# Setting---------------------------
-		self.setText(name)
-		self.setFixedSize(self.width,self.height)
+		self.setFixedSize(25, 25)
 		self.setToolTip(self.tooltip)
 		self.setStyleSheet(self.Style_btn)
 		self.setIcon(self.icon)
 		self.setCheckable(True)
-		self.setChecked(self.has_state)
+		self.setChecked(self.state)
 		# Run functions ---------------------------
 		self.create_connections()
 
@@ -71,9 +68,12 @@ class addSubCategoryButtonWidget(QtWidgets.QPushButton):
 		self.clicked.connect(self.is_active_mode)
 
 	def is_active_mode(self, Checkable):
-		self.resources.config.set_variable("library", "sub_category_mode", Checkable)
 		self.isChangeState.emit(Checkable)
+		self.set_state(Checkable)
 		
+	def set_state(self, Checkable):
+		self.resources.config.set_variable("library", "sub_category_mode", Checkable)
+	
 	def enterEvent(self, event):
 		super(addSubCategoryButtonWidget, self).enterEvent(event)
 		self.setCursor(QtCore.Qt.PointingHandCursor)

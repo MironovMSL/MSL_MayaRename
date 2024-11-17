@@ -72,17 +72,17 @@ class addCategoryWidget(QtWidgets.QWidget):
 	    }
 	"""
 	
-	def __init__(self, name="", width=100, height=25, icon="", parent=None):
+	def __init__(self, state, parent=None):
 		super(addCategoryWidget, self).__init__(parent)
 		
 		# Modul---------------------------
 		self.resources = Resources.get_instance()
 		# Attribute---------------------------
-		self.width = width
-		self.height = height
 		self.tooltip = f"Addition of a category name"
+		self.state   = state
 		# Setting---------------------------
 		self.setFixedHeight(25)
+		self.setVisible(self.state)
 		# Run functions ---------------------------
 		self.create_widgets()
 		self.create_layouts()
@@ -90,11 +90,7 @@ class addCategoryWidget(QtWidgets.QWidget):
 	
 	def create_widgets(self):
 		self.add_lineEdit = CustumeLineEditorWidget("Category", 80, 25)
-		
-		self.add_buttin = QtWidgets.QPushButton("+")
-		self.add_buttin.setFixedSize(25,25)
-		self.add_buttin.setStyleSheet(self.Style_btn)
-
+		self.add_button   = QPushButtonAddName("+")
 	
 	def create_layouts(self):
 		self.main_layout = QtWidgets.QHBoxLayout(self)
@@ -103,8 +99,58 @@ class addCategoryWidget(QtWidgets.QWidget):
 		self.main_layout.setAlignment(QtCore.Qt.AlignHCenter)
 		
 		self.main_layout.addWidget(self.add_lineEdit)
-		self.main_layout.addWidget(self.add_buttin)
+		self.main_layout.addWidget(self.add_button)
 	
 	def create_connections(self):
-		pass
+		self.add_button.clicked.connect(self.on_clicked)
+	
+	def on_clicked(self):
+		print(f"TODO: add new category [{self.add_lineEdit.text()}]")
+
+
+class QPushButtonAddName(QtWidgets.QPushButton):
+	Style_btn = """
+	    QPushButton {
+	        background-color: rgb(50, 50, 50); /* Темно-серый фон */
+	        border-style: outset;
+	        border-width: 2px;
+	        border-radius: 6px;
+	        border-color: rgb(30, 30, 30); /* Темнее границы */
+	        font: bold 14px; /* Жирный шрифт */
+	        font-family: Arial; /* Шрифт Arial */
+	        color: rgb(200, 200, 200); /* Светло-серый текст */
+	        padding: 5px; /* Внутренние отступы */
+	    }
+	    QPushButton:hover {
+	        border-color: rgb(70, 70, 70); /* Светло-серая граница при наведении */
+	        background-color: rgb(80, 80, 80); /* Более светлый серый при наведении */
+	    }
+	    QPushButton:pressed {
+	        background-color: rgb(30, 30, 30); /* Почти черный при нажатии */
+	        border-style: inset; /* Впадение при нажатии */
+	        color: rgb(220, 220, 220); /* Почти белый текст при нажатии */
+	    }
+	"""
+	
+	def __init__(self, name, parent=None):
+		super(QPushButtonAddName, self).__init__(name, parent)
+		
+		self.setFixedSize(25, 25)
+		self.setStyleSheet(self.Style_btn)
+	
+	def enterEvent(self, event):
+		super(QPushButtonAddName, self).enterEvent(event)
+		self.setCursor(QtCore.Qt.PointingHandCursor)
+	
+	def leaveEvent(self, event):
+		super(QPushButtonAddName, self).leaveEvent(event)
+		self.setStyleSheet(self.Style_btn)
+		self.setCursor(QtCore.Qt.ArrowCursor)
+	
+	def mouseReleaseEvent(self, event):
+		super(QPushButtonAddName, self).mouseReleaseEvent(event)
+		self.setCursor(QtCore.Qt.PointingHandCursor)
+	
+	def mousePressEvent(self, event):
+		super(QPushButtonAddName, self).mousePressEvent(event)
 	

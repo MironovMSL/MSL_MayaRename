@@ -84,9 +84,9 @@ class ScrolContentWidget(QtWidgets.QWidget):
 		
 		# Modul---------------------------
 		# Attribute---------------------------
-		self._height  = height
-		self._width   = width
-		self.key_name = key_name
+		self._height   = height
+		self._width    = width
+		self.key_name  = list(key_name)
 		# Attribute scroll---------------------------
 		self.scroll_direction  = 0  # Variable for scroll direction
 		self.start_time        = None  # Countdown start time
@@ -180,7 +180,6 @@ class ScrolContentWidget(QtWidgets.QWidget):
 		category.drag_button_category.connect(self.set_dragged_category)
 		category.itClickedName.connect(lambda name: self.itClickedName.emit(name))
 		self.main_layout.addWidget(category)
-		
 		return category
 		
 	def set_dragged_category(self, category):
@@ -188,7 +187,17 @@ class ScrolContentWidget(QtWidgets.QWidget):
 		Sets the currently dragged button to the specified button.
 		"""
 		self.dragged_category = category
+	
+	def update_list(self):
+		items = []
+		for i in range(self.main_layout.count()):
+			item = self.main_layout.itemAt(i).widget()
+			if item and hasattr(item, 'name'):  # Проверяем, есть ли виджет и атрибут 'name'
+				items.append(item.name)
 
+		self.key_name = items
+		print(self.key_name)
+	
 	def scroll_content(self):
 		"""
 		Handles the scrolling logic for the widget based on the current scroll direction.
@@ -340,6 +349,7 @@ class ScrolContentWidget(QtWidgets.QWidget):
 				old_index = self.main_layout.indexOf(self.dragged_category)  # Move an existing button
 				self.main_layout.takeAt(old_index)  # Remove from current position
 				self.main_layout.insertWidget(self.placeholder_index, self.dragged_category)  # Insert to a new position
+
 				
 				self.dragged_category.setVisible(True)
 				self.dragged_category = None
@@ -349,6 +359,7 @@ class ScrolContentWidget(QtWidgets.QWidget):
 				if new_button:
 					self.main_layout.insertWidget(self.placeholder_index, new_button)
 			
+			self.update_list()
 			self.placeholder.hide()
 			self.placeholder_index = None
 			event.acceptProposedAction()

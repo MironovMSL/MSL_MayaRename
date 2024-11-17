@@ -85,7 +85,7 @@ class ScrolContentWidget(QtWidgets.QWidget):
 		# Attribute---------------------------
 		self._height           = height
 		self._width            = width
-		self.word_list         = word_list
+		self.word_list         = list(word_list)
 		# Attribute scroll---------------------------
 		self.scroll_direction  = 0  # Variable for scroll direction
 		self.start_time        = None  # Countdown start time
@@ -198,6 +198,16 @@ class ScrolContentWidget(QtWidgets.QWidget):
 		self.dragged_button = button
 		self.parent().parent().parent().parent()._Move_from_ButtonLibraryWidget = True
 	
+	def update_list(self):
+		items = []
+		for i in range(self.main_layout.count()):
+			item = self.main_layout.itemAt(i).widget()
+			if item and hasattr(item, 'name'):  # Проверяем, есть ли виджет и атрибут 'name'
+				items.append(item.name)
+		
+		self.word_list = items
+		print(self.word_list)
+		
 	def scroll_content(self):
 		"""
 		Handles the scrolling logic for the widget based on the current scroll direction.
@@ -328,6 +338,7 @@ class ScrolContentWidget(QtWidgets.QWidget):
 					self.main_layout.insertWidget(self.placeholder_index, new_button)
 				self.parent().parent().parent().parent()._Drop_from_ButtonLibraryWidget = True
 			
+			self.update_list()
 			self.parent().parent().parent().parent()._Move_from_ButtonLibraryWidget = False
 			self.placeholder.hide()
 			self.placeholder_index = None

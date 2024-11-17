@@ -31,15 +31,17 @@ class addSubCategoryWidget(QtWidgets.QWidget):
 	    }
 		"""
 	
-	def __init__(self, parent=None):
+	def __init__(self, state, parent=None):
 		super(addSubCategoryWidget, self).__init__(parent)
 		# Modul---------------------------
 		self.resources = Resources.get_instance()
 		# Attribute---------------------------
-		self.word_list = self.resources.get_key_name_JSON("ListName")
+		self.state           = state
+		self.word_list       = self.resources.get_key_name_JSON("ListName")
 		self.currentCategory = list(self.word_list)[0]
 		# Setting---------------------------
 		self.setFixedHeight(25)
+		self.setVisible(self.state)
 		# Run functions ---------------------------
 		self.create_widgets()
 		self.create_layouts()
@@ -52,7 +54,7 @@ class addSubCategoryWidget(QtWidgets.QWidget):
 		self.combobox.setStyleSheet(self.Style_comboBox)
 		
 		self.add_lineEdit = CustumeLineEditorWidget("Name", 80, 25)
-		self.add_button = QPushButtonAddName("+")
+		self.add_button   = QPushButtonAddName("+")
 	
 	def create_layouts(self):
 		self.main_layout = QtWidgets.QHBoxLayout(self)
@@ -69,7 +71,7 @@ class addSubCategoryWidget(QtWidgets.QWidget):
 		self.combobox.currentTextChanged.connect(self.update_text)
 		
 	def on_clicked(self):
-		print(f"TODO: add name {self.add_lineEdit.text()}, category : {self.currentCategory}")
+		print(f"TODO: add name [{self.add_lineEdit.text()}], category : [{self.currentCategory}]")
 	
 	def update_text(self, text):
 		self.currentCategory = text
