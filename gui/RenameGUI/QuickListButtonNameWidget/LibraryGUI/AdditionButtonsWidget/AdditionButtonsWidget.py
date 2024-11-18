@@ -1,3 +1,5 @@
+from maya.cmds import srtContext
+
 try:
 	from PySide2 import QtWidgets, QtGui, QtCore
 except:
@@ -10,6 +12,8 @@ from MSL_MayaRename.gui.RenameGUI.QuickListButtonNameWidget.LibraryGUI.AdditionB
 from MSL_MayaRename.gui.RenameGUI.QuickListButtonNameWidget.LibraryGUI.AdditionButtonsWidget.addSubCategoryWidget import addSubCategoryWidget
 
 class AdditionButtonsWidget(QtWidgets.QWidget):
+	isCategoryName = QtCore.Signal(str)
+	isSubCategoryName = QtCore.Signal(str, str)
 
 	def __init__(self, parent=None, ):
 		super(AdditionButtonsWidget, self).__init__(parent)
@@ -27,8 +31,8 @@ class AdditionButtonsWidget(QtWidgets.QWidget):
 		self.create_connections()
 	
 	def create_widgets(self):
-		self.addCategory_BTN         = addCategoryButtonWidget(self.category)
-		self.addSubCategory_BTN      = addSubCategoryButtonWidget(self.subCategory)
+		self.addCategory_BTN      = addCategoryButtonWidget(self.category)
+		self.addSubCategory_BTN   = addSubCategoryButtonWidget(self.subCategory)
 		self.addCategoryWidget    = addCategoryWidget(self.category)
 		self.addSubCategoryWidget = addSubCategoryWidget(self.subCategory)
 
@@ -47,8 +51,10 @@ class AdditionButtonsWidget(QtWidgets.QWidget):
 	def create_connections(self):
 		self.addCategory_BTN.isChangeState.connect(self.update_state)
 		self.addSubCategory_BTN.isChangeState.connect(self.update_state)
+		self.addCategoryWidget.isCategoryName.connect(lambda name: self.isCategoryName.emit(name))
+		self.addSubCategoryWidget.isSubCategoryName.connect(lambda name, category: self.isSubCategoryName.emit(name, category))
 	
-	def animate_widget(self, widget, start_rect, end_rect, duration=500):
+	def _animate_widget(self, widget, start_rect, end_rect, duration=500):
 		animation = QtCore.QPropertyAnimation(widget, b"geometry")
 		animation.setDuration(duration)
 		animation.setStartValue(start_rect)
@@ -66,23 +72,23 @@ class AdditionButtonsWidget(QtWidgets.QWidget):
 				end_width = self.size().width() - 50
 				start_rect = QtCore.QRect(50, 0, 50, 25)
 				end_rect = QtCore.QRect(50, 0, end_width, 25)
-				self.animate_add_category = self.animate_widget(self.addCategoryWidget, start_rect, end_rect)
+				self.animate_add_category = self._animate_widget(self.addCategoryWidget, start_rect, end_rect)
 			else:
 				start_rect = self.addCategoryWidget.geometry()
 				end_rect = self.addCategoryWidget.geometry()
 				end_rect.setWidth(0)
-				self.animate_add_category = self.animate_widget(self.addCategoryWidget, start_rect, end_rect)
+				self.animate_add_category = self._animate_widget(self.addCategoryWidget, start_rect, end_rect)
 				self.animate_add_category.finished.connect(lambda: self.addCategoryWidget.setVisible(False))
 			
 			if self.addSubCategory_BTN.isChecked():
 				self.addSubCategory_BTN.setChecked(False)
 				self.addSubCategory_BTN.set_state(False)
-				# self.addSubCategoryWidget.setVisible(False)
+
 				end_width = self.size().width()
 				start_rect = self.addSubCategoryWidget.geometry()
 				end_rect = QtCore.QRect(end_width, 0, end_width, 25)
 				
-				self.animate_add_subcategory = self.animate_widget(self.addSubCategoryWidget, start_rect, end_rect)
+				self.animate_add_subcategory = self._animate_widget(self.addSubCategoryWidget, start_rect, end_rect)
 				self.animate_add_subcategory.finished.connect(lambda: self.addSubCategoryWidget.setVisible(False))
 		
 		elif who == self.addSubCategory_BTN:
@@ -91,21 +97,21 @@ class AdditionButtonsWidget(QtWidgets.QWidget):
 				end_width = self.size().width() - 50
 				start_rect = QtCore.QRect(50, 0, 50, 25)
 				end_rect = QtCore.QRect(50, 0, end_width, 25)
-				self.animate_add_subcategory = self.animate_widget(self.addSubCategoryWidget, start_rect, end_rect)
+				self.animate_add_subcategory = self._animate_widget(self.addSubCategoryWidget, start_rect, end_rect)
 			else:
 				start_rect = self.addSubCategoryWidget.geometry()
 				end_rect = self.addSubCategoryWidget.geometry()
 				end_rect.setWidth(0)
-				self.animate_add_subcategory = self.animate_widget(self.addSubCategoryWidget, start_rect, end_rect)
+				self.animate_add_subcategory = self._animate_widget(self.addSubCategoryWidget, start_rect, end_rect)
 				self.animate_add_subcategory.finished.connect(lambda: self.addSubCategoryWidget.setVisible(False))
 			
 			if self.addCategory_BTN.isChecked():
 				self.addCategory_BTN.setChecked(False)
 				self.addCategory_BTN.set_state(False)
-				# self.addCategoryWidget.setVisible(False)
+
 				end_width = self.size().width()
 				start_rect = self.addCategoryWidget.geometry()
 				end_rect = QtCore.QRect(end_width, 0, end_width, 25)
-				self.animate_add_category = self.animate_widget(self.addCategoryWidget, start_rect, end_rect)
+				self.animate_add_category = self._animate_widget(self.addCategoryWidget, start_rect, end_rect)
 				self.animate_add_category.finished.connect(lambda: self.addCategoryWidget.setVisible(False))
 				

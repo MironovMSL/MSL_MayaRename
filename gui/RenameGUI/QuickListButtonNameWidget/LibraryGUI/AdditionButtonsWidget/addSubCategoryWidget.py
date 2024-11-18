@@ -7,6 +7,8 @@ from MSL_MayaRename.core.resources import Resources
 from MSL_MayaRename.gui.RenameGUI.QuickListButtonNameWidget.LibraryGUI.AdditionButtonsWidget.CustumeLineEditorWidget import CustumeLineEditorWidget
 
 class addSubCategoryWidget(QtWidgets.QWidget):
+	isSubCategoryName = QtCore.Signal(str, str)
+	
 	Style_comboBox = """
 	    QComboBox {
 	        background-color: rgb(40, 40, 40);
@@ -37,8 +39,8 @@ class addSubCategoryWidget(QtWidgets.QWidget):
 		self.resources = Resources.get_instance()
 		# Attribute---------------------------
 		self.state           = state
-		self.word_list       = self.resources.get_key_name_JSON("ListName")
-		self.currentCategory = list(self.word_list)[0]
+		self.word_list       = list(self.resources.get_key_name_JSON("ListName"))
+		self.currentCategory = self.resources.config.get_variable("library", "current_category", "Postfixes", str)
 		# Setting---------------------------
 		self.setFixedHeight(25)
 		self.setVisible(self.state)
@@ -50,7 +52,7 @@ class addSubCategoryWidget(QtWidgets.QWidget):
 
 	def create_widgets(self):
 		self.combobox = QtWidgets.QComboBox()
-		self.combobox.setFixedSize(60, 25)
+		self.combobox.setFixedSize(80, 25)
 		self.combobox.setStyleSheet(self.Style_comboBox)
 		
 		self.add_lineEdit = CustumeLineEditorWidget("Name", 80, 25)
@@ -69,18 +71,40 @@ class addSubCategoryWidget(QtWidgets.QWidget):
 	def create_connections(self):
 		self.add_button.clicked.connect(self.on_clicked)
 		self.combobox.currentTextChanged.connect(self.update_text)
+		self.add_lineEdit.returnPressed.connect(self.on_clicked)
 		
 	def on_clicked(self):
-		print(f"TODO: add name [{self.add_lineEdit.text()}], category : [{self.currentCategory}]")
-	
+		category = self.currentCategory
+		name     = self.add_lineEdit.text()
+		self.isSubCategoryName.emit(name, category)
+
+		
+		
 	def update_text(self, text):
 		self.currentCategory = text
+		self.resources.config.set_variable("library", "current_category", text)
 		
-	def add_item_combobox(self):
+	def add_item_combobox(self, Delete_name = None):
+		self.combobox.blockSignals(True)
+		self.combobox.clear()
 		if self.word_list:
 			for i in self.word_list:
 				self.combobox.addItem(i)
-		
+			
+			if self.currentCategory not in self.word_list:
+				newCarentCategory = self.word_list[0]
+				self.update_text(text=newCarentCategory)
+
+		if Delete_name:
+			if self.currentCategory == Delete_name:
+				if self.word_list:
+					newCarentCategory = self.word_list[0]
+					self.update_text(text = newCarentCategory)
+				else:
+					self.update_text(text = None)
+					
+		self.combobox.setCurrentText(self.currentCategory)
+		self.combobox.blockSignals(False)
 
 
 class QPushButtonAddName(QtWidgets.QPushButton):

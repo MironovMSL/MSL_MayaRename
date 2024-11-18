@@ -12,6 +12,7 @@ class CategoryWidget(QtWidgets.QWidget):
 	
 	itClickedName = QtCore.Signal(str)
 	drag_button_category = QtCore.Signal(object)
+	itDeleteCategory = QtCore.Signal(object, str)
 	
 	def __init__(self, name, width = 60, height = 25, parent = None):
 		super(CategoryWidget, self).__init__(parent)
@@ -48,4 +49,4 @@ class CategoryWidget(QtWidgets.QWidget):
 		self.category_button.itClickedName.connect(lambda name: self.itClickedName.emit(name))
 		self.category_widget.itClickedName.connect(lambda name: self.itClickedName.emit(name))
 		self.category_button.drag_button_category.connect(lambda: self.drag_button_category.emit(self))
-		self.category_button.itDeleteCategory.connect(lambda: self.deleteLater())
+		self.category_button.itDeleteCategory.connect(lambda: self.itDeleteCategory.emit(self, self.name))

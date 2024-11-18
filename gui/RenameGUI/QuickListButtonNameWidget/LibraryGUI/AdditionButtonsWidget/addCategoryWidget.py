@@ -9,6 +9,9 @@ from MSL_MayaRename.gui.RenameGUI.QuickListButtonNameWidget.LibraryGUI.AdditionB
 
 
 class addCategoryWidget(QtWidgets.QWidget):
+	
+	isCategoryName = QtCore.Signal(str)
+	
 	Style_comboBox = """
 		QComboBox {
 		    background-color: rgb(40, 40, 40);
@@ -103,9 +106,11 @@ class addCategoryWidget(QtWidgets.QWidget):
 	
 	def create_connections(self):
 		self.add_button.clicked.connect(self.on_clicked)
+		self.add_lineEdit.returnPressed.connect(self.on_clicked)
 	
 	def on_clicked(self):
-		print(f"TODO: add new category [{self.add_lineEdit.text()}]")
+		name = self.add_lineEdit.text()
+		self.isCategoryName.emit(name)
 
 
 class QPushButtonAddName(QtWidgets.QPushButton):

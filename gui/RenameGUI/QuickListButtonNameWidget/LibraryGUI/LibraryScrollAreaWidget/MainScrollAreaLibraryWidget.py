@@ -13,7 +13,9 @@ class MainScrollAreaLibraryWidget(QtWidgets.QScrollArea):
 	A custom scroll area that contains a scrollable content widget with buttons.
 	It allows horizontal scrolling using the mouse wheel.
 	"""
+	itUpdateCategory = QtCore.Signal(list)
 	itClickedName = QtCore.Signal(str)
+	itDeleteCategory = QtCore.Signal(str)
 	
 	def __init__(self, parent=None, ):
 		super(MainScrollAreaLibraryWidget, self).__init__(parent)
@@ -44,7 +46,8 @@ class MainScrollAreaLibraryWidget(QtWidgets.QScrollArea):
 	
 	def create_connections(self):
 		self.scroll_area_widget.itClickedName.connect(self.emit_signal)
-	
+		self.scroll_area_widget.itDeleteCategory.connect(lambda name: self.itDeleteCategory.emit(name))
+		self.scroll_area_widget.itUpdateCategory.connect(lambda list: self.itUpdateCategory.emit(list))
 	
 	
 	def emit_signal(self, text):
@@ -65,13 +68,16 @@ class MainScrollAreaLibraryWidget(QtWidgets.QScrollArea):
 		new_value = max(0, min(new_value, self.horizontalScrollBar().maximum()))
 		self.horizontalScrollBar().setValue(new_value)
 
+
 class ScrolContentWidget(QtWidgets.QWidget):
 	"""
 	A custom QWidget that contains scrollable categories based on a provided list of words.
 	The widget supports drag-and-drop functionality for reordering buttons.
 	"""
 	
+	itUpdateCategory = QtCore.Signal(list)
 	itClickedName = QtCore.Signal(str)
+	itDeleteCategory = QtCore.Signal(str)
 	placeholder_Style = """
 		    background-color: rgb(40, 40, 40);
 		    border: 4px groove rgb(70, 70, 70);
@@ -179,8 +185,13 @@ class ScrolContentWidget(QtWidgets.QWidget):
 		category = CategoryWidget(word, self._width, self._height)
 		category.drag_button_category.connect(self.set_dragged_category)
 		category.itClickedName.connect(lambda name: self.itClickedName.emit(name))
+		category.itDeleteCategory.connect(self.delete_category)
 		self.main_layout.addWidget(category)
 		return category
+	
+	def delete_category(self, object, name):
+		object.destroyed.connect(lambda: self.itDeleteCategory.emit(name))
+		object.deleteLater()
 		
 	def set_dragged_category(self, category):
 		"""
@@ -188,7 +199,7 @@ class ScrolContentWidget(QtWidgets.QWidget):
 		"""
 		self.dragged_category = category
 	
-	def update_list(self):
+	def update_list(self, drop = False):
 		items = []
 		for i in range(self.main_layout.count()):
 			item = self.main_layout.itemAt(i).widget()
@@ -197,6 +208,11 @@ class ScrolContentWidget(QtWidgets.QWidget):
 
 		self.key_name = items
 		print(self.key_name)
+
+		if drop:
+			self.itUpdateCategory.emit(self.key_name)
+			
+		return self.key_name
 	
 	def scroll_content(self):
 		"""
@@ -359,7 +375,7 @@ class ScrolContentWidget(QtWidgets.QWidget):
 				if new_button:
 					self.main_layout.insertWidget(self.placeholder_index, new_button)
 			
-			self.update_list()
+			self.update_list(drop=True)
 			self.placeholder.hide()
 			self.placeholder_index = None
 			event.acceptProposedAction()

@@ -79,6 +79,47 @@ class LibraryWindow(QtWidgets.QDialog):
 	
 	def create_connections(self):
 		self.resize_timer.timeout.connect(self.applyStepResize)
+		self.AdditionButtonsWidget.isCategoryName.connect(self.add_category)
+		self.AdditionButtonsWidget.isSubCategoryName.connect(self.add_subCategory)
+		self.MainScrollArea.itDeleteCategory.connect(lambda name: self.update_category(name=name))
+		self.MainScrollArea.itUpdateCategory.connect(lambda categories: self.update_category(categories=categories))
+		
+		
+		
+	def update_category(self, name = None, categories = None):
+		if categories:
+			self.AdditionButtonsWidget.addSubCategoryWidget.word_list = categories
+		else:
+			update_categories = self.MainScrollArea.scroll_area_widget.update_list()
+			self.AdditionButtonsWidget.addSubCategoryWidget.word_list = update_categories
+		
+		if name:
+			self.AdditionButtonsWidget.addSubCategoryWidget.add_item_combobox(name)
+		else:
+			self.AdditionButtonsWidget.addSubCategoryWidget.add_item_combobox()
+	
+	def add_category(self, name):
+		if name:
+			newCategory = self.MainScrollArea.scroll_area_widget.add_category(name)
+			if newCategory:
+				self.update_category()
+				# update_categories = self.MainScrollArea.scroll_area_widget.update_list()
+				# categories_list   = self.AdditionButtonsWidget.addSubCategoryWidget.word_list = update_categories
+				# self.AdditionButtonsWidget.addSubCategoryWidget.add_item_combobox()
+
+		else:
+			print("Category not added: name cannot be empty.")
+			
+	def add_subCategory(self, name, category):
+		if name:
+			for i in range(self.MainScrollArea.scroll_area_widget.main_layout.count()):
+				item = self.MainScrollArea.scroll_area_widget.main_layout.itemAt(i).widget()
+				if item.name == category:
+					newSubCategory = item.category_widget.scroll_area_widget.add_button(name)
+					if newSubCategory:
+						item.category_widget.scroll_area_widget.update_list()
+		else:
+			print("SubCategory not added: name cannot be empty.")
 	
 	def closeEvent(self, event):
 		self.library_show.emit(False)
@@ -115,7 +156,6 @@ class LibraryWindow(QtWidgets.QDialog):
 		super().resizeEvent(event)
 	
 	def applyStepResize(self):
-		# self.resize(self.target_size)
 		start_size = self.size()
 		
 		self.resize_anim = QtCore.QPropertyAnimation(self, b"size")
