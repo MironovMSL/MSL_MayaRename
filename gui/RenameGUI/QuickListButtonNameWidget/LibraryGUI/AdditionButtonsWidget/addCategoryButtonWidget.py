@@ -59,6 +59,7 @@ class addCategoryButtonWidget(QtWidgets.QPushButton):
 		self.setToolTip(self.tooltip)
 		self.setStyleSheet(self.Style_btn)
 		self.setIcon(self.icon)
+		self.setIconSize(QtCore.QSize(20, 20))
 		self.setCheckable(True)
 		self.setChecked(self.state)
 		# Run functions ---------------------------

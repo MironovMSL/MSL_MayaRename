@@ -81,7 +81,6 @@ class addCategoryWidget(QtWidgets.QWidget):
 		# Modul---------------------------
 		self.resources = Resources.get_instance()
 		# Attribute---------------------------
-		self.tooltip = f"Addition of a category name"
 		self.state   = state
 		# Setting---------------------------
 		self.setFixedHeight(25)

@@ -8,6 +8,7 @@ except:
 from MSL_MayaRename.core.resources import Resources
 from MSL_MayaRename.gui.RenameGUI.QuickListButtonNameWidget.LibraryGUI.LibraryScrollAreaWidget.MainScrollAreaLibraryWidget import MainScrollAreaLibraryWidget
 from MSL_MayaRename.gui.RenameGUI.QuickListButtonNameWidget.LibraryGUI.AdditionButtonsWidget.AdditionButtonsWidget import AdditionButtonsWidget
+from MSL_MayaRename.gui.RenameGUI.QuickListButtonNameWidget.LibraryGUI.MenuWidget.MenuWidget import MenuWidget
 import maya.OpenMayaUI as omui
 import maya.cmds as cmds
 import sys
@@ -58,14 +59,10 @@ class LibraryWindow(QtWidgets.QDialog):
 		self.resize_timer = QtCore.QTimer()
 		self.resize_timer.setSingleShot(True)
 		
-		self.MainScrollArea = MainScrollAreaLibraryWidget()
+		self.MenuWidget            = MenuWidget()
+		self.MainScrollArea        = MainScrollAreaLibraryWidget()
 		self.AdditionButtonsWidget = AdditionButtonsWidget()
 		
-		self.conten = QtWidgets.QWidget()
-		self.conten.setStyleSheet("background-color: #D17535; border-radius: 10px;")
-		self.conten.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
-		self.conten.setFixedHeight(25)
-
 	def create_layouts(self):
 		# main layout---------------------------
 		self.main_layout = QtWidgets.QVBoxLayout(self)
@@ -73,7 +70,7 @@ class LibraryWindow(QtWidgets.QDialog):
 		self.main_layout.setSpacing(0)
 		self.main_layout.setAlignment(QtCore.Qt.AlignTop)
 		# add widget---------------------------
-		self.main_layout.addWidget(self.conten)
+		self.main_layout.addWidget(self.MenuWidget)
 		self.main_layout.addWidget(self.MainScrollArea)
 		self.main_layout.addWidget(self.AdditionButtonsWidget)
 	
@@ -84,15 +81,12 @@ class LibraryWindow(QtWidgets.QDialog):
 		self.MainScrollArea.itDeleteCategory.connect(lambda name: self.update_category(name=name))
 		self.MainScrollArea.itUpdateCategory.connect(lambda categories: self.update_category(categories=categories))
 		
-		
-		
 	def update_category(self, name = None, categories = None):
 		if categories:
 			self.AdditionButtonsWidget.addSubCategoryWidget.word_list = categories
 		else:
 			update_categories = self.MainScrollArea.scroll_area_widget.update_list()
 			self.AdditionButtonsWidget.addSubCategoryWidget.word_list = update_categories
-		
 		if name:
 			self.AdditionButtonsWidget.addSubCategoryWidget.add_item_combobox(name)
 		else:
@@ -103,10 +97,6 @@ class LibraryWindow(QtWidgets.QDialog):
 			newCategory = self.MainScrollArea.scroll_area_widget.add_category(name)
 			if newCategory:
 				self.update_category()
-				# update_categories = self.MainScrollArea.scroll_area_widget.update_list()
-				# categories_list   = self.AdditionButtonsWidget.addSubCategoryWidget.word_list = update_categories
-				# self.AdditionButtonsWidget.addSubCategoryWidget.add_item_combobox()
-
 		else:
 			print("Category not added: name cannot be empty.")
 			
@@ -114,10 +104,11 @@ class LibraryWindow(QtWidgets.QDialog):
 		if name:
 			for i in range(self.MainScrollArea.scroll_area_widget.main_layout.count()):
 				item = self.MainScrollArea.scroll_area_widget.main_layout.itemAt(i).widget()
-				if item.name == category:
-					newSubCategory = item.category_widget.scroll_area_widget.add_button(name)
-					if newSubCategory:
-						item.category_widget.scroll_area_widget.update_list()
+				if item and hasattr(item, 'name'):
+					if item.name == category:
+						newSubCategory = item.category_widget.scroll_area_widget.add_button(name)
+						if newSubCategory:
+							item.category_widget.scroll_area_widget.update_list()
 		else:
 			print("SubCategory not added: name cannot be empty.")
 	
