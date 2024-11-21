@@ -40,8 +40,6 @@ class ButtonCategoryWidget(QtWidgets.QPushButton):
 	    }
 	"""
 	
-	# TODO: neede choose style one
-
 	def __init__(self, name="", width=40, height=25, parent=None):
 		super(ButtonCategoryWidget, self).__init__(parent)
 

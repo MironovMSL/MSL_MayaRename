@@ -21,15 +21,16 @@ class Resources(object):
 		else:
 			raise Exception("Error Singleton")
 
-		self.config_path = os.path.join(project_root_, "config.ini")  # config.ini path
-		self.icon_path = os.path.join(root_, "resources", "icon")  # icon path
+		self.config_path               = os.path.join(project_root_, "config.ini")  # config.ini path
+		self.icon_path                 = os.path.join(root_, "resources", "icon")  # icon path
 		self.listButtonsName_json_path = os.path.join(root_, "resources", "listButtonsName.json")  # listButtonsName.json path
-		self.all_item_json = [] # list all name from JSON
+		self.JSON_data                 = self.read_json(self.listButtonsName_json_path)
+		self.all_item_json             = []  # list all name from JSON
 
 		self.config: Configurator = None
 
 		self.get_config()
-		# self.get_info()
+		self.get_info()
 		self.get_all_itemJSON()
 
 
@@ -41,7 +42,22 @@ class Resources(object):
 		self.config = Configurator(config_path=self.config_path)
 		self.config.init_config()
 		# self.config.get_info_all_keys()
-
+	
+	def write_json(self, data=None, path=None):
+		# Use default values from the instance if arguments are not provided
+		data = data if data is not None else self.JSON_data
+		path = path if path is not None else self.listButtonsName_json_path
+		
+		# Validate inputs
+		assert path is not None, "path is None"
+		assert isinstance(data, (dict, list)), "data must be a dictionary or a list"
+		
+		try:
+			with open(path, "w", encoding="utf-8") as outfile:
+				json.dump(data, outfile, indent=4, ensure_ascii=False)
+		except Exception as e:
+			raise IOError(f"Failed to write JSON data to {path}: {e}")
+	
 	def get_all_itemJSON(self):
 
 		self.all_item_json = []
@@ -111,10 +127,9 @@ class Resources(object):
 		return icon
 
 	def get_info(self):
-
-		log(message=f"config path = {self.config_path}", category="config.ini")
-		log(message=f"icon path = {self.icon_path}", category="icon")
-		log(message=f"listButtonsName path = {self.listButtonsName_json_path}", category="listButtonsName.json")
+		log(message=self.config_path, category="config.ini")
+		log(message=self.icon_path, category="icon")
+		log(message=self.listButtonsName_json_path, category="listButtonsName.json")
 
 
 

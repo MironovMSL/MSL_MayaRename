@@ -142,6 +142,7 @@ class ButtonLibraryWidget(QtWidgets.QPushButton):
 		"""
 		Deletes the button from the layout.
 		"""
+		print(self.parent().parent().parent().parent().parent().parent().parent().parent().MenuWidget.save_btn.set_Enabled(True))
 		print(f"Delete button [{self.name}]")
 		self.deleteLater()
 	

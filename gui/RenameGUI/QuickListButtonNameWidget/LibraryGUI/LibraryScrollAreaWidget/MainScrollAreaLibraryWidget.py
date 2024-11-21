@@ -176,6 +176,7 @@ class ScrolContentWidget(QtWidgets.QWidget):
 		Adds a button with the given text to the layout if it doesn't already exist.
 		"""
 		for i in range(self.main_layout.count()):
+			
 			existing_button = self.main_layout.itemAt(i).widget()
 			if isinstance(existing_button, CategoryWidget) and existing_button.name == word:
 				print(f"The category with name '{word}' already exists, adding cancelled.")
@@ -207,7 +208,6 @@ class ScrolContentWidget(QtWidgets.QWidget):
 				items.append(item.name)
 
 		self.key_name = items
-		print(self.key_name)
 
 		if drop:
 			self.itUpdateCategory.emit(self.key_name)
@@ -375,6 +375,7 @@ class ScrolContentWidget(QtWidgets.QWidget):
 				if new_button:
 					self.main_layout.insertWidget(self.placeholder_index, new_button)
 			
+			self.parent().parent().parent().set_state_saveButton(True)
 			self.update_list(drop=True)
 			self.placeholder.hide()
 			self.placeholder_index = None

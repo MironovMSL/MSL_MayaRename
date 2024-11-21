@@ -18,7 +18,7 @@ def log(message="", category=""):
 	:return: None
 	"""
 
-	print ("[MSL: {0}] {1}".format(category, message))
+	print (f"MSL: {category:<20} : {message}")
 
 # def read_json(path=None):
 # 	assert path is not None, "path is None"

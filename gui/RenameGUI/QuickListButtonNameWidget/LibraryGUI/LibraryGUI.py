@@ -80,6 +80,51 @@ class LibraryWindow(QtWidgets.QDialog):
 		self.AdditionButtonsWidget.isSubCategoryName.connect(self.add_subCategory)
 		self.MainScrollArea.itDeleteCategory.connect(lambda name: self.update_category(name=name))
 		self.MainScrollArea.itUpdateCategory.connect(lambda categories: self.update_category(categories=categories))
+		self.MenuWidget.save_btn.itSave.connect(self.save_library)
+		self.MenuWidget.reset_btn.itReset.connect(self.reset_library)
+		self.MenuWidget.duplicate_btn.itDuplicate.connect(self.duplicate_library)
+		
+	def duplicate_library(self):
+		print("TODO: duplicate check" )
+		
+	def reset_library(self):
+		self.resources.JSON_data["ListName"] = self.resources.JSON_data["ListNameDefault"]
+		count_categories = self.MainScrollArea.scroll_area_widget.main_layout.count()
+		
+		for i in reversed(range(count_categories)):
+			item = self.MainScrollArea.scroll_area_widget.main_layout.takeAt(i)
+			widget = item.widget()
+			if widget and hasattr(widget, 'name'):
+				widget.deleteLater()
+		
+		self.MainScrollArea.scroll_area_widget.key_name = list(self.resources.get_key_name_JSON(key="ListNameDefault"))
+		self.MainScrollArea.scroll_area_widget.add_content()
+		self.update_category(self.MainScrollArea.scroll_area_widget.key_name)
+		
+		print("TODO: dialog question about reset")
+		print("TODO: Resize window library")
+
+		
+	def save_library(self):
+		categories       = self.MainScrollArea.scroll_area_widget.key_name
+		count_categories = self.MainScrollArea.scroll_area_widget.main_layout.count()
+		new_lybrary      = { }
+		
+		if categories:
+			for category in categories:
+				for i in range(count_categories):
+					item = self.MainScrollArea.scroll_area_widget.main_layout.itemAt(i).widget()
+					if item and hasattr(item, 'name'):
+						if item.name == category:
+							SubCategory = item.category_widget.scroll_area_widget.word_list # list []
+							new_lybrary[category] = SubCategory
+		
+		self.resources.JSON_data["ListName"] = new_lybrary
+		self.resources.write_json()
+		self.set_state_saveButton(False)
+		
+	def set_state_saveButton(self, bool):
+		self.MenuWidget.save_btn.set_Enabled(bool)
 		
 	def update_category(self, name = None, categories = None):
 		if categories:
@@ -88,6 +133,7 @@ class LibraryWindow(QtWidgets.QDialog):
 			update_categories = self.MainScrollArea.scroll_area_widget.update_list()
 			self.AdditionButtonsWidget.addSubCategoryWidget.word_list = update_categories
 		if name:
+			self.MenuWidget.save_btn.set_Enabled(True)
 			self.AdditionButtonsWidget.addSubCategoryWidget.add_item_combobox(name)
 		else:
 			self.AdditionButtonsWidget.addSubCategoryWidget.add_item_combobox()
@@ -97,6 +143,7 @@ class LibraryWindow(QtWidgets.QDialog):
 			newCategory = self.MainScrollArea.scroll_area_widget.add_category(name)
 			if newCategory:
 				self.update_category()
+				self.set_state_saveButton(True)
 		else:
 			print("Category not added: name cannot be empty.")
 			
@@ -109,6 +156,8 @@ class LibraryWindow(QtWidgets.QDialog):
 						newSubCategory = item.category_widget.scroll_area_widget.add_button(name)
 						if newSubCategory:
 							item.category_widget.scroll_area_widget.update_list()
+							self.set_state_saveButton(True)
+							
 		else:
 			print("SubCategory not added: name cannot be empty.")
 	

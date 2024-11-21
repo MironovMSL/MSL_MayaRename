@@ -206,7 +206,6 @@ class ScrolContentWidget(QtWidgets.QWidget):
 				items.append(item.name)
 		
 		self.word_list = items
-		print(self.word_list)
 		
 	def scroll_content(self):
 		"""
@@ -339,6 +338,7 @@ class ScrolContentWidget(QtWidgets.QWidget):
 				self.parent().parent().parent().parent()._Drop_from_ButtonLibraryWidget = True
 			
 			self.update_list()
+			self.parent().parent().parent().parent().parent().parent().parent().set_state_saveButton(True)
 			self.parent().parent().parent().parent()._Move_from_ButtonLibraryWidget = False
 			self.placeholder.hide()
 			self.placeholder_index = None
