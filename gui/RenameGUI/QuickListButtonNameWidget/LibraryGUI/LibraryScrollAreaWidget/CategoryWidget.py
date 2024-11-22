@@ -14,11 +14,12 @@ class CategoryWidget(QtWidgets.QWidget):
 	drag_button_category = QtCore.Signal(object)
 	itDeleteCategory = QtCore.Signal(object, str)
 	
-	def __init__(self, name, width = 60, height = 25, parent = None):
+	def __init__(self, name, width = 60, height = 25, main_key=None, parent = None):
 		super(CategoryWidget, self).__init__(parent)
 		# Modul---------------------------
 		self.resources = Resources.get_instance()
 		# Attribute---------------------------
+		self.main_key = main_key if main_key is not None else "ListName"
 		self.name    = name
 		self._width  = width
 		self._height = height
@@ -35,7 +36,7 @@ class CategoryWidget(QtWidgets.QWidget):
 	
 	def create_widgets(self):
 		self.category_button = ButtonCategoryWidget(self.name,self._width, self._height)
-		self.category_widget = ScrollAreaCategoryWidget(self.name, self._width, 20)
+		self.category_widget = ScrollAreaCategoryWidget(self.name, self._width, 20, self.main_key)
 		
 	def create_layouts(self):
 		self.main_layout = QtWidgets.QVBoxLayout(self)

@@ -28,6 +28,7 @@ class LibraryWindow(QtWidgets.QDialog):
 		self.resources   = Resources.get_instance()
 		# Attribute---------------------------
 		self.icon        = self.resources.get_icon_from_resources("earth-svgrepo-com.svg")
+		self.count_categories  = len(list(self.resources.get_key_name_JSON(key="ListName")))
 		self.step_width  = 60
 		self.step_height = 20
 		self.target_size = None
@@ -51,6 +52,7 @@ class LibraryWindow(QtWidgets.QDialog):
 		self.create_widgets()
 		self.create_layouts()
 		self.create_connections()
+		self.set_resize(self.count_categories)
 		
 	def __repr__(self):
 		return f"Class: [LibraryWindow], name - [{self.objectName()}]"
@@ -73,7 +75,7 @@ class LibraryWindow(QtWidgets.QDialog):
 		self.main_layout.addWidget(self.MenuWidget)
 		self.main_layout.addWidget(self.MainScrollArea)
 		self.main_layout.addWidget(self.AdditionButtonsWidget)
-	
+
 	def create_connections(self):
 		self.resize_timer.timeout.connect(self.applyStepResize)
 		self.AdditionButtonsWidget.isCategoryName.connect(self.add_category)
@@ -88,23 +90,64 @@ class LibraryWindow(QtWidgets.QDialog):
 		print("TODO: duplicate check" )
 		
 	def reset_library(self):
-		self.resources.JSON_data["ListName"] = self.resources.JSON_data["ListNameDefault"]
-		count_categories = self.MainScrollArea.scroll_area_widget.main_layout.count()
 		
-		for i in reversed(range(count_categories)):
-			item = self.MainScrollArea.scroll_area_widget.main_layout.takeAt(i)
-			widget = item.widget()
-			if widget and hasattr(widget, 'name'):
-				widget.deleteLater()
+		button_pressed = QtWidgets.QMessageBox.question(self, "Question", f"Are you sure you want to reset <span style='color: #669e62; font-size: {12}px;'>{'the library'}</span> to its <span style='color: #669e62; font-size: {12}px;'>{'default state'}</span>?")
 		
-		self.MainScrollArea.scroll_area_widget.key_name = list(self.resources.get_key_name_JSON(key="ListNameDefault"))
-		self.MainScrollArea.scroll_area_widget.add_content()
-		self.update_category(self.MainScrollArea.scroll_area_widget.key_name)
+		if button_pressed == QtWidgets.QMessageBox.Yes:
+			self.resources.JSON_data["ListName"] = self.resources.JSON_data["ListNameDefault"]
+			count_categories = self.MainScrollArea.scroll_area_widget.main_layout.count()
+			list_categories  = list(self.resources.get_key_name_JSON(key="ListNameDefault"))
+	
+			for i in reversed(range(count_categories)):
+				item = self.MainScrollArea.scroll_area_widget.main_layout.takeAt(i)
+				widget = item.widget()
+				if widget and hasattr(widget, 'name'):
+					widget.deleteLater()
+	
+			self.MainScrollArea.scroll_area_widget.key_name = list_categories
+	
+			self.MainScrollArea.scroll_area_widget.add_content("ListNameDefault")
+			self.update_category(self.MainScrollArea.scroll_area_widget.key_name)
+			self.set_resize(len(list_categories))
+		else:
+			print("Cancelled")
 		
-		print("TODO: dialog question about reset")
-		print("TODO: Resize window library")
+		
+	def set_resize(self, count = None):
+		assert count is not None, "count is None"
+		self.count_categories = count
+		
+		if count > 4:
+			width = count * self.step_width
+			self.setMaximumSize(width, 355)
+			self.resize(300, 355)
+		else:
+			self.setMaximumSize(240, 355)
+			self.resize(300, 355)
 
+	def set_add_size(self):
+		self.count_categories += 1
+		width  = self.count_categories * self.step_width
+		height = self.size().height()
+		if self.count_categories < 10:
+			self.setMaximumWidth(width)
+			self.resize(width, height)
+			
+		else:
+			self.setMaximumWidth(width)
+	
+	def set_minus_size(self):
+		self.count_categories -= 1
+		width = self.count_categories * self.step_width
+		height = self.size().height()
 		
+		if self.count_categories > 3:
+			self.setMaximumWidth(width)
+			self.resize(width, height)
+		else:
+			pass
+		
+	
 	def save_library(self):
 		categories       = self.MainScrollArea.scroll_area_widget.key_name
 		count_categories = self.MainScrollArea.scroll_area_widget.main_layout.count()
@@ -135,17 +178,22 @@ class LibraryWindow(QtWidgets.QDialog):
 		if name:
 			self.MenuWidget.save_btn.set_Enabled(True)
 			self.AdditionButtonsWidget.addSubCategoryWidget.add_item_combobox(name)
+			self.set_minus_size()
 		else:
 			self.AdditionButtonsWidget.addSubCategoryWidget.add_item_combobox()
 	
 	def add_category(self, name):
 		if name:
-			newCategory = self.MainScrollArea.scroll_area_widget.add_category(name)
+			newCategory = self.MainScrollArea.scroll_area_widget.add_category(name, main_key= None)
 			if newCategory:
 				self.update_category()
 				self.set_state_saveButton(True)
+				self.set_add_size()
+				
 		else:
 			print("Category not added: name cannot be empty.")
+			
+	
 			
 	def add_subCategory(self, name, category):
 		if name:

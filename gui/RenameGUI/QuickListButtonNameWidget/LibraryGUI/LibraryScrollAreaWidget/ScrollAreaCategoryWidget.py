@@ -15,13 +15,13 @@ class ScrollAreaCategoryWidget(QtWidgets.QScrollArea):
 	"""
 	itClickedName = QtCore.Signal(str)
 	
-	def __init__(self, key_name=None, width = 60, height = 25, parent=None, ):
+	def __init__(self, key_name=None, width = 60, height = 25, main_key=None, parent=None):
 		super(ScrollAreaCategoryWidget, self).__init__(parent)
 		# Modul---------------------------
 		self.resources = Resources.get_instance()
 		# Attribute---------------------------
 		self.kye_name = key_name
-		self.word_list = self.resources.get_values_by_known_key(main_key="ListName", sub_key=key_name)
+		self.word_list = self.resources.get_values_by_known_key(main_key=main_key, sub_key=key_name)
 		self.button_width = width
 		self.button_height = height
 		self.ScrollBar = CustemQScrollBar(self.button_width, self)

@@ -122,13 +122,13 @@ class ScrolContentWidget(QtWidgets.QWidget):
 		self.placeholder.setFixedWidth(self._width)
 		self.placeholder.setStyleSheet(self.placeholder_Style)
 		self.placeholder.hide()
-	
+
 	def creat_layout(self):
 		self.main_layout = QtWidgets.QHBoxLayout(self)
 		self.main_layout.setContentsMargins(0, 0, 0, 0)
 		self.main_layout.setSpacing(0)
 		self.main_layout.setAlignment(QtCore.Qt.AlignLeft | QtCore.Qt.AlignTop)
-	
+
 	def create_connections(self):
 		self.scroll_timer.timeout.connect(self.scroll_content)
 		self.outside_tracking_timer.timeout.connect(self.check_mouse_status)
@@ -158,48 +158,50 @@ class ScrolContentWidget(QtWidgets.QWidget):
 	def start_check_mouse_status_timer(self):
 		if self.dragged_category:
 			self.outside_tracking_timer.start(100)
-
+		
 	def stop_check_mouse_status_timer(self):
 		if self.outside_tracking_timer.isActive():  # Check if timer is running
 			self.outside_tracking_timer.stop()
-	
-	def add_content(self):
+
+	def add_content(self, main_key = None):
 		"""
 		Adds buttons to the widget based on the self.key_name attribute.
 		Ensures that no duplicate buttons are added.
 		"""
+		self.main_key = main_key if main_key is not None else "ListName"
+
 		for word in self.key_name:
-			self.add_category(word)
-		
-	def add_category(self, word):
+			self.add_category(word, self.main_key)
+
+	def add_category(self, word, main_key):
 		"""
 		Adds a button with the given text to the layout if it doesn't already exist.
 		"""
+		main_key = main_key if main_key is not None else "ListName"
 		for i in range(self.main_layout.count()):
-			
 			existing_button = self.main_layout.itemAt(i).widget()
 			if isinstance(existing_button, CategoryWidget) and existing_button.name == word:
 				print(f"The category with name '{word}' already exists, adding cancelled.")
 				return
 		
 		# If the button is not found, create and add a new one
-		category = CategoryWidget(word, self._width, self._height)
+		category = CategoryWidget(word, self._width, self._height, main_key)
 		category.drag_button_category.connect(self.set_dragged_category)
 		category.itClickedName.connect(lambda name: self.itClickedName.emit(name))
 		category.itDeleteCategory.connect(self.delete_category)
 		self.main_layout.addWidget(category)
 		return category
-	
+
 	def delete_category(self, object, name):
 		object.destroyed.connect(lambda: self.itDeleteCategory.emit(name))
 		object.deleteLater()
-		
+
 	def set_dragged_category(self, category):
 		"""
 		Sets the currently dragged button to the specified button.
 		"""
 		self.dragged_category = category
-	
+
 	def update_list(self, drop = False):
 		items = []
 		for i in range(self.main_layout.count()):
@@ -211,9 +213,9 @@ class ScrolContentWidget(QtWidgets.QWidget):
 
 		if drop:
 			self.itUpdateCategory.emit(self.key_name)
-			
+
 		return self.key_name
-	
+
 	def scroll_content(self):
 		"""
 		Handles the scrolling logic for the widget based on the current scroll direction.
