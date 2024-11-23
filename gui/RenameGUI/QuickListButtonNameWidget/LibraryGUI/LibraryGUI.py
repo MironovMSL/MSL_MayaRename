@@ -85,10 +85,88 @@ class LibraryWindow(QtWidgets.QDialog):
 		self.MenuWidget.save_btn.itSave.connect(self.save_library)
 		self.MenuWidget.reset_btn.itReset.connect(self.reset_library)
 		self.MenuWidget.duplicate_btn.itDuplicate.connect(self.duplicate_library)
+	
+	def build_library(self):
+		categories = self.MainScrollArea.scroll_area_widget.key_name
+		count_categories = self.MainScrollArea.scroll_area_widget.main_layout.count()
+		lybrary = {}
 		
+		if categories:
+			for category in categories:
+				for i in range(count_categories):
+					item = self.MainScrollArea.scroll_area_widget.main_layout.itemAt(i).widget()
+					if item and hasattr(item, 'name') and item.name == category:
+						SubCategory = item.category_widget.scroll_area_widget.word_list  # list []
+						lybrary[category] = SubCategory
+		return lybrary
+	
+	def find_duplicates(self, lybrary):
+		dublicate = {}
+		lybrary_list = list(lybrary.keys())
+		
+		for index, category_x in enumerate(lybrary_list, start=1):
+			for SubC_x in lybrary[category_x]:
+				if SubC_x in dublicate:
+					continue
+				
+				duplicate_in_categories = []
+				
+				for category_Y in lybrary_list[index:]:
+					for SubC_y in lybrary[category_Y]:
+						if SubC_x == SubC_y:
+							duplicate_in_categories.append(category_Y)
+				
+				if duplicate_in_categories:
+					duplicate_in_categories.insert(0, category_x)
+					dublicate[SubC_x] = duplicate_in_categories
+		
+		return dublicate
+	
+	def save_library(self):
+		new_library = self.build_library()
+
+		self.resources.JSON_data["ListName"] = new_library
+		self.resources.write_json()
+
+		self.set_state_saveButton(False)
+	
 	def duplicate_library(self):
-		print("TODO: duplicate check" )
+		lybrary = self.build_library()
+		duplicates = self.find_duplicates(lybrary)
 		
+		if duplicates:
+			# Вычисляем максимальную длину имени среди всех категорий
+			max_name_length = max(len(name) for name in duplicates.keys())
+	
+			# Формируем HTML-сообщение с выравниванием через таблицу
+			message = "<p style='font-size: 12px; line-height: 1.5;'>Duplicate names found:</p>"
+			message += "<table style='width: 100%;'>"
+			for name, categories in duplicates.items():
+				spaces_needed = max_name_length - len(name)
+				spaces = "&nbsp;" * (spaces_needed)  # Добавляем 2 пробела для разделения
+				
+				# Добавляем строку в таблицу с выравниванием
+				message += (
+					f"<tr>"
+					f"<td style='padding-right: 10px; text-align: left; color: #D16D6D;'>{name} : </td>"
+					f"<td style='color: #F5A623;'>{', '.join(categories)}</td>"
+					f"</tr>"
+				)
+				print(f"{name:<{max_name_length+2}}:{', '.join(categories)}")
+			
+			message += "</table>"
+			
+			# Создаём информационное окно
+			msg_box = QtWidgets.QMessageBox(self)
+			msg_box.setWindowTitle("Duplicates")
+			msg_box.setIcon(QtWidgets.QMessageBox.Information)
+			msg_box.setTextFormat(QtCore.Qt.RichText)  # Включаем поддержку HTML
+			msg_box.setText(message)
+			msg_box.exec_()
+		
+		else:
+			print("Duplicates of Names not found")
+			
 	def reset_library(self):
 		
 		button_pressed = QtWidgets.QMessageBox.question(self, "Question", f"Are you sure you want to reset <span style='color: #669e62; font-size: {12}px;'>{'the library'}</span> to its <span style='color: #669e62; font-size: {12}px;'>{'default state'}</span>?")
@@ -111,7 +189,6 @@ class LibraryWindow(QtWidgets.QDialog):
 			self.set_resize(len(list_categories))
 		else:
 			print("Cancelled")
-		
 		
 	def set_resize(self, count = None):
 		assert count is not None, "count is None"
@@ -146,26 +223,7 @@ class LibraryWindow(QtWidgets.QDialog):
 			self.resize(width, height)
 		else:
 			pass
-		
-	
-	def save_library(self):
-		categories       = self.MainScrollArea.scroll_area_widget.key_name
-		count_categories = self.MainScrollArea.scroll_area_widget.main_layout.count()
-		new_lybrary      = { }
-		
-		if categories:
-			for category in categories:
-				for i in range(count_categories):
-					item = self.MainScrollArea.scroll_area_widget.main_layout.itemAt(i).widget()
-					if item and hasattr(item, 'name'):
-						if item.name == category:
-							SubCategory = item.category_widget.scroll_area_widget.word_list # list []
-							new_lybrary[category] = SubCategory
-		
-		self.resources.JSON_data["ListName"] = new_lybrary
-		self.resources.write_json()
-		self.set_state_saveButton(False)
-		
+
 	def set_state_saveButton(self, bool):
 		self.MenuWidget.save_btn.set_Enabled(bool)
 		
@@ -194,7 +252,6 @@ class LibraryWindow(QtWidgets.QDialog):
 			print("Category not added: name cannot be empty.")
 			
 	
-			
 	def add_subCategory(self, name, category):
 		if name:
 			for i in range(self.MainScrollArea.scroll_area_widget.main_layout.count()):
@@ -252,4 +309,5 @@ class LibraryWindow(QtWidgets.QDialog):
 		self.resize_anim.setDuration(100)
 		self.resize_anim.start()
 		
-		
+#TODO  saving geometry UI when I close UI
+#TODO  asking for save libraey if I close UI
