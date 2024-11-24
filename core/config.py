@@ -41,7 +41,6 @@ class Configurator(object):
 		assert section is not None, "section is None"
 		assert type is not None, "type is None"
 
-
 		self.config.beginGroup(section)
 		value = self.config.value(var_name, default_value, type)
 		self.config.endGroup()
@@ -55,8 +54,9 @@ class Configurator(object):
 		if not self.config.contains("startup/name_tool"):
 
 			self.config.beginGroup("startup") # startup group
-
+			
 			self.config.setValue("name_tool", "MSL Rename")
+			self.config.setValue("window_geometry", "")
 			self.config.setValue("name", "test")
 			self.config.setValue("mode_number", False)
 			self.config.setValue("mode_button", False)

@@ -82,28 +82,37 @@ class LibraryButtonMode(QtWidgets.QPushButton):
 	def is_active_mode(self, state):
 		self.show_library(state)
 		self.state_button(state)
-		
 	
 	def state_button(self, state):
 		if  not self.state_close_window:
 			self.resources.config.set_variable("library", "library_mode", state)
 			self.has_state = state
 			self.setChecked(self.has_state)
-			print(f"TODO: library: {'Open UI' if state else 'Close UI'}:")
 		self.state_close_window = False
 		
 	def show_library(self, state):
+		self.window_geometry =  self.resources.config.get_variable("startup", "window_geometry", QtCore.QRect(), QtCore.QRect)
+		
+		try:
+			mainWindow = self.parent().parent().parent()
+		except:
+			mainWindow = None
+		
 		if state:
-			# mainWindow = self.parent().parent().parent()
-			#
-			# # posX = mainWindow.geometry().left() + mainWindow.geometry().width()
-			# posX = mainWindow.geometry().left()
-			# posY = mainWindow.y() + mainWindow.frameGeometry().height()
-			self.Library_Win.move(-338, 740) # -338 740
+			if mainWindow:
+				# posX = mainWindow.geometry().left() + mainWindow.geometry().width()
+				posX = mainWindow.geometry().left()
+				posY = mainWindow.y() + mainWindow.frameGeometry().height()
+				self.Library_Win.move(posX, posY)
+			else:
+				if self.window_geometry:
+					pos_x = self.window_geometry.x()
+					pos_y = self.window_geometry.y() + 250
+					self.Library_Win.move(pos_x, pos_y)
+			
 			self.Library_Win.show()
 			self.state_close_window = False
-			
-			# print(posX, posY, )
+
 		else:
 			self.state_close_window = True
 			self.Library_Win.close()

@@ -267,7 +267,24 @@ class LibraryWindow(QtWidgets.QDialog):
 			print("SubCategory not added: name cannot be empty.")
 	
 	def closeEvent(self, event):
+		state_save = self.MenuWidget.save_btn.isEnabled()
+		if state_save:
+			reply = QtWidgets.QMessageBox.question(
+				self,
+				"Close library",
+				"Do you want to save the changes to the library?",
+				QtWidgets.QMessageBox.Save | QtWidgets.QMessageBox.No,
+			)
+			
+			if reply == QtWidgets.QMessageBox.Save:
+				self.save_library()
+				event.accept()
+			elif reply == QtWidgets.QMessageBox.Discard:
+				event.accept()
+
 		self.library_show.emit(False)
+		
+		
 	
 	def resizeEvent(self, event):
 		if self.resize_anim:
@@ -309,5 +326,3 @@ class LibraryWindow(QtWidgets.QDialog):
 		self.resize_anim.setDuration(100)
 		self.resize_anim.start()
 		
-#TODO  saving geometry UI when I close UI
-#TODO  asking for save libraey if I close UI

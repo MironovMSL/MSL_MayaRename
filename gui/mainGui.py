@@ -26,17 +26,19 @@ class MainToolWindow(QtWidgets.QDialog):
 
 	def __init__(self, parent=maya_main_window()):
 		super(MainToolWindow, self).__init__(parent)
-		
+		# Modul---------------------------
 		self.resources = Resources.get_instance()
+		# Attribute---------------------------
 		self.icon = self.resources.get_icon_from_resources("earth-svgrepo-com.svg")
-
+		self.window_geometry = self.resources.config.get_variable("startup", "window_geometry", QtCore.QRect(), QtCore.QRect)
+		# Setting---------------------------
+		if self.window_geometry:
+			self.setGeometry(self.window_geometry)
 		self.setWindowTitle(self.WINDOW_TITLE)
 		self.setObjectName("MainRenameToolWindowID")
 		self.setWindowIcon(self.icon)  # crab-svgrepo-com  pen-svgrepo-com earth-svgrepo-com
-		self.setMinimumWidth(305)
-		self.setMinimumHeight(250)
-		self.resize(300,250)
-
+		self.setFixedSize(305, 250)
+		
 		# On macOS make the window a Tool to keep it on top of Maya
 		if sys.platform == "darwin":
 			self.setWindowFlag(QtCore.Qt.Tool, True)
@@ -45,59 +47,51 @@ class MainToolWindow(QtWidgets.QDialog):
 		# self.setWindowFlags(QtCore.Qt.FramelessWindowHint | QtCore.Qt.Window)
 		# self.setAttribute(QtCore.Qt.WA_TranslucentBackground)
 
+		# Run functions ---------------------------
+		self.create_widgets()
+		self.create_layouts()
+		self.create_connections()
+		
+	def create_widgets(self):
+		FixedHeigt = 25
+		
+		self.RenameGUI = RenameGUI()
+		
+		self.conten2 = QtWidgets.QWidget()
+		self.conten2.setStyleSheet("background-color: #555580; border-radius: 10px;")
+		self.conten2.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
+		self.conten2.setFixedHeight(FixedHeigt)
+		
+		self.conten3 = QtWidgets.QWidget()
+		self.conten3.setStyleSheet("background-color: #955890; border-radius: 10px;")
+		self.conten3.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
+		self.conten3.setFixedHeight(FixedHeigt)
+		
+	def create_layouts(self):
 		# main layout
 		self.main_layout = QtWidgets.QVBoxLayout(self)
 		self.main_layout.setContentsMargins(0, 0, 0, 0)
 		self.main_layout.setSpacing(0)
 		self.main_layout.setAlignment(QtCore.Qt.AlignTop)
-		# self.setFixedSize(300, 250)
-
-		# content
-		FixedHeigt = 25
-
-
-		self.RenameGUI = RenameGUI()
-
-		self.conten = QtWidgets.QWidget()
-		self.conten.setStyleSheet("background-color: #555555; border-radius: 10px;")
-		self.conten.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
-		self.conten.setFixedHeight(FixedHeigt)
-
-		self.conten2 = QtWidgets.QWidget()
-		self.conten2.setStyleSheet("background-color: #555580; border-radius: 10px;")
-		self.conten2.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
-		self.conten2.setFixedHeight(FixedHeigt)
-
-		self.conten3 = QtWidgets.QWidget()
-		self.conten3.setStyleSheet("background-color: #955890; border-radius: 10px;")
-		self.conten3.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
-		self.conten3.setFixedHeight(FixedHeigt)
-
-		self.conten4 = QtWidgets.QWidget()
-		self.conten4.setStyleSheet("background-color: #55aaff; border-radius: 10px;")
-		self.conten4.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
-		self.conten4.setFixedHeight(FixedHeigt)
-
-		self.conten5 = QtWidgets.QWidget()
-		self.conten5.setStyleSheet("background-color: #ffaa7f; border-radius: 10px;")
-		self.conten5.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
-		self.conten5.setFixedHeight(FixedHeigt)
-
-
-
-		# self.main_layout.addWidget(self.conten)
+		
 		self.main_layout.addWidget(self.RenameGUI)
 		self.main_layout.addWidget(self.conten2)
 		self.main_layout.addWidget(self.conten3)
-		# # self.main_layout.addWidget(self.conten4)
-		# # self.main_layout.addWidget(self.conten5)
+		
+	def create_connections(self):
+		pass
+	
+	def moveEvent(self, event: QtGui.QMoveEvent):
+		super().moveEvent(event)
 
+		
 	def showEvent(self, e):
 		self.RenameGUI.LabelWidget.set_script_job_enabled(True)
 
 	def closeEvent(self, e):
 		self.RenameGUI.LabelWidget.set_script_job_enabled(False)
-
+		self.resources.config.set_variable("startup", "window_geometry", self.geometry())
+		
 	def keyPressEvent(self, event):
 		if event.key() == QtCore.Qt.Key_Escape:
 			event.ignore()
@@ -112,11 +106,11 @@ def creat_gui():
 	if cmds.windowPref("MainRenameToolWindowID", exists=1):
 		cmds.windowPref("MainRenameToolWindowID", remove=1)
 	
-	# try:
-	# 	win.close()  # pylint: disable=E0601
-	# 	win.deleteLater()
-	# except:
-	# 	pass
+	try:
+		win.close()  # pylint: disable=E0601
+		win.deleteLater()
+	except:
+		pass
 
 	win = MainToolWindow()
 	win.show()

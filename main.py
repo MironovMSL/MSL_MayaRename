@@ -19,5 +19,11 @@ def show_main_window():
 	if cmds.windowPref("LibraryWindowRenameToolWindowID", exists=1):
 		cmds.windowPref("LibraryWindowRenameToolWindowID", remove=1)
 		
+	try:
+		win.close()  # pylint: disable=E0601
+		win.deleteLater()
+	except:
+		pass
+		
 	win = MainToolWindow()
 	win.show()
