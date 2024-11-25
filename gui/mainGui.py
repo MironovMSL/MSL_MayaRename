@@ -37,7 +37,7 @@ class MainToolWindow(QtWidgets.QDialog):
 		self.setWindowTitle(self.WINDOW_TITLE)
 		self.setObjectName("MainRenameToolWindowID")
 		self.setWindowIcon(self.icon)  # crab-svgrepo-com  pen-svgrepo-com earth-svgrepo-com
-		self.setFixedSize(305, 250)
+		self.setFixedSize(305, 230)
 		
 		# On macOS make the window a Tool to keep it on top of Maya
 		if sys.platform == "darwin":
@@ -62,10 +62,6 @@ class MainToolWindow(QtWidgets.QDialog):
 		self.conten2.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
 		self.conten2.setFixedHeight(FixedHeigt)
 		
-		self.conten3 = QtWidgets.QWidget()
-		self.conten3.setStyleSheet("background-color: #955890; border-radius: 10px;")
-		self.conten3.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
-		self.conten3.setFixedHeight(FixedHeigt)
 		
 	def create_layouts(self):
 		# main layout
@@ -76,7 +72,6 @@ class MainToolWindow(QtWidgets.QDialog):
 		
 		self.main_layout.addWidget(self.RenameGUI)
 		self.main_layout.addWidget(self.conten2)
-		self.main_layout.addWidget(self.conten3)
 		
 	def create_connections(self):
 		pass
