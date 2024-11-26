@@ -7,7 +7,7 @@ from MSL_MayaRename.core.resources import Resources
 from MSL_MayaRename.core.config import Configurator
 from MSL_MayaRename.gui.RenameGUI.FunctionWidget.FunctionWidget import FunctionWidget
 from MSL_MayaRename.gui.RenameGUI.RenameWidget.RenameWidget import RenameWidget
-from MSL_MayaRename.gui.RenameGUI.RenameWidget.RenameButtonWidget import RemoveButtonWidget
+from MSL_MayaRename.gui.RenameGUI.RenameWidget.RenameButtonWidget import RenameButtonWidget
 from MSL_MayaRename.gui.RenameGUI.NumberWidget.NumberWidget import NumberWidget
 from MSL_MayaRename.gui.RenameGUI.LetterWidget.LetterWidget import LetterWidget
 from MSL_MayaRename.gui.RenameGUI.SuffixPrefixWidget.SuffixPrefixWidget import SuffixPrefixWidget
@@ -73,7 +73,7 @@ class RenameGUI(QtWidgets.QWidget):
 
 		self.FunctionWidget      = FunctionWidget()
 		self.LabelWidget         = LabelWidget()
-		self.RenameButton        = RemoveButtonWidget("Rename", 50, 75)
+		self.RenameButton        = RenameButtonWidget("Rename", 50, 75)
 		self.RenameWidget        = RenameWidget()
 		self.NumberWidget        = NumberWidget()
 		self.LetterWidget        = LetterWidget()
@@ -115,6 +115,7 @@ class RenameGUI(QtWidgets.QWidget):
 		self.main_layout.addStretch()
 
 	def create_connections(self):
+		self.RenameButton.clicked.connect(self.Rename)
 		self.LabelWidget.number_mode.changeStateNumberMode.connect(self.on_click_number_mode_button)
 		self.LabelWidget.button_mode.changeStateButtonMode.connect(self.on_click_button_mode_button)
 		self.LetterWidget.itEditLetter.connect(self.on_click_letter_mode)
@@ -186,6 +187,17 @@ class RenameGUI(QtWidgets.QWidget):
 			print(f"Range: [{self.minR}]:[{self.maxR}]")
 			print(f'[{self.prefix}][{self.left}][{self.X}][{self.mid}][{self.Y}][{self.right}][{self.suffix}]: {self.info}')
 			print("--------------------------------------------")
+
+	def Rename(self):
+		print("TODO: Rename")
+		name = self.get_text()
+		
+		if name:
+			
+			
+			# -------------Add cashe button-------------
+			self.QuickListButtonName.add_cache(name)
+
 
 	def on_complet_name(self, text):
 		suffix = text[len(self.text) - len(self.suffix):]
@@ -360,7 +372,6 @@ class RenameGUI(QtWidgets.QWidget):
 		dift = value - value_slider
 
 		if value_slider == value:
-			print(f"Update position letter {value}, {value_slider}={value}")
 			return
 
 		self.info = (f"Update position letter {value}, {value_slider}!={value}")
@@ -454,7 +465,6 @@ class RenameGUI(QtWidgets.QWidget):
 		dift                 = value - value_slider
 
 		if value_slider == value:
-			print(f"Update position number {value}, {value_slider}={value}")
 			return
 
 		self.info = (f"Update position number {value}, {value_slider}!={value}")
@@ -729,7 +739,7 @@ class RenameGUI(QtWidgets.QWidget):
 		y_end      = mid_end + len(self.Y)
 		right_end  = y_end + len(self.right)
 		suffix_end = right_end + len(self.suffix)
-
+		
 		if temp_cur != pos_cur:
 
 			if 0 < pos_cur <= prefix_end: # [prefix]

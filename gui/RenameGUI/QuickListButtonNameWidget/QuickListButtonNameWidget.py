@@ -50,3 +50,14 @@ class QuickListButtonNameWidget(QtWidgets.QWidget):
 
     def create_connections(self):
         pass
+    
+    def add_cache(self, name):
+        self.cache_area.scroll_area.scroll_area_widget.add_button(name)
+        
+        
+        self.library_BTN.Library_Win.add_category("Cache")
+        self.library_BTN.Library_Win.add_subCategory(name=name, category="Cache")
+        
+        
+        
+        

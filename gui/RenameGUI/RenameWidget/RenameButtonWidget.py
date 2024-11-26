@@ -9,7 +9,9 @@ from MSL_MayaRename.core.common import *
 import os
 
 
-class RemoveButtonWidget(QtWidgets.QPushButton):
+class RenameButtonWidget(QtWidgets.QPushButton):
+	
+	itCache = QtCore.Signal()
 	Style_btn = """
 	    QPushButton {
 	        background-color: rgb(50, 50, 50); /* Темно-серый фон */
@@ -34,7 +36,7 @@ class RemoveButtonWidget(QtWidgets.QPushButton):
 	"""
 
 	def __init__(self, name="", width=25, height=25, parent=None):
-		super(RemoveButtonWidget, self).__init__(name, parent)
+		super(RenameButtonWidget, self).__init__(name, parent)
 
 		# Attribute---------------------------
 		self.width    = width
@@ -48,7 +50,4 @@ class RemoveButtonWidget(QtWidgets.QPushButton):
 		self.create_connections()
 
 	def create_connections(self):
-		self.clicked.connect(self.click_on_rename)
-
-	def click_on_rename(self):
-		print("TODO : Rename objects")
+		pass

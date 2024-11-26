@@ -3,6 +3,7 @@ try:
 except:
     from PySide6 import QtWidgets, QtGui, QtCore
     
+from MSL_MayaRename.gui.RenameGUI.QuickListButtonNameWidget.СacheWidget.CacheScrollArea import CacheScrollArea
 
 
 class CacheWidget(QtWidgets.QWidget):
@@ -19,15 +20,17 @@ class CacheWidget(QtWidgets.QWidget):
         self.create_connections()
         
     def create_Widgets(self):
-        pass
+        self.scroll_area = CacheScrollArea()
 
     def create_layouts(self):
         self.main_layout = QtWidgets.QHBoxLayout(self)
         self.main_layout.setContentsMargins(0, 0, 0, 0)
         self.main_layout.setSpacing(0)
-
-
+        
+        self.main_layout.addWidget(self.scroll_area)
+        
     def create_connections(self):
         pass
+
         
         

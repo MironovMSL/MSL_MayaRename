@@ -37,7 +37,7 @@ class MainToolWindow(QtWidgets.QDialog):
 		self.setWindowTitle(self.WINDOW_TITLE)
 		self.setObjectName("MainRenameToolWindowID")
 		self.setWindowIcon(self.icon)  # crab-svgrepo-com  pen-svgrepo-com earth-svgrepo-com
-		self.setFixedSize(305, 230)
+		self.setFixedSize(305, 235)
 		
 		# On macOS make the window a Tool to keep it on top of Maya
 		if sys.platform == "darwin":
