@@ -740,6 +740,9 @@ class RenameGUI(QtWidgets.QWidget):
 		right_end  = y_end + len(self.right)
 		suffix_end = right_end + len(self.suffix)
 		
+		info_part  = ""
+		
+		
 		if temp_cur != pos_cur:
 
 			if 0 < pos_cur <= prefix_end: # [prefix]
@@ -837,6 +840,7 @@ class RenameGUI(QtWidgets.QWidget):
 
 			items_dift = 0
 
+		
 		new_cur   = self.pos_cur + items_dift
 		newText   = self.get_new_text()
 		self.info = f"__DEL__{info_part}"

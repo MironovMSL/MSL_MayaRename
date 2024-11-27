@@ -4,11 +4,9 @@ except:
 	from PySide6 import QtWidgets, QtGui, QtCore
 
 from MSL_MayaRename.core.resources import Resources
-from MSL_MayaRename.gui.RenameGUI.QuickListButtonNameWidget.LibraryGUI.LibraryGUI import LibraryWindow
 
 
-class LibraryButtonMode(QtWidgets.QPushButton):
-
+class DeleteCacheButtonWidget(QtWidgets.QPushButton):
 	Style_btn = """
 	        QPushButton {
 	            background-color: rgb(50, 50, 50); /* Темно-серый фон */
@@ -44,80 +42,32 @@ class LibraryButtonMode(QtWidgets.QPushButton):
 	            border-color: rgb(80, 110, 80); /* Светлее при наведении в состоянии checked */
 	        }
 	    """
-
-	def __init__(self, width=25,height=25, parent=None):
-		super(LibraryButtonMode, self).__init__(parent)
-
+	
+	def __init__(self, width=25, height=25, parent=None):
+		super(DeleteCacheButtonWidget, self).__init__(parent)
+		
 		# Modul---------------------------
 		self.resources = Resources.get_instance()
 		# Attribute---------------------------
-		self.width     = width
-		self.height    = height
-		self.tooltip   = f"Library of names"
-		self.icon      = self.resources.get_icon_from_resources("pen-svgrepo-com.svg")
-		self.has_state = self.resources.config.get_variable("library", "library_mode", False, bool)
+		self.width   = width
+		self.height  = height
+		self.tooltip = f"Delete the button"
+		self.icon    = self.resources.get_icon_from_resources("delete-svgrepo-com.svg")
 		# Setting---------------------------
-		self.setFixedSize(self.width,self.height)
+		self.setFixedSize(self.width, self.height)
 		self.setToolTip(self.tooltip)
 		self.setStyleSheet(self.Style_btn)
 		self.setIcon(self.icon)
-		self.setCheckable(True)
-		self.setChecked(self.has_state)
 		# Run functions ---------------------------
-		self.create_widgets()
 		self.create_connections()
-		self.show_library(self.has_state)
-	
-	def create_widgets(self):
-		self.Library_Win = LibraryWindow()
 	
 	def create_connections(self):
-		self.clicked.connect(self.is_active_mode)
-		self.Library_Win.library_show.connect(self.state_button)
+		pass
 
-	def is_active_mode(self, state):
-		self.show_library(state)
-		self.state_button(state)
-	
-	def state_button(self, state):
-		if  not self.state_close_window:
-			self.resources.config.set_variable("library", "library_mode", state)
-			self.has_state = state
-			self.setChecked(self.has_state)
-		self.state_close_window = False
-		
-	def show_library(self, state):
-		self.window_geometry =  self.resources.config.get_variable("startup", "window_geometry", QtCore.QRect(), QtCore.QRect)
-		
-		try:
-			mainWindow = self.parent().parent().parent()
-		except:
-			mainWindow = None
-		
-		if state:
-			if mainWindow:
-				# posX = mainWindow.geometry().left() + mainWindow.geometry().width()
-				posX = mainWindow.geometry().left()
-				posY = mainWindow.y() + mainWindow.frameGeometry().height()
-				self.Library_Win.move(posX, posY)
-			else:
-				if self.window_geometry:
-					pos_x = self.window_geometry.x()
-					pos_y = self.window_geometry.y() + 250
-					self.Library_Win.move(pos_x, pos_y)
-			
-			self.Library_Win.show()
-			self.state_close_window = False
-
-		else:
-			self.state_close_window = True
-			self.Library_Win.close()
-			
 	def enterEvent(self, event):
 		self.setCursor(QtCore.Qt.PointingHandCursor)
-		super(LibraryButtonMode, self).enterEvent(event)
+		super(DeleteCacheButtonWidget, self).enterEvent(event)
 
 	def leaveEvent(self, event):
 		self.setCursor(QtCore.Qt.ArrowCursor)
-		super(LibraryButtonMode, self).leaveEvent(event)
-	
+		super(DeleteCacheButtonWidget, self).leaveEvent(event)

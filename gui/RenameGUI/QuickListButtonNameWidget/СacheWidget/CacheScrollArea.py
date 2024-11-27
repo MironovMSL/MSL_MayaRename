@@ -115,6 +115,15 @@ class ScrolContentWidget(QtWidgets.QWidget):
 
 		return button
 	
+	def clear_layout(self):
+		while self.main_layout.count():  # Пока в лэйауте есть элементы
+			item = self.main_layout.takeAt(0)  # Забираем первый элемент
+			widget = item.widget()  # Проверяем, является ли элемент виджетом
+			if widget:
+				widget.deleteLater()  # Удаляем виджет корректно
+			else:
+				del item  # Если это не виджет, просто удаляем элемент
+	
 	def emit_signal(self, text):
 		self.itClickedName.emit(text)
 		
