@@ -50,6 +50,11 @@ class LineEditorWidget(QtWidgets.QWidget):
 
 		# add widget
 		self.main_layout.addWidget(self.AutoComplete_line_edit)
+		
+	def update_words(self):
+
+		self.completer.words = self.word_list
+		self.model.setStringList(self.word_list)
 
 
 class AutoCompleteLineEdit(QtWidgets.QLineEdit):

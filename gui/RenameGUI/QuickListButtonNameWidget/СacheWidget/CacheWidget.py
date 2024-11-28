@@ -32,6 +32,8 @@ class CacheWidget(QtWidgets.QWidget):
         self.main_layout.addWidget(self.scroll_area)
         self.main_layout.addWidget(self.delete_btn)
         
+        self.main_layout.setAlignment(self.delete_btn, QtCore.Qt.AlignTop)
+        
     def create_connections(self):
         self.delete_btn.clicked.connect(self.on_clear)
         

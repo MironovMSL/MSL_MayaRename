@@ -83,6 +83,7 @@ class Configurator(object):
 			self.config.setValue("category_mode", False)
 			self.config.setValue("sub_category_mode", False)
 			self.config.setValue("current_category", "Postfixes")
+			self.config.setValue("show_cache", False)
 
 			self.config.endGroup()  # End the group
 

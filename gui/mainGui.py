@@ -30,14 +30,21 @@ class MainToolWindow(QtWidgets.QDialog):
 		self.resources = Resources.get_instance()
 		# Attribute---------------------------
 		self.icon = self.resources.get_icon_from_resources("earth-svgrepo-com.svg")
+		self.has_state_cache = self.resources.config.get_variable("library", "show_cache", False, bool)
 		self.window_geometry = self.resources.config.get_variable("startup", "window_geometry", QtCore.QRect(), QtCore.QRect)
 		# Setting---------------------------
 		if self.window_geometry:
 			self.setGeometry(self.window_geometry)
+			self.setFixedSize(self.window_geometry.width(), self.window_geometry.height())
+		else:
+			self.setFixedSize(305, 205)
+
+
 		self.setWindowTitle(self.WINDOW_TITLE)
 		self.setObjectName("MainRenameToolWindowID")
 		self.setWindowIcon(self.icon)  # crab-svgrepo-com  pen-svgrepo-com earth-svgrepo-com
-		self.setFixedSize(305, 235)
+
+
 		
 		# On macOS make the window a Tool to keep it on top of Maya
 		if sys.platform == "darwin":
@@ -51,6 +58,7 @@ class MainToolWindow(QtWidgets.QDialog):
 		self.create_widgets()
 		self.create_layouts()
 		self.create_connections()
+
 		
 	def create_widgets(self):
 		FixedHeigt = 25
@@ -74,8 +82,17 @@ class MainToolWindow(QtWidgets.QDialog):
 		self.main_layout.addWidget(self.conten2)
 		
 	def create_connections(self):
-		pass
+		self.RenameGUI.QuickListButtonName.itShowCahe.connect(self.show_cache)
+		
+	def show_cache(self, state):
+		if state:
+			widget_height = self.height() + 30
+		else:
+			widget_height = self.height() - 30
+		
+		self.setFixedHeight(widget_height)
 	
+		
 	def moveEvent(self, event: QtGui.QMoveEvent):
 		super().moveEvent(event)
 

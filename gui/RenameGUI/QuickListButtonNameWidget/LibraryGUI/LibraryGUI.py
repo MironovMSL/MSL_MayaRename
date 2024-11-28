@@ -21,6 +21,7 @@ def maya_main_window():
 class LibraryWindow(QtWidgets.QDialog):
 	WINDOW_TITLE = "Library"
 	library_show = QtCore.Signal(bool)
+	itSave = QtCore.Signal()
 	
 	def __init__(self, parent=maya_main_window()):
 		super(LibraryWindow, self).__init__(parent)
@@ -127,9 +128,10 @@ class LibraryWindow(QtWidgets.QDialog):
 
 		self.resources.JSON_data["ListName"] = new_library
 		self.resources.write_json()
-
+		
 		self.set_state_saveButton(False)
-	
+		self.itSave.emit()
+		
 	def duplicate_library(self):
 		lybrary = self.build_library()
 		duplicates = self.find_duplicates(lybrary)
@@ -265,6 +267,8 @@ class LibraryWindow(QtWidgets.QDialog):
 							
 		else:
 			print("SubCategory not added: name cannot be empty.")
+			
+		return newSubCategory
 	
 	def closeEvent(self, event):
 		state_save = self.MenuWidget.save_btn.isEnabled()
