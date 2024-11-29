@@ -14,7 +14,7 @@ class CacheButtonLibrary(QtWidgets.QPushButton):
 	a context menu for additional options like renaming and deletion.
 	"""
 
-	itClickedName = QtCore.Signal(str)
+	itClickedCache = QtCore.Signal(str)
 
 	Style_btn = """
 	    QPushButton {
@@ -95,7 +95,7 @@ class CacheButtonLibrary(QtWidgets.QPushButton):
 		"""
 		Emits the signal when the button is clicked.
 		"""
-		self.itClickedName.emit(self.text())
+		self.itClickedCache.emit(self.text())
 
 	def on_delete_btn(self):
 		"""
@@ -192,12 +192,6 @@ class CustomPushButtonLibraryPopUP(QtWidgets.QPushButton):
 		self.setStyleSheet(self.Style_btn)
 		self.setToolTip(self.toolTip)
 		self.setIcon(self.icon)
-
-	def set_new_name(self, new_name):
-		if new_name != self.name:
-			self.name = new_name
-			self.toolTip = f"Delete button [{self.name}]"
-			self.setToolTip(self.toolTip)
 
 	def enterEvent(self, event):
 		self.setCursor(QtCore.Qt.PointingHandCursor)

@@ -126,7 +126,7 @@ class LibraryButtonMode(QtWidgets.QPushButton):
 			else:
 				if self.window_geometry:
 					pos_x = self.window_geometry.x()
-					pos_y = self.window_geometry.y() + 250
+					pos_y = self.window_geometry.y() + self.window_geometry.height()
 					self.Library_Win.move(pos_x, pos_y)
 			
 			self.Library_Win.show()

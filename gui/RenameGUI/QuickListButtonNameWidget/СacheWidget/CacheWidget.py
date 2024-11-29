@@ -8,6 +8,7 @@ from MSL_MayaRename.gui.RenameGUI.QuickListButtonNameWidget.СacheWidget.DeleteC
 
 
 class CacheWidget(QtWidgets.QWidget):
+    itClickedCache = QtCore.Signal(str)
     
     def __init__(self, parent = None):
         super(CacheWidget, self).__init__(parent)
@@ -36,6 +37,7 @@ class CacheWidget(QtWidgets.QWidget):
         
     def create_connections(self):
         self.delete_btn.clicked.connect(self.on_clear)
+        self.scroll_area.itClickedCache.connect(lambda name: self.itClickedCache.emit(name))
         
     def on_clear(self):
         self.scroll_area.scroll_area_widget.clear_layout()

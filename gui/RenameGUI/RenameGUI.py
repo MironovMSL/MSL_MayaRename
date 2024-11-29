@@ -116,6 +116,7 @@ class RenameGUI(QtWidgets.QWidget):
 
 	def create_connections(self):
 		self.RenameButton.clicked.connect(self.Rename)
+		self.RenameWidget.LineEditor.AutoComplete_line_edit.returnPressed.connect(self.Rename)
 		self.LabelWidget.number_mode.changeStateNumberMode.connect(self.on_click_number_mode_button)
 		self.LabelWidget.button_mode.changeStateButtonMode.connect(self.on_click_button_mode_button)
 		self.LetterWidget.itEditLetter.connect(self.on_click_letter_mode)
@@ -130,6 +131,7 @@ class RenameGUI(QtWidgets.QWidget):
 		self.SuffixPrefixWidget.itEditPrefix.connect(self.update_prefix)
 		self.SuffixPrefixWidget.itEditSuffix.connect(self.update_suffix)
 		self.LabelWidget.label_name.itLabelName.connect(self.get_select_name)
+		self.QuickListButtonName.itClickedCache.connect(self.get_select_name)
 
 	def init_attribute(self):
 

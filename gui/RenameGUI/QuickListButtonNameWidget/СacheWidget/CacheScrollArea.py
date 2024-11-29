@@ -13,7 +13,7 @@ class CacheScrollArea(QtWidgets.QScrollArea):
 	A custom scroll area that contains a scrollable content widget with buttons.
 	It allows horizontal scrolling using the mouse wheel.
 	"""
-	itClickedName = QtCore.Signal(str)
+	itClickedCache = QtCore.Signal(str)
 
 	def __init__(self, key=None, parent=None, ):
 		super(CacheScrollArea, self).__init__(parent)
@@ -42,11 +42,7 @@ class CacheScrollArea(QtWidgets.QScrollArea):
 		self.setWidget(self.scroll_area_widget)
 
 	def create_connections(self):
-		self.scroll_area_widget.itClickedName.connect(self.emit_signal)
-		
-	def emit_signal(self, text):
-		print(f"emit_signal from CustomScrollArea: {text}")
-		self.itClickedName.emit(text)
+		self.scroll_area_widget.itClickedCache.connect(lambda name: self.itClickedCache.emit(name))
 	
 	def wheelEvent(self, event):
 		"""Overriding the wheel event for horizontal scrolling"""
@@ -69,7 +65,8 @@ class ScrolContentWidget(QtWidgets.QWidget):
 	The widget supports drag-and-drop functionality for reordering buttons.
 	"""
 	
-	itClickedName = QtCore.Signal(str)
+	itClickedName  = QtCore.Signal(str)
+	itClickedCache = QtCore.Signal(str)
 
 	def __init__(self, width = 60, parent=None):
 		super(ScrolContentWidget, self).__init__(parent)
@@ -111,7 +108,7 @@ class ScrolContentWidget(QtWidgets.QWidget):
 		# If the button is not found, create and add a new one
 		button = CacheButtonLibrary(text, self._width, self._height)
 		self.main_layout.addWidget(button)
-		button.itClickedName.connect(self.emit_signal)
+		button.itClickedCache.connect(lambda name: self.itClickedCache.emit(name))
 
 		return button
 	
@@ -123,10 +120,8 @@ class ScrolContentWidget(QtWidgets.QWidget):
 				widget.deleteLater()  # Удаляем виджет корректно
 			else:
 				del item  # Если это не виджет, просто удаляем элемент
-	
-	def emit_signal(self, text):
-		self.itClickedName.emit(text)
-		
+				
+				
 			
 class CustemQScrollBar(QtWidgets.QScrollBar):
 	"""

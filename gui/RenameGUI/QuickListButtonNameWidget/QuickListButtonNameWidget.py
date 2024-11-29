@@ -15,6 +15,7 @@ import maya.cmds as cmds
 class QuickListButtonNameWidget(QtWidgets.QWidget):
 
     itShowCahe = QtCore.Signal(bool)
+    itClickedCache = QtCore.Signal(str)
 
     def __init__(self, parent=None):
         super(QuickListButtonNameWidget, self).__init__(parent)
@@ -56,6 +57,7 @@ class QuickListButtonNameWidget(QtWidgets.QWidget):
 
     def create_connections(self):
         self.library_BTN.itShowCache.connect(self.show_cache)
+        self.cache_area.itClickedCache.connect(lambda name: self.itClickedCache.emit(name))
     
     def add_cache(self, name):
         all_name = self.resources.all_item_json
@@ -72,12 +74,16 @@ class QuickListButtonNameWidget(QtWidgets.QWidget):
                 self.library_BTN.Library_Win.add_category("Cache")
                 self.parent().RenameWidget.LineEditor.word_list.append("Cache")
             
-            self.cache_area.scroll_area.scroll_area_widget.add_button(name)
+            
             button = self.library_BTN.Library_Win.add_subCategory(name=name, category="Cache")
             if button:
                 self.parent().RenameWidget.LineEditor.word_list.append(name)
             
             self.parent().RenameWidget.LineEditor.update_words()
+        
+        self.cache_area.scroll_area.scroll_area_widget.add_button(name)
+        
+        self.library_BTN.Library_Win.save_library()
 
     def show_cache(self, state):
         self.cache_area.setVisible(state)
