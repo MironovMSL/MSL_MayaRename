@@ -15,6 +15,7 @@ class MainScrollAreaLibraryWidget(QtWidgets.QScrollArea):
 	"""
 	itUpdateCategory = QtCore.Signal(list)
 	itClickedName = QtCore.Signal(str)
+	itClickedName_alt = QtCore.Signal(str)
 	itDeleteCategory = QtCore.Signal(str)
 	
 	def __init__(self, parent=None, ):
@@ -45,15 +46,11 @@ class MainScrollAreaLibraryWidget(QtWidgets.QScrollArea):
 		self.setWidget(self.scroll_area_widget)
 	
 	def create_connections(self):
-		self.scroll_area_widget.itClickedName.connect(self.emit_signal)
+		self.scroll_area_widget.itClickedName.connect(lambda name: self.itClickedName.emit(name))
+		self.scroll_area_widget.itClickedName_alt.connect(lambda name: self.itClickedName_alt.emit(name))
 		self.scroll_area_widget.itDeleteCategory.connect(lambda name: self.itDeleteCategory.emit(name))
 		self.scroll_area_widget.itUpdateCategory.connect(lambda list: self.itUpdateCategory.emit(list))
-	
-	
-	def emit_signal(self, text):
-		print(f"The button is clicked [MainScrollAreaLibraryWidget] -  [{text}]")
-		self.itClickedName.emit(text)
-	
+		
 	def wheelEvent(self, event):
 		"""Overriding the wheel event for horizontal scrolling"""
 		delta = event.angleDelta().y()  # Get the mouse wheel change
@@ -77,6 +74,7 @@ class ScrolContentWidget(QtWidgets.QWidget):
 	
 	itUpdateCategory = QtCore.Signal(list)
 	itClickedName = QtCore.Signal(str)
+	itClickedName_alt = QtCore.Signal(str)
 	itDeleteCategory = QtCore.Signal(str)
 	placeholder_Style = """
 		    background-color: rgb(40, 40, 40);
@@ -188,6 +186,7 @@ class ScrolContentWidget(QtWidgets.QWidget):
 		category = CategoryWidget(word, self._width, self._height, main_key)
 		category.drag_button_category.connect(self.set_dragged_category)
 		category.itClickedName.connect(lambda name: self.itClickedName.emit(name))
+		category.itClickedName_alt.connect(lambda name: self.itClickedName_alt.emit(name))
 		category.itDeleteCategory.connect(self.delete_category)
 		self.main_layout.addWidget(category)
 		return category

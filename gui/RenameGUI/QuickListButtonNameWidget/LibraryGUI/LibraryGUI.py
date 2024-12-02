@@ -21,7 +21,10 @@ def maya_main_window():
 class LibraryWindow(QtWidgets.QDialog):
 	WINDOW_TITLE = "Library"
 	library_show = QtCore.Signal(bool)
+	itClickedName = QtCore.Signal(str)
+	itClickedName_alt = QtCore.Signal(str)
 	itSave = QtCore.Signal()
+	
 	
 	def __init__(self, parent=maya_main_window()):
 		super(LibraryWindow, self).__init__(parent)
@@ -83,6 +86,8 @@ class LibraryWindow(QtWidgets.QDialog):
 		self.AdditionButtonsWidget.isSubCategoryName.connect(self.add_subCategory)
 		self.MainScrollArea.itDeleteCategory.connect(lambda name: self.update_category(name=name))
 		self.MainScrollArea.itUpdateCategory.connect(lambda categories: self.update_category(categories=categories))
+		self.MainScrollArea.itClickedName.connect(lambda name: self.itClickedName.emit(name))
+		self.MainScrollArea.itClickedName_alt.connect(lambda name: self.itClickedName_alt.emit(name))
 		self.MenuWidget.save_btn.itSave.connect(self.save_library)
 		self.MenuWidget.reset_btn.itReset.connect(self.reset_library)
 		self.MenuWidget.duplicate_btn.itDuplicate.connect(self.duplicate_library)
@@ -189,6 +194,7 @@ class LibraryWindow(QtWidgets.QDialog):
 			self.MainScrollArea.scroll_area_widget.add_content("ListNameDefault")
 			self.update_category(self.MainScrollArea.scroll_area_widget.key_name)
 			self.set_resize(len(list_categories))
+			self.save_library()
 		else:
 			print("Cancelled")
 		

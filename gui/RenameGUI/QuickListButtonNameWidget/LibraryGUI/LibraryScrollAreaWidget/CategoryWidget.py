@@ -11,6 +11,7 @@ import time
 class CategoryWidget(QtWidgets.QWidget):
 	
 	itClickedName = QtCore.Signal(str)
+	itClickedName_alt = QtCore.Signal(str)
 	drag_button_category = QtCore.Signal(object)
 	itDeleteCategory = QtCore.Signal(object, str)
 	
@@ -48,6 +49,8 @@ class CategoryWidget(QtWidgets.QWidget):
 	
 	def create_connections(self):
 		self.category_button.itClickedName.connect(lambda name: self.itClickedName.emit(name))
+		self.category_button.itClickedName_alt.connect(lambda name: self.itClickedName_alt.emit(name))
 		self.category_widget.itClickedName.connect(lambda name: self.itClickedName.emit(name))
+		self.category_widget.itClickedName_alt.connect(lambda name: self.itClickedName_alt.emit(name))
 		self.category_button.drag_button_category.connect(lambda: self.drag_button_category.emit(self))
 		self.category_button.itDeleteCategory.connect(lambda: self.itDeleteCategory.emit(self, self.name))

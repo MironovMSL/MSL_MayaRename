@@ -14,6 +14,7 @@ class CustomScrollArea(QtWidgets.QScrollArea):
 	It allows horizontal scrolling using the mouse wheel.
 	"""
 	itClickedName = QtCore.Signal(str)
+	itClickedName_alt = QtCore.Signal(str)
 
 	def __init__(self, key=None, parent=None, ):
 		super(CustomScrollArea, self).__init__(parent)
@@ -44,12 +45,9 @@ class CustomScrollArea(QtWidgets.QScrollArea):
 		self.setWidget(self.scroll_area_widget)
 
 	def create_connections(self):
-		self.scroll_area_widget.itClickedName.connect(self.emit_signal)
+		self.scroll_area_widget.itClickedName.connect(lambda name:  self.itClickedName.emit(name))
+		self.scroll_area_widget.itClickedName_alt.connect(lambda name:  self.itClickedName_alt.emit(name))
 		
-	def emit_signal(self, text):
-		print(f"emit_signal from CustomScrollArea: {text}")
-		self.itClickedName.emit(text)
-	
 	def wheelEvent(self, event):
 		"""Overriding the wheel event for horizontal scrolling"""
 		delta = event.angleDelta().y()  # Get the mouse wheel change
@@ -72,6 +70,7 @@ class ScrolContentWidget(QtWidgets.QWidget):
 	"""
 	
 	itClickedName = QtCore.Signal(str)
+	itClickedName_alt = QtCore.Signal(str)
 	placeholder_Style = """
 		    background-color: rgb(40, 40, 40);
 		    border: 4px groove rgb(70, 70, 70);
@@ -123,7 +122,7 @@ class ScrolContentWidget(QtWidgets.QWidget):
 		self.scroll_timer.timeout.connect(self.scroll_content)
 
 	def get_info(self):
-		state = True
+		state = False
 		if state:
 			print(self.info)
 			print(self.dragged_button)
@@ -151,7 +150,8 @@ class ScrolContentWidget(QtWidgets.QWidget):
 		# If the button is not found, create and add a new one
 		button = CustomButtonLibrary(text, self._width, self._height)
 		self.main_layout.addWidget(button)
-		button.itClickedName.connect(self.emit_signal)
+		button.itClickedName.connect(lambda name: self.itClickedName.emit(name))
+		button.itClickedName_alt.connect(lambda name: self.itClickedName_alt.emit(name))
 		button.drag_button_name.connect(self.set_dragged_button)
 		
 		return button
@@ -162,8 +162,6 @@ class ScrolContentWidget(QtWidgets.QWidget):
 		"""
 		self.dragged_button = button
 
-	def emit_signal(self, text):
-		self.itClickedName.emit(text)
 		
 	def scroll_content(self):
 		"""
@@ -295,8 +293,8 @@ class ScrolContentWidget(QtWidgets.QWidget):
 				new_button = self.add_button(text)
 				if new_button:
 					self.main_layout.insertWidget(self.placeholder_index, new_button)
-
 			
+			self.parent().parent().parent().set_state_saveButton(True)
 			self.placeholder.hide()
 			self.placeholder_index = None
 			event.acceptProposedAction()

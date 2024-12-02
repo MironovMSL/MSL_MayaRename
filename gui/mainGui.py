@@ -91,6 +91,7 @@ class MainToolWindow(QtWidgets.QDialog):
 			widget_height = self.height() - 30
 		
 		self.setFixedHeight(widget_height)
+		self.save_geometry()
 	
 		
 	def moveEvent(self, event: QtGui.QMoveEvent):
@@ -102,8 +103,11 @@ class MainToolWindow(QtWidgets.QDialog):
 
 	def closeEvent(self, e):
 		self.RenameGUI.LabelWidget.set_script_job_enabled(False)
-		self.resources.config.set_variable("startup", "window_geometry", self.geometry())
+		self.save_geometry()
 		
+	def save_geometry(self):
+		self.resources.config.set_variable("startup", "window_geometry", self.geometry())
+	
 	def keyPressEvent(self, event):
 		if event.key() == QtCore.Qt.Key_Escape:
 			event.ignore()

@@ -1,7 +1,9 @@
 try:
 	from PySide2 import QtWidgets, QtGui, QtCore
+	from PySide2.QtGui import QGraphicsOpacityEffect
 except:
 	from PySide6 import QtWidgets, QtGui, QtCore
+	from PySide6.QtWidgets import QGraphicsOpacityEffect
 
 from MSL_MayaRename.core.resources import Resources
 from MSL_MayaRename.gui.RenameGUI.QuickListButtonNameWidget.LibraryGUI.LibraryGUI import LibraryWindow
@@ -45,6 +47,11 @@ class LibraryButtonMode(QtWidgets.QPushButton):
 	        }
 	    """
 	itShowCache = QtCore.Signal(bool)
+	itSave = QtCore.Signal()
+	itReset = QtCore.Signal()
+	itClickedName = QtCore.Signal(str)
+	itClickedName_alt = QtCore.Signal(str)
+
 	
 	def __init__(self, width=25, height=25, parent=None):
 		super(LibraryButtonMode, self).__init__(parent)
@@ -78,8 +85,12 @@ class LibraryButtonMode(QtWidgets.QPushButton):
 		self.clicked.connect(self.is_active_mode)
 		self.Library_Win.library_show.connect(self.state_button)
 		self.Library_Win.itSave.connect(self.update_words_complete)
+		self.Library_Win.itClickedName.connect(lambda name: self.itClickedName.emit(name))
+		self.Library_Win.itClickedName_alt.connect(lambda name: self.itClickedName_alt.emit(name))
 		self.customContextMenuRequested.connect(self.show_pop_up_window)
 		self.pop_up_window.cache_btn.itShowCache.connect(lambda state: self.itShowCache.emit(state))
+		self.pop_up_window.save_btn.itSave.connect(lambda: self.itSave.emit())
+		self.pop_up_window.reset_btn.itReset.connect(lambda: self.itReset.emit())
 
 	def show_pop_up_window(self, pos):
 		"""
@@ -142,6 +153,7 @@ class LibraryButtonMode(QtWidgets.QPushButton):
 
 	def leaveEvent(self, event):
 		self.setCursor(QtCore.Qt.ArrowCursor)
+		self.setStyleSheet(self.Style_btn)
 		super(LibraryButtonMode, self).leaveEvent(event)
 	
 class PopUpWindow(QtWidgets.QWidget):
@@ -163,12 +175,17 @@ class PopUpWindow(QtWidgets.QWidget):
 
 	def create_widgets(self):
 		self.cache_btn = CustomPushButtonCachePopUP()
+		self.save_btn  = SaveQPushButton()
+		self.reset_btn = ResetQPushButton()
 
 	def create_layout(self):
-		layout = QtWidgets.QFormLayout(self)
-		layout.addRow("Cache: ", self.cache_btn)
-		layout.setContentsMargins(2, 2, 2, 2)
-		layout.setSpacing(0)
+		self.main_layout = QtWidgets.QFormLayout(self)
+		self.main_layout.setContentsMargins(2, 2, 2, 2)
+		self.main_layout.setSpacing(0)
+		
+		self.main_layout.addRow("", self.cache_btn)
+		self.main_layout.addRow("", self.save_btn)
+		self.main_layout.addRow("", self.reset_btn)
 
 	def create_connections(self):
 		pass
@@ -253,3 +270,153 @@ class CustomPushButtonCachePopUP(QtWidgets.QPushButton):
 	def leaveEvent(self, event):
 		self.setCursor(QtCore.Qt.ArrowCursor)
 		super(CustomPushButtonCachePopUP, self).leaveEvent(event)
+
+
+class SaveQPushButton(QtWidgets.QPushButton):
+	Style_btn = """
+	    QPushButton {
+	        background-color: rgb(50, 50, 50); /* Темно-серый фон */
+	        border-style: outset;
+	        border-width: 2px;
+	        border-radius: 6px;
+	        border-color: rgb(30, 30, 30); /* Темнее границы */
+	        font: bold 14px; /* Жирный шрифт */
+	        font-family: Arial; /* Шрифт Arial */
+	        color: rgb(200, 200, 200); /* Светло-серый текст */
+	        padding: 5px; /* Внутренние отступы */
+	    }
+	    QPushButton:hover {
+	        border-color: rgb(70, 70, 70); /* Светло-серая граница при наведении */
+	        background-color: rgb(80, 80, 80); /* Более светлый серый при наведении */
+	    }
+	    QPushButton:pressed {
+	        background-color: rgb(30, 30, 30); /* Почти черный при нажатии */
+	        border-style: inset; /* Впадение при нажатии */
+	        color: rgb(220, 220, 220); /* Почти белый текст при нажатии */
+	    }
+	"""
+	itSave = QtCore.Signal()
+	
+	def __init__(self, parent=None):
+		super(SaveQPushButton, self).__init__(parent)
+		# Modul---------------------------
+		self.resources = Resources.get_instance()
+		# Attribute---------------------------
+		self.icon_save = self.resources.get_icon_from_resources("save-svgrepo-com_v1.svg")
+		self._tooltip = "Save"
+		self.opacity_effect = QGraphicsOpacityEffect(self)
+		# Setting---------------------------
+		self.setIcon(self.icon_save)
+		self.setIconSize(QtCore.QSize(18, 18))
+		self.setFixedSize(25, 25)
+		self.setStyleSheet(self.Style_btn)
+		self.setToolTip(self._tooltip)
+		self.setEnabled(False)
+		self.setGraphicsEffect(self.opacity_effect)
+		# Run functions ---------------------------
+		self.create_widgets()
+		self.create_connections()
+	
+	def create_widgets(self):
+		self.animation = QtCore.QPropertyAnimation(self.opacity_effect, b"opacity")
+		self.animation.setDuration(300)
+	
+	def create_connections(self):
+		self.clicked.connect(self.on_click_save)
+	
+	def on_click_save(self):
+		self.itSave.emit()
+	
+	def set_Enabled(self, bool):
+		if self.isEnabled() != bool:
+			start_opacity = 0.5 if bool else 1.0
+			end_opacity = 1.0 if bool else 0.5
+			
+			self.animation.stop()
+			self.animation.setStartValue(start_opacity)
+			self.animation.setEndValue(end_opacity)
+			self.animation.start()
+			
+			self.setEnabled(bool)
+	
+	def enterEvent(self, event):
+		super(SaveQPushButton, self).enterEvent(event)
+		self.setCursor(QtCore.Qt.PointingHandCursor)
+	
+	def leaveEvent(self, event):
+		super(SaveQPushButton, self).leaveEvent(event)
+		self.setCursor(QtCore.Qt.ArrowCursor)
+	
+	def mouseReleaseEvent(self, event):
+		super(SaveQPushButton, self).mouseReleaseEvent(event)
+		self.setCursor(QtCore.Qt.PointingHandCursor)
+	
+	def mousePressEvent(self, event):
+		super(SaveQPushButton, self).mousePressEvent(event)
+
+
+class ResetQPushButton(QtWidgets.QPushButton):
+	Style_btn = """
+		    QPushButton {
+		        background-color: rgb(50, 50, 50); /* Темно-серый фон */
+		        border-style: outset;
+		        border-width: 2px;
+		        border-radius: 6px;
+		        border-color: rgb(30, 30, 30); /* Темнее границы */
+		        font: bold 14px; /* Жирный шрифт */
+		        font-family: Arial; /* Шрифт Arial */
+		        color: rgb(200, 200, 200); /* Светло-серый текст */
+		        padding: 5px; /* Внутренние отступы */
+		    }
+		    QPushButton:hover {
+		        border-color: rgb(70, 70, 70); /* Светло-серая граница при наведении */
+		        background-color: rgb(80, 80, 80); /* Более светлый серый при наведении */
+		    }
+		    QPushButton:pressed {
+		        background-color: rgb(30, 30, 30); /* Почти черный при нажатии */
+		        border-style: inset; /* Впадение при нажатии */
+		        color: rgb(220, 220, 220); /* Почти белый текст при нажатии */
+		    }
+		"""
+	itReset = QtCore.Signal()
+	
+	def __init__(self, parent=None):
+		super(ResetQPushButton, self).__init__(parent)
+		# Modul---------------------------
+		self.resources = Resources.get_instance()
+		# Attribute---------------------------
+		self.icon_reset = self.resources.get_icon_from_resources("power-button-svgrepo-com.svg")
+		self._tooltip = "Reset"
+		# Setting---------------------------
+		self.setIcon(self.icon_reset)
+		self.setIconSize(QtCore.QSize(15, 15))
+		self.setFixedSize(25, 25)
+		self.setStyleSheet(self.Style_btn)
+		self.setToolTip(self._tooltip)
+		# Run functions ---------------------------
+		self.create_widgets()
+		self.create_connections()
+	
+	def create_widgets(self):
+		pass
+	
+	def create_connections(self):
+		self.clicked.connect(self.on_click_reset)
+	
+	def on_click_reset(self):
+		self.itReset.emit()
+	
+	def enterEvent(self, event):
+		super(ResetQPushButton, self).enterEvent(event)
+		self.setCursor(QtCore.Qt.PointingHandCursor)
+	
+	def leaveEvent(self, event):
+		super(ResetQPushButton, self).leaveEvent(event)
+		self.setCursor(QtCore.Qt.ArrowCursor)
+	
+	def mouseReleaseEvent(self, event):
+		super(ResetQPushButton, self).mouseReleaseEvent(event)
+		self.setCursor(QtCore.Qt.PointingHandCursor)
+	
+	def mousePressEvent(self, event):
+		super(ResetQPushButton, self).mousePressEvent(event)

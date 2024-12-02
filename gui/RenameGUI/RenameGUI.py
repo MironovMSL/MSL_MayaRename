@@ -132,6 +132,8 @@ class RenameGUI(QtWidgets.QWidget):
 		self.SuffixPrefixWidget.itEditSuffix.connect(self.update_suffix)
 		self.LabelWidget.label_name.itLabelName.connect(self.get_select_name)
 		self.QuickListButtonName.itClickedCache.connect(self.get_select_name)
+		self.QuickListButtonName.itClickedName.connect(self.on_click_btn)
+		self.QuickListButtonName.itClickedName_alt.connect(self.on_click_btn_alt)
 
 	def init_attribute(self):
 
@@ -189,7 +191,14 @@ class RenameGUI(QtWidgets.QWidget):
 			print(f"Range: [{self.minR}]:[{self.maxR}]")
 			print(f'[{self.prefix}][{self.left}][{self.X}][{self.mid}][{self.Y}][{self.right}][{self.suffix}]: {self.info}')
 			print("--------------------------------------------")
+	
+	def on_click_btn(self, name):
+		print(f"TODO: clicked button {name}")
+		
 
+	def on_click_btn_alt(self, name):
+		print(f"TODO: clicked button alt {name}")
+	
 	def Rename(self):
 		print("TODO: Rename")
 		name = self.get_text()

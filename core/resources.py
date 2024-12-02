@@ -84,6 +84,7 @@ class Resources(object):
 			return data_json[key].keys()
 		else:
 			print(f"Key '{key}' was not found or is not a dictionary in the JSON data.")
+			
 			return []
 		
 	def get_values_by_known_key(self, main_key="ListName", sub_key="Base"):

@@ -14,6 +14,7 @@ class ScrollAreaCategoryWidget(QtWidgets.QScrollArea):
 	It allows horizontal scrolling using the mouse wheel.
 	"""
 	itClickedName = QtCore.Signal(str)
+	itClickedName_alt = QtCore.Signal(str)
 	
 	def __init__(self, key_name=None, width = 60, height = 25, main_key=None, parent=None):
 		super(ScrollAreaCategoryWidget, self).__init__(parent)
@@ -49,6 +50,7 @@ class ScrollAreaCategoryWidget(QtWidgets.QScrollArea):
 	
 	def create_connections(self):
 		self.scroll_area_widget.itClickedName.connect(lambda name: self.itClickedName.emit(name))
+		self.scroll_area_widget.itClickedName_alt.connect(lambda name: self.itClickedName_alt.emit(name))
 		
 	def wheelEvent(self, event):
 		"""Overriding the wheel event for horizontal scrolling"""
@@ -71,6 +73,7 @@ class ScrolContentWidget(QtWidgets.QWidget):
 	"""
 	
 	itClickedName = QtCore.Signal(str)
+	itClickedName_alt = QtCore.Signal(str)
 	placeholder_Style = """
 		    background-color: rgb(40, 40, 40);
 		    border: 4px groove rgb(70, 70, 70);
@@ -185,6 +188,7 @@ class ScrolContentWidget(QtWidgets.QWidget):
 		
 		button = ButtonLibraryWidget(text, self._width, self._height)
 		button.itClickedName.connect(lambda name: self.itClickedName.emit(name))
+		button.itClickedName_alt.connect(lambda name: self.itClickedName_alt.emit(name))
 		button.drag_button_name.connect(self.set_dragged_button)
 		
 		self.main_layout.addWidget(button)

@@ -15,6 +15,7 @@ class ButtonCategoryWidget(QtWidgets.QPushButton):
 	"""
 	
 	itClickedName        = QtCore.Signal(str)
+	itClickedName_alt        = QtCore.Signal(str)
 	drag_button_category = QtCore.Signal()
 	itDeleteCategory     = QtCore.Signal()
 	
@@ -73,8 +74,6 @@ class ButtonCategoryWidget(QtWidgets.QPushButton):
 		self.main_layout.setSpacing(0)
 	
 	def create_connections(self):
-		
-		self.clicked.connect(lambda: self.itClickedName.emit(self.text()))
 		self.customContextMenuRequested.connect(self.show_pop_up_window)
 		self.pop_up_window.button_delete.clicked.connect(lambda: self.itDeleteCategory.emit())
 		self.pop_up_window.rename_linEdit.textEdited.connect(self.on_change_text)
@@ -144,6 +143,11 @@ class ButtonCategoryWidget(QtWidgets.QPushButton):
 	
 	def mousePressEvent(self, event):
 		super(ButtonCategoryWidget, self).mousePressEvent(event)
+		
+		if event.button() == QtCore.Qt.LeftButton and event.modifiers() == QtCore.Qt.AltModifier:
+			self.itClickedName_alt.emit(self.text())
+		elif event.button() == QtCore.Qt.LeftButton:
+			self.itClickedName.emit(self.text())
 		
 		if hasattr(QtCore.Qt, "MiddleButton"):
 			middle_button = QtCore.Qt.MiddleButton  # Для Qt6

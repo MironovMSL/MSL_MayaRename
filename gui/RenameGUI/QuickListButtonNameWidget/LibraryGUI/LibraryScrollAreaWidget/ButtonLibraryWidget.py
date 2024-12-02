@@ -15,6 +15,7 @@ class ButtonLibraryWidget(QtWidgets.QPushButton):
 	"""
 	
 	itClickedName = QtCore.Signal(str)
+	itClickedName_alt = QtCore.Signal(str)
 	drag_button_name = QtCore.Signal(object)
 	
 	Style_btn = """
@@ -75,8 +76,6 @@ class ButtonLibraryWidget(QtWidgets.QPushButton):
 		self.main_layout.setSpacing(0)
 	
 	def create_connections(self):
-		
-		self.clicked.connect(self.on_clicked)
 		self.customContextMenuRequested.connect(self.show_pop_up_window)
 		self.pop_up_window.button_delete.clicked.connect(self.on_delete_btn)
 		self.pop_up_window.rename_linEdit.textEdited.connect(self.on_change_text)
@@ -131,13 +130,7 @@ class ButtonLibraryWidget(QtWidgets.QPushButton):
 		self.pop_up_window.rename_linEdit.selectAll()
 		
 		self.pop_up_window.show()
-	
-	def on_clicked(self):
-		"""
-		Emits the signal when the button is clicked.
-		"""
-		self.itClickedName.emit(self.text())
-	
+		
 	def on_delete_btn(self):
 		"""
 		Deletes the button from the layout.
@@ -160,6 +153,12 @@ class ButtonLibraryWidget(QtWidgets.QPushButton):
 	
 	def mousePressEvent(self, event):
 		super(ButtonLibraryWidget, self).mousePressEvent(event)
+		
+		if event.button() == QtCore.Qt.LeftButton and event.modifiers() == QtCore.Qt.AltModifier:
+			self.itClickedName_alt.emit(self.text())
+		elif event.button() == QtCore.Qt.LeftButton:
+			self.itClickedName.emit(self.text())
+
 		
 		if hasattr(QtCore.Qt, "MiddleButton"):
 			middle_button = QtCore.Qt.MiddleButton  # Для Qt6
