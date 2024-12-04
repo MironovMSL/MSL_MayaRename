@@ -51,3 +51,11 @@ class RenameButtonWidget(QtWidgets.QPushButton):
 
 	def create_connections(self):
 		pass
+
+	def enterEvent(self, event):
+		self.setCursor(QtCore.Qt.PointingHandCursor)
+		super(RenameButtonWidget, self).enterEvent(event)
+
+	def leaveEvent(self, event):
+		self.setCursor(QtCore.Qt.ArrowCursor)
+		super(RenameButtonWidget, self).leaveEvent(event)

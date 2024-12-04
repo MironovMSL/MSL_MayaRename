@@ -127,8 +127,6 @@ class QuickListButtonNameWidget(QtWidgets.QWidget):
         self.set_state_saveButton(False)
         
     def reset_list_btn(self):
-
-
         button_pressed = QtWidgets.QMessageBox.question(self, "Question",
                                                         f"Are you sure you want to reset <span style='color: #669e62; font-size: {12}px;'>{'the buttons'}</span> to its <span style='color: #669e62; font-size: {12}px;'>{'default state'}</span>?")
     

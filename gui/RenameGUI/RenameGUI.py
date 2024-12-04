@@ -14,10 +14,8 @@ from MSL_MayaRename.gui.RenameGUI.SuffixPrefixWidget.SuffixPrefixWidget import S
 from MSL_MayaRename.gui.RenameGUI.LabelWidget.LabelWidget import LabelWidget
 from MSL_MayaRename.gui.RenameGUI.QuickListButtonNameWidget.QuickListButtonNameWidget import QuickListButtonNameWidget
 
-import os
 import maya.cmds as cmds
 
-root_ = os.path.dirname(__file__)
 
 class RenameGUI(QtWidgets.QWidget):
 	def __init__(self, parent=None):
@@ -199,17 +197,59 @@ class RenameGUI(QtWidgets.QWidget):
 	def on_click_btn_alt(self, name):
 		print(f"TODO: clicked button alt {name}")
 	
+	def get_short_name(self, object_name):
+		path_to_object, separator, object_short_name = object_name.rpartition("|")
+		path_to_object += separator
+		
+		return path_to_object, object_short_name
+	
 	def Rename(self):
 		print("TODO: Rename")
-		name = self.get_text()
+		selection = cmds.ls(selection=True, l=True)
+		# self.selected_object = name[0].split("|")[-1]
+		name_in_LineEdit = self.get_text()
 		
-		if name:
+		
+		if name_in_LineEdit:
+			if selection:
+				for obj in selection:
+					
+					path_to_obj, obj_short_name = self.get_short_name(obj)
+					
+					obj_rename = cmds.rename(obj, name_in_LineEdit)
+					new_path_to_obj, new_obj_short_name = self.get_short_name(obj_rename)
+					new_obj = path_to_obj + new_obj_short_name
+					
+					selection = self.renameObjectsInHierarchy(selection, obj, new_obj)
+				
+				print(selection)
+
+			
+			else:
+				print("It is necessary to select an object.")
+			
+			
 			
 			
 			# -------------Add cashe button-------------
-			self.QuickListButtonName.add_cache(name)
-
-
+			self.QuickListButtonName.add_cache(name_in_LineEdit)
+		else:
+			print("The input field is empty. Please enter some text.")
+	
+	def renameObjectsInHierarchy(self, selection, longName, newlongName):
+		"""
+		Renames objects in a selection list that match the provided longName,
+		updating their hierarchy names with newlongName.
+		"""
+		
+		# Iterate through the selection list and rename matching objects
+		for num, obj in enumerate(selection):
+			obj_tmp = obj + "|"
+			if obj_tmp.startswith(longName + "|"):
+				selection[num] = obj.replace(longName, newlongName, 1)
+		
+		return selection
+	
 	def on_complet_name(self, text):
 		suffix = text[len(self.text) - len(self.suffix):]
 		if suffix == self.suffix and self.suffix:

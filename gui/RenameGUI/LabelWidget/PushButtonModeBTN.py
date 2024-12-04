@@ -73,6 +73,14 @@ class PushButtonModeBTN(QtWidgets.QPushButton):
 	def is_active_mode(self, Checkable):
 		self.resources.config.set_variable("startup", "mode_button", Checkable)
 		self.changeStateButtonMode.emit(Checkable)
+	
+	def enterEvent(self, event):
+		self.setCursor(QtCore.Qt.PointingHandCursor)
+		super(PushButtonModeBTN, self).enterEvent(event)
+	
+	def leaveEvent(self, event):
+		self.setCursor(QtCore.Qt.ArrowCursor)
+		super(PushButtonModeBTN, self).leaveEvent(event)
 
 
 

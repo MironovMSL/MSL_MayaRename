@@ -48,3 +48,11 @@ class AddByttonWidget(QtWidgets.QPushButton):
 		if icon:
 			self.icon     = self.resoures.get_icon_from_resources(icon)
 			self.setIcon(self.icon)
+	
+	def enterEvent(self, event):
+		self.setCursor(QtCore.Qt.PointingHandCursor)
+		super(AddByttonWidget, self).enterEvent(event)
+	
+	def leaveEvent(self, event):
+		self.setCursor(QtCore.Qt.ArrowCursor)
+		super(AddByttonWidget, self).leaveEvent(event)

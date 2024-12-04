@@ -48,6 +48,14 @@ class RemoveButtonWidget(QtWidgets.QPushButton):
 		if icon:
 			self.icon     = self.resoures.get_icon_from_resources(icon)
 			self.setIcon(self.icon)
+		
+	def enterEvent(self, event):
+		self.setCursor(QtCore.Qt.PointingHandCursor)
+		super(RemoveButtonWidget, self).enterEvent(event)
+	
+	def leaveEvent(self, event):
+		self.setCursor(QtCore.Qt.ArrowCursor)
+		super(RemoveButtonWidget, self).leaveEvent(event)
 
 
 

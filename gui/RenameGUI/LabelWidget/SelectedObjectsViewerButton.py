@@ -71,3 +71,11 @@ class SelectedObjectsViewerButton(QtWidgets.QPushButton):
 	def is_active_mode(self, state):
 		self.resources.config.set_variable("selected_objects", "selected_mode", state)
 		print(f"TODO: Selected Objects Viewer: {'Open UI' if state else 'Close UI'}:")
+	
+	def enterEvent(self, event):
+		self.setCursor(QtCore.Qt.PointingHandCursor)
+		super(SelectedObjectsViewerButton, self).enterEvent(event)
+	
+	def leaveEvent(self, event):
+		self.setCursor(QtCore.Qt.ArrowCursor)
+		super(SelectedObjectsViewerButton, self).leaveEvent(event)

@@ -73,3 +73,11 @@ class NumberModeButton(QtWidgets.QPushButton):
 	def is_active_mode(self, Checkable):
 		self.resources.config.set_variable("startup", "mode_number", Checkable)
 		self.changeStateNumberMode.emit(Checkable)
+	
+	def enterEvent(self, event):
+		self.setCursor(QtCore.Qt.PointingHandCursor)
+		super(NumberModeButton, self).enterEvent(event)
+	
+	def leaveEvent(self, event):
+		self.setCursor(QtCore.Qt.ArrowCursor)
+		super(NumberModeButton, self).leaveEvent(event)
