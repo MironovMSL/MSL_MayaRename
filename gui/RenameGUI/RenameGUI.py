@@ -57,6 +57,7 @@ class RenameGUI(QtWidgets.QWidget):
 		self.pos_cur     = None  # cursor position for comparison
 		self.maxR        = None  # maximum range for position [number] and [letter]
 		self.minR        = None  # minimum range for position [number] and [letter]
+		self.end_select  = None  # position of a selection name
 
 		# Setting ------------------------
 		self.setFixedHeight(self.FixedHeigt)
@@ -204,26 +205,38 @@ class RenameGUI(QtWidgets.QWidget):
 		return path_to_object, object_short_name
 	
 	def Rename(self):
-		print("TODO: Rename")
 		selection = cmds.ls(selection=True, l=True)
-		# self.selected_object = name[0].split("|")[-1]
 		name_in_LineEdit = self.get_text()
-		
 		
 		if name_in_LineEdit:
 			if selection:
-				for obj in selection:
-					
-					path_to_obj, obj_short_name = self.get_short_name(obj)
-					
-					obj_rename = cmds.rename(obj, name_in_LineEdit)
-					new_path_to_obj, new_obj_short_name = self.get_short_name(obj_rename)
-					new_obj = path_to_obj + new_obj_short_name
-					
-					selection = self.renameObjectsInHierarchy(selection, obj, new_obj)
-				
-				print(selection)
-
+				if self.mode_number:
+					for start, obj in enumerate(selection, start=self.start_num):
+						number = self.handle_number(start)
+						
+						if self.num_cod == "X":
+							name_counting = self.prefix + self.left + number + self.mid + self.Y + self.right + self.suffix
+						else:
+							name_counting = self.prefix + self.left + self.X + self.mid + number + self.right + self.suffix
+						
+						path_to_obj, obj_short_name = self.get_short_name(obj)
+						obj_rename = cmds.rename(obj, name_counting)
+						new_path_to_obj, new_obj_short_name = self.get_short_name(obj_rename)
+						new_obj = path_to_obj + new_obj_short_name
+						
+						selection = self.renameObjectsInHierarchy(selection, obj, new_obj)
+	
+				else:
+					for obj in selection:
+						
+						path_to_obj, obj_short_name         = self.get_short_name(obj)
+						obj_rename = cmds.rename(obj, name_in_LineEdit)
+						new_path_to_obj, new_obj_short_name = self.get_short_name(obj_rename)
+						new_obj    = path_to_obj + new_obj_short_name
+						
+						selection = self.renameObjectsInHierarchy(selection, obj, new_obj)
+						
+				self.LabelWidget.update_selection()
 			
 			else:
 				print("It is necessary to select an object.")
@@ -289,10 +302,12 @@ class RenameGUI(QtWidgets.QWidget):
 		end_pos = pos + len(name)
 		return end_pos
 
-	def handle_number(self):
+	def handle_number(self, start = None):
 		"""Procesing number"""
+		start = start if start is not None else self.start_num
+		
 		if self.mode_number:
-			number = ("0" * (self.padding_num - len(str(self.start_num)))) + str(self.start_num)
+			number = "" + ("0" * (self.padding_num - len(str(start)))) + str(start) + ""
 		else:
 			number = ""
 		return number
@@ -305,6 +320,7 @@ class RenameGUI(QtWidgets.QWidget):
 		else:
 			prefix = ""
 			suffix = ""
+
 		return prefix, suffix
 
 	def handel_letter(self, letter):
@@ -716,8 +732,8 @@ class RenameGUI(QtWidgets.QWidget):
 					self.pos_let = self.pos_let + items_dift
 
 	def do_text_edited(self, text):
-		pos_cur    = self.pos_cur
 		items_dift = len(text) - len(self.text)
+		pos_cur    = self.pos_cur
 
 		if self.text and len(text) > len(self.prefix)+ len(self.X) + len(self.Y) + len(self.suffix):
 			if items_dift >= 0:  # Added items
@@ -781,7 +797,6 @@ class RenameGUI(QtWidgets.QWidget):
 		return newText, new_cur
 
 	def _handle_deletion(self, text, items_dift, pos_cur):
-
 		temp_cur   = self.RenameWidget.LineEditor.AutoComplete_line_edit.cursorPosition()
 		prefix_end = len(self.prefix)
 		left_end   = prefix_end + len(self.left)
@@ -793,6 +808,8 @@ class RenameGUI(QtWidgets.QWidget):
 		
 		info_part  = ""
 		
+		if self.selected:
+			pos_cur = self.end_select
 		
 		if temp_cur != pos_cur:
 
@@ -891,8 +908,7 @@ class RenameGUI(QtWidgets.QWidget):
 
 			items_dift = 0
 
-		
-		new_cur   = self.pos_cur + items_dift
+		new_cur   = pos_cur + items_dift
 		newText   = self.get_new_text()
 		self.info = f"__DEL__{info_part}"
 
@@ -993,7 +1009,12 @@ class RenameGUI(QtWidgets.QWidget):
 			self.RenameWidget.LineEditor.AutoComplete_line_edit.setCursorPosition(right_end)
 
 	def check_selection_cursor(self):
-		self.selected = True
-
+		start = self.RenameWidget.LineEditor.AutoComplete_line_edit.selectionStart()
+		selected_text  = self.RenameWidget.LineEditor.AutoComplete_line_edit.selectedText()
+		
+		if selected_text:
+			self.selected = True
+			self.end_select = start + len(selected_text)
+		
 	def set_label_rename_color(self):
 		self.LabelWidget.label_name.set_rename_color(self.text, self.prefix, self.left, self.X, self.mid, self.Y, self.right, self.suffix)
