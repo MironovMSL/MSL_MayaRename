@@ -45,16 +45,6 @@ class RenameWidget(QtWidgets.QWidget):
 		self.main_layout.addWidget(self.RightRemoveButton)
 
 	def create_connections(self):
-		self.LeftRemoveButton.clicked.connect(self.click_on_remove_left)
-		self.RightRemoveButton.clicked.connect(self.click_on_remove_right)
+		pass
 
-		# self.LineEditor.AutoComplete_line_edit.textChanged.connect(self.do_text_edited)
 
-	def click_on_remove_left(self):
-		print("TODO : remove the first letter")
-
-	def click_on_remove_right(self):
-		print("TODO : remove the edn letter")
-
-	# def do_text_edited(self, text):
-	# 	print(f"TODO :RenameWidget.py textChanged: {text}")

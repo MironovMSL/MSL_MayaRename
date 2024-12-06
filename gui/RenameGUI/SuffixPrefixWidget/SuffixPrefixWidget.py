@@ -20,22 +20,19 @@ class SuffixPrefixWidget(QtWidgets.QWidget):
 
     def __init__(self, parent=None):
         super(SuffixPrefixWidget, self).__init__(parent)
-
-        self.setObjectName("SuffixPrefixWidget")
+        
+        # Module----------------------
         self.resources = Resources.get_instance()
-        self.QSettings = QtCore.QSettings(self.resources.config_path, QtCore.QSettings.IniFormat)
-
-        self.FixedHeight = 25
+        # Attribute----------------------
+        self.prefix       = self.resources.config.get_variable("startup", "prefix", "", str)
+        self.suffix       = self.resources.config.get_variable("startup", "suffix", "", str)
+        self.FixedHeight  = 25
         self.PrefixHolder = "prefix_"
         self.SuffixHolder = "_suffix"
-
-        self.prefix = self.QSettings.value("startup/prefix", str)
-        self.suffix = self.QSettings.value("startup/suffix", str)
-
-
+        # Setting ------------------------
+        self.setObjectName("SuffixPrefixWidget")
         self.setFixedHeight(self.FixedHeight)
-
-
+        # Run function ------------------------
         self.create_Widgets()
         self.create_layouts()
         self.create_connections()
@@ -87,21 +84,11 @@ class SuffixPrefixWidget(QtWidgets.QWidget):
         self.prefix_Editline.AutoComplete_line_edit.itDropName.connect(self.edit_prefix)
         self.suffix_Editline.AutoComplete_line_edit.textEdited.connect(self.edit_suffix)
         self.suffix_Editline.AutoComplete_line_edit.itDropName.connect(self.edit_suffix)
-        self.prefix_add_btn.clicked.connect(self.do_prefix)
-        self.suffix_add_btn.clicked.connect(self.do_suffix)
 
     def edit_prefix(self, prefix):
-        self.QSettings.setValue("startup/prefix", prefix)
+        self.resources.config.set_variable("startup", "prefix", prefix)
         self.itEditPrefix.emit(prefix)
 
     def edit_suffix(self, suffix):
-        self.QSettings.setValue("startup/suffix", suffix)
+        self.resources.config.set_variable("startup", "suffix", suffix)
         self.itEditSuffix.emit(suffix)
-
-    def do_prefix(self):
-        print("TODO: add prefix")
-
-    def do_suffix(self):
-        print("TODO: add suffix")
-
-

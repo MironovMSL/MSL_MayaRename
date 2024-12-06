@@ -15,6 +15,7 @@ from MSL_MayaRename.gui.RenameGUI.LabelWidget.LabelWidget import LabelWidget
 from MSL_MayaRename.gui.RenameGUI.QuickListButtonNameWidget.QuickListButtonNameWidget import QuickListButtonNameWidget
 
 import maya.cmds as cmds
+import maya.OpenMaya as om
 
 
 class RenameGUI(QtWidgets.QWidget):
@@ -127,8 +128,14 @@ class RenameGUI(QtWidgets.QWidget):
 		self.RenameWidget.LineEditor.AutoComplete_line_edit.cursorPositionChanged.connect(self.check_position_cursor)
 		self.RenameWidget.LineEditor.AutoComplete_line_edit.selectionChanged.connect(self.check_selection_cursor)
 		self.RenameWidget.LineEditor.completer.itCompleterName.connect(self.on_complet_name)
+		self.RenameWidget.LeftRemoveButton.clicked.connect(self.remove_first_index)
+		self.RenameWidget.RightRemoveButton.clicked.connect(self.remove_last_index)
 		self.SuffixPrefixWidget.itEditPrefix.connect(self.update_prefix)
 		self.SuffixPrefixWidget.itEditSuffix.connect(self.update_suffix)
+		self.SuffixPrefixWidget.prefix_Editline.AutoComplete_line_edit.returnPressed.connect(self.add_prefix)
+		self.SuffixPrefixWidget.suffix_Editline.AutoComplete_line_edit.returnPressed.connect(self.add_suffix)
+		self.SuffixPrefixWidget.prefix_add_btn.clicked.connect(self.add_prefix)
+		self.SuffixPrefixWidget.suffix_add_btn.clicked.connect(self.add_suffix)
 		self.LabelWidget.label_name.itLabelName.connect(self.get_select_name)
 		self.QuickListButtonName.itClickedCache.connect(self.get_select_name)
 		self.QuickListButtonName.itClickedName.connect(self.on_click_btn)
@@ -208,8 +215,8 @@ class RenameGUI(QtWidgets.QWidget):
 		selection = cmds.ls(selection=True, l=True)
 		name_in_LineEdit = self.get_text()
 		
-		if name_in_LineEdit:
-			if selection:
+		if selection:
+			if name_in_LineEdit:
 				if self.mode_number:
 					for start, obj in enumerate(selection, start=self.start_num):
 						number = self.handle_number(start)
@@ -237,17 +244,13 @@ class RenameGUI(QtWidgets.QWidget):
 						selection = self.renameObjectsInHierarchy(selection, obj, new_obj)
 						
 				self.LabelWidget.update_selection()
+				# -------------Add cashe button-------------
+				self.QuickListButtonName.add_cache(name_in_LineEdit)
 			
 			else:
-				print("It is necessary to select an object.")
-			
-			
-			
-			
-			# -------------Add cashe button-------------
-			self.QuickListButtonName.add_cache(name_in_LineEdit)
+				print("The input field is empty. Please enter some text.")
 		else:
-			print("The input field is empty. Please enter some text.")
+			print("It is necessary to select an object.")
 	
 	def renameObjectsInHierarchy(self, selection, longName, newlongName):
 		"""
@@ -262,6 +265,96 @@ class RenameGUI(QtWidgets.QWidget):
 				selection[num] = obj.replace(longName, newlongName, 1)
 		
 		return selection
+	
+	def remove_first_index(self):
+		selection = cmds.ls(selection=1, long=1)
+		sortName = sorted(selection, key=len, reverse=True)
+
+		if selection:
+			for obj in sortName:
+				path_to_obj, obj_short_name = self.get_short_name(obj)
+				if len(obj_short_name) <= 1:
+					om.MGlobal.displayWarning(f"The name cannot be less than one characters: {obj_short_name}")
+					continue
+	
+				try:
+					cmds.rename(obj, obj_short_name[1:])
+				except:
+					om.MGlobal.displayWarning(f"The name cannot be renamed, it has a number next to the letter:  {obj_short_name}")
+			
+			self.LabelWidget.update_selection()
+		
+		else:
+			print("It is necessary to select an object.")
+		
+		
+	def remove_last_index(self):
+
+		selection = cmds.ls(selection=1, long=1)
+		sortName = sorted(selection, key=len, reverse=True)
+		
+		if selection:
+			for obj in sortName:
+				path_to_obj, obj_short_name = self.get_short_name(obj)
+				if len(obj_short_name) <= 1:
+					om.MGlobal.displayWarning(f"The name cannot be less than one characters: {obj_short_name}")
+					continue
+				
+				cmds.rename(obj, obj_short_name[:-1])
+			
+			self.LabelWidget.update_selection()
+			
+		else:
+			print("It is necessary to select an object.")
+			
+	def add_prefix(self):
+		prefix = self.SuffixPrefixWidget.prefix_Editline.AutoComplete_line_edit.text()
+		selection = cmds.ls(selection=1, long=1)
+		sortName = sorted(selection, key=len, reverse=True)
+
+		if selection:
+			if prefix:
+				for obj in sortName:
+	
+					path_to_obj, obj_short_name = self.get_short_name(obj)
+	
+					if obj_short_name[:len(prefix)] == prefix:
+						continue
+	
+					new_obj_short_name = prefix + obj_short_name
+					cmds.rename(obj, new_obj_short_name)
+				
+				self.LabelWidget.update_selection()
+				
+			else:
+				print("The input field is empty. Please enter some text.")
+		else:
+			print("It is necessary to select an object.")
+
+	
+	def add_suffix(self):
+		suffix = self.SuffixPrefixWidget.suffix_Editline.AutoComplete_line_edit.text()
+		selection = cmds.ls(selection=1, long=1)
+		sortName = sorted(selection, key=len, reverse=True)
+		
+		if selection:
+			if suffix:
+				for obj in sortName:
+					
+					path_to_obj, obj_short_name = self.get_short_name(obj)
+					
+					if obj_short_name[len(obj_short_name) - len(suffix):] == suffix:
+						continue
+					
+					new_obj_short_name = obj_short_name + suffix
+					cmds.rename(obj, new_obj_short_name)
+				
+				self.LabelWidget.update_selection()
+
+			else:
+				print("The input field is empty. Please enter some text.")
+		else:
+			print("It is necessary to select an object.")
 	
 	def on_complet_name(self, text):
 		suffix = text[len(self.text) - len(self.suffix):]
@@ -520,7 +613,6 @@ class RenameGUI(QtWidgets.QWidget):
 		self.RenameWidget.LineEditor.AutoComplete_line_edit.setCursorPosition(pos_cur)
 		self.LetterWidget.pos_let_slider.setValue(value)
 
-		print(self.pos_cur)
 		self.move = False
 		self.info_attribute()
 		self.set_label_rename_color()

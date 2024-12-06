@@ -18,7 +18,7 @@ class CustomScrollArea(QtWidgets.QScrollArea):
 
 	def __init__(self, key=None, parent=None, ):
 		super(CustomScrollArea, self).__init__(parent)
-		# Modul---------------------------
+		# Module---------------------------
 		self.resources    = Resources.get_instance()
 		# Attribute---------------------------
 		self.word_list    = self.resources.get_itemJSON_from_key(dictionary_name="fast_access")
