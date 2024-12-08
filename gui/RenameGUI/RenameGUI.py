@@ -47,6 +47,8 @@ class RenameGUI(QtWidgets.QWidget):
 
 		self.text        = None  # old text for comperisen [last Text]
 		# number-----------------------------------
+		self.prefix_num  = None  # prefix of a number
+		self.suffix_num  = None  # suffix of a number
 		self.num         = None  # number start = 1, padding = 2, number = [01]
 		self.pos_num     = None  # position number in slider
 		self.num_cod     = None  # num cod X or Y
@@ -118,6 +120,8 @@ class RenameGUI(QtWidgets.QWidget):
 		self.RenameButton.clicked.connect(self.Rename)
 		self.RenameWidget.LineEditor.AutoComplete_line_edit.returnPressed.connect(self.Rename)
 		self.LabelWidget.number_mode.changeStateNumberMode.connect(self.on_click_number_mode_button)
+		self.LabelWidget.number_mode.itPrefixNumber.connect(self.update_prefixNumber)
+		self.LabelWidget.number_mode.itSuffixNumber.connect(self.update_suffixNumber)
 		self.LabelWidget.button_mode.changeStateButtonMode.connect(self.on_click_button_mode_button)
 		self.LetterWidget.itEditLetter.connect(self.on_click_letter_mode)
 		self.LetterWidget.itletPosition.connect(self.move_position_letter)
@@ -140,6 +144,7 @@ class RenameGUI(QtWidgets.QWidget):
 		self.QuickListButtonName.itClickedCache.connect(self.get_select_name)
 		self.QuickListButtonName.itClickedName.connect(self.on_click_btn)
 		self.QuickListButtonName.itClickedName_alt.connect(self.on_click_btn_alt)
+		
 
 	def init_attribute(self):
 
@@ -148,15 +153,15 @@ class RenameGUI(QtWidgets.QWidget):
 		self.mode_number = self.QSettings.value("startup/mode_number", False, bool)  # mode number for Numeric
 		self.mode_letter = self.QSettings.value("startup/mode_letter", False, bool)
 		# number-----------------------------------
+		self.prefix_num  = self.resources.config.get_variable("startup", "prefix_number", "", str)
+		self.suffix_num  = self.resources.config.get_variable("startup", "suffix_number", "", str)
 		self.start_num   = self.QSettings.value("startup/start_number", 1, int)  # start number ~ 1
 		self.padding_num = self.QSettings.value("startup/padding_number", 2, int)  # pading number ~ 2 = 00
 		self.num         = self.handle_number()  # number start = 1, padding = 2, number = [01]
 		self.pos_num     = self.QSettings.value("startup/position_number", 0, int)  # position number [pos:end]
-		# self.end_pos_num = self.pos_num + len(self.num)  # end position num [pos:end]
 		self.num_cod     = "X"
 		# letter----------------------------------
 		self.pos_let     = 0  # position letter [pos:end]
-		# self.end_pos_let = 0  # end position letter [pos:end]
 		self.let         = self.QSettings.value("startup/letter", "", str)  # letter  ~ [lettter]
 		self.let_cod     = "Y"
 		# Range and cursor-------------------------------
@@ -198,12 +203,51 @@ class RenameGUI(QtWidgets.QWidget):
 			print(f'[{self.prefix}][{self.left}][{self.X}][{self.mid}][{self.Y}][{self.right}][{self.suffix}]: {self.info}')
 			print("--------------------------------------------")
 	
-	def on_click_btn(self, name):
-		print(f"TODO: clicked button {name}")
+	def _handle_click_btn(self, name):
+		selection = cmds.ls(selection=1, long=1)
+		sortName = sorted(selection, key=len, reverse=True)
 		
-
+		if selection:
+			if name:
+				for obj in sortName:
+					
+					path_to_obj, obj_short_name = self.get_short_name(obj)
+					
+					if obj_short_name[len(obj_short_name) - len(name):] == name:
+						continue
+					
+					new_obj_short_name = obj_short_name + name
+					cmds.rename(obj, new_obj_short_name)
+				
+				self.LabelWidget.update_selection()
+			
+			else:
+				print("The input field is empty. Please enter some text.")
+		else:
+			print("It is necessary to select an object.")
+	
+	def _handle_mode_btn_click_btn(self, name):
+		name_LE = self.get_text()
+		if name_LE:
+			if name_LE[len(name_LE) - len(name):] == name:
+				return
+			new_name_LE = name_LE + name
+			self.do_text_edited(new_name_LE)
+		else:
+			self.do_text_edited(name)
+	
+	def on_click_btn(self, name):
+		name = "_" + name
+		if self.mode_button:
+			self._handle_mode_btn_click_btn(name)
+		else:
+			self._handle_click_btn(name)
+		
 	def on_click_btn_alt(self, name):
-		print(f"TODO: clicked button alt {name}")
+		if self.mode_button:
+			self._handle_mode_btn_click_btn(name)
+		else:
+			self._handle_click_btn(name)
 	
 	def get_short_name(self, object_name):
 		path_to_object, separator, object_short_name = object_name.rpartition("|")
@@ -395,12 +439,21 @@ class RenameGUI(QtWidgets.QWidget):
 		end_pos = pos + len(name)
 		return end_pos
 
+	def update_prefixNumber(self, prefix):
+		self.prefix_num = prefix
+		self.update_number(self.start_num, self.padding_num)
+		
+		
+	def update_suffixNumber(self, suffix):
+		self.suffix_num = suffix
+		self.update_number(self.start_num, self.padding_num)
+		
 	def handle_number(self, start = None):
 		"""Procesing number"""
 		start = start if start is not None else self.start_num
 		
 		if self.mode_number:
-			number = "" + ("0" * (self.padding_num - len(str(start)))) + str(start) + ""
+			number = self.prefix_num + ("0" * (self.padding_num - len(str(start)))) + str(start) + self.suffix_num
 		else:
 			number = ""
 		return number
@@ -713,15 +766,17 @@ class RenameGUI(QtWidgets.QWidget):
 		self.set_label_rename_color()
 		self.info_attribute()
 
-	def update_number(self, start_number, padding_number, number):
+	def update_number(self, start_number, padding_number):
+		
+		old_num           = self.num
 		self.start_num    = start_number
 		self.padding_num  = padding_number
-		self.num          = number
+		self.num          = self.handle_number()
 
 		text              = self.RenameWidget.LineEditor.AutoComplete_line_edit.text()
 		pos_cur           = self.pos_cur
 		new_cur           = pos_cur  # Set the initial position of the cursor
-		dift              = len(self.num) - len(self.X)
+		dift              = len(self.num) - len(old_num)
 
 		if text: # If there is text in the field
 			if self.num_cod == "X":
@@ -1057,7 +1112,7 @@ class RenameGUI(QtWidgets.QWidget):
 
 	def drop_text(self, text, pos_cur):
 		suffix = text[len(self.text) - len(self.suffix):]
-		print(suffix)
+
 		if suffix == self.suffix and self.suffix:
 			self.RenameWidget.LineEditor.completer.popup().hide()
 			return

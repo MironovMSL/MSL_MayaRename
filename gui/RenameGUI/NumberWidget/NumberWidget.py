@@ -15,7 +15,7 @@ root_ = os.path.dirname(__file__)
 
 class NumberWidget(QtWidgets.QWidget):
 
-	new_number_Signal = QtCore.Signal(int, int, str)
+	new_number_Signal = QtCore.Signal(int, int)
 	new_position_Signal = QtCore.Signal(int, str)
 
 	def __init__(self, parent=None):
@@ -33,11 +33,11 @@ class NumberWidget(QtWidgets.QWidget):
 		self.setFixedHeight(self.FixedHeight)
 
 		# Run function ------------------------
-		self.create_Widgets()
+		self.create_widgets()
 		self.create_layouts()
 		self.create_connections()
 
-	def create_Widgets(self):
+	def create_widgets(self):
 		# add CustomQSpinbox
 		self.number_start = CustomQSpinbox(55,25, self.start, [0, 100], "Start: ", "Starting number")
 		self.number_padding = CustomQSpinbox(50, 25,self.pading, [1, 9], "Pad: ", "Padding number")
@@ -82,9 +82,6 @@ class NumberWidget(QtWidgets.QWidget):
 		else:
 			self.pos_num_spinbox.setValue(current_value - step)
 
-
-
-
 	def on_slider_move_value(self, value):
 		self.pos_num_spinbox.setValue(value)
 
@@ -100,13 +97,9 @@ class NumberWidget(QtWidgets.QWidget):
 		number         = ("0" * (padding_number - len(str(start_number)))) + str(start_number)
 
 		self.number_start.setRange(0, (pow(10, padding_number)))
-
-		# TODO delete QSettings and make QSettings when app close.
+		
 		self.QSettings.setValue("startup/start_number", start_number)
 		self.QSettings.setValue("startup/padding_number", padding_number)
 		self.QSettings.setValue("startup/number", number)
 
-		self.new_number_Signal.emit(start_number, padding_number, number)
-
-
-
+		self.new_number_Signal.emit(start_number, padding_number)

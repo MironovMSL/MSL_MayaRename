@@ -5,7 +5,6 @@ except:
 
 from MSL_MayaRename.core.resources import Resources
 from MSL_MayaRename.gui.RenameGUI.QuickListButtonNameWidget.СacheWidget.CacheButtonLibrary import CacheButtonLibrary
-import time
 
 
 class CacheScrollArea(QtWidgets.QScrollArea):
@@ -37,7 +36,7 @@ class CacheScrollArea(QtWidgets.QScrollArea):
 
 	def create_widgets(self):
 		self.scroll_area_widget = ScrolContentWidget(self.button_width, self)
-
+		
 	def create_layouts(self):
 		self.setWidget(self.scroll_area_widget)
 
