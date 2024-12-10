@@ -37,7 +37,7 @@ class MainToolWindow(QtWidgets.QDialog):
 			self.setGeometry(self.window_geometry)
 			self.setFixedSize(self.window_geometry.width(), self.window_geometry.height())
 		else:
-			self.setFixedSize(305, 205)
+			self.setFixedSize(305, 180)
 
 
 		self.setWindowTitle(self.WINDOW_TITLE)
@@ -83,17 +83,24 @@ class MainToolWindow(QtWidgets.QDialog):
 		
 	def create_connections(self):
 		self.RenameGUI.QuickListButtonName.itShowCahe.connect(self.show_cache)
+		self.RenameGUI.LetterWidget.itShowLetter.connect(self.show_letter_mode)
 		
 	def show_cache(self, state):
 		if state:
 			widget_height = self.height() + 30
 		else:
 			widget_height = self.height() - 30
+		self.setFixedHeight(widget_height)
+		self.save_geometry()
 		
+	def show_letter_mode(self, state):
+		if state:
+			widget_height = self.height() + 25
+		else:
+			widget_height = self.height() - 25
 		self.setFixedHeight(widget_height)
 		self.save_geometry()
 	
-		
 	def moveEvent(self, event: QtGui.QMoveEvent):
 		super().moveEvent(event)
 

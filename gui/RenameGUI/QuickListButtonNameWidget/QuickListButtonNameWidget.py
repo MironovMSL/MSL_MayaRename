@@ -94,15 +94,13 @@ class QuickListButtonNameWidget(QtWidgets.QWidget):
         self.library_BTN.Library_Win.save_library()
 
     def show_cache(self, state):
-        self.cache_area.setVisible(state)
-        
         if state:
             self.FixedHeight = 60
         else:
             self.FixedHeight = 30
-        
-        self.setFixedHeight(self.FixedHeight)
+            
         self.cache_area.setVisible(state)
+        self.setFixedHeight(self.FixedHeight)
         
         self.itShowCahe.emit(state)
     

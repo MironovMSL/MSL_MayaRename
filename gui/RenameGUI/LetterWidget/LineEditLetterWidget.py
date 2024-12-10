@@ -22,13 +22,18 @@ class NameMIMEData(QtCore.QMimeData):
 class LineEditLetterWidget(QtWidgets.QWidget):
 	def __init__(self, NameHolder,Width, parent=None):
 		super(LineEditLetterWidget, self).__init__(parent)
-
+		# Module----------------------
+		self.resources = Resources.get_instance()
+		# Attribute---------------------------
+		self.mode_letter = self.resources.config.get_variable("startup", "mode_letter", False, bool)
 		# Attribute---------------------------
 		self.Width = Width
 		self.NameHolder = NameHolder
 		self.resource: Resources = Resources.get_instance()
 		# self.word_list = self.resource.all_item_json # list of all words library.
 		self.setMaximumWidth(self.Width)
+		self.setEnabled(self.mode_letter)
+		
 
 
 		# Run function---------------------------
@@ -89,7 +94,7 @@ class AutoCompleteLineEdit(QtWidgets.QLineEdit):
 
 	def __init__(self, NameHolder, Width, parent=None):
 		super(AutoCompleteLineEdit, self).__init__(parent)
-
+		# Module----------------------
 		# Attribute---------------------------
 		self.Width       = Width
 		Height           = 25
@@ -114,6 +119,7 @@ class AutoCompleteLineEdit(QtWidgets.QLineEdit):
 		self.setDragEnabled(True)
 		self.installEventFilter(self)
 		self.setStyleSheet(self.Style_lineEdit)
+		# self.setEnabled(self.mode_letter)
 		#---------------------------
 		self.create_connections()
 

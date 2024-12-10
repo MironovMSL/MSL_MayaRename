@@ -16,49 +16,36 @@ root_ = os.path.dirname(__file__)
 
 class LetterWidget(QtWidgets.QWidget):
 
-	itEditLetter = QtCore.Signal(str, bool)
+	itEditLetter = QtCore.Signal(str)
 	itletPosition = QtCore.Signal(int, str)
+	itShowLetter  = QtCore.Signal(bool)
 
 	def __init__(self, parent=None):
 		super(LetterWidget, self).__init__(parent)
-		# Attribute----------------------
-		# self.FixedHeight = 25
+		# Module----------------------
 		self.resources = Resources.get_instance()
-		self.QSettings = QtCore.QSettings(self.resources.config_path, QtCore.QSettings.IniFormat)
-		# self.maxRange = 0
-		# self.start = self.QSettings.value("startup/start_number", 1, int)
-		# self.pading = self.QSettings.value("startup/padding_number", 2, int)
-		# self.position = self.QSettings.value("startup/position_number", 0, int)
+		# Attribute----------------------
+		self.letter      = self.resources.config.get_variable("startup", "letter", "", str)
+		self.mode_letter = self.resources.config.get_variable("startup", "mode_letter", False, bool)
 		self.FixedHeight = 25
-		self.NameHolder = "Letter"
-		self.maxRange   = 0
-		self.position   = 0
-
-		self.letter = self.QSettings.value("startup/letter", "" ,str)
-		self.mode_letter = self.QSettings.value("startup/mode_letter", False, bool)
-
-
-
-
+		self.NameHolder  = "Letter"
+		self.maxRange    = 0
+		self.position    = 0
+		# Setting---------------------------
 		self.setFixedHeight(self.FixedHeight)
+		self.setVisible(self.mode_letter)
 
-		self.create_Widgets()
+		# Run functions ---------------------------
+		self.create_widgets()
 		self.create_layouts()
 		self.create_connections()
 
-	def create_Widgets(self):
-
+	def create_widgets(self):
+		self.time = QtCore.QTimer()
 		self.leter_lineEditor = LineEditLetterWidget(self.NameHolder,105,)
 		self.leter_lineEditor.AutoComplete_line_edit.setText(self.letter)
-
 		self.pos_let_slider = CustomQSliderWidget(self.position,[0, self.maxRange])
-
-		self.pos_let_spinbox = CustomQSpinbox(25,
-		                                      25,
-		                                      self.position,
-		                                      [self.pos_let_slider.minimum(),
-		                                       self.pos_let_slider.maximum()],
-		                                      "","Position of letters")
+		self.pos_let_spinbox = CustomQSpinbox(25,25, self.position,[self.pos_let_slider.minimum(), self.pos_let_slider.maximum()],"","Position of letters")
 
 	def create_layouts(self):
 		self.main_layout = QtWidgets.QHBoxLayout(self)
@@ -72,11 +59,10 @@ class LetterWidget(QtWidgets.QWidget):
 
 	def create_connections(self):
 		self.leter_lineEditor.AutoComplete_line_edit.textEdited.connect(self.edit_letter)
-
 		self.pos_let_slider.wheelScrolled.connect(self.on_wheel_scrolled)
 		self.pos_let_slider.sliderMoved.connect(self.on_slider_move_value)
 		self.pos_let_spinbox.valueChanged.connect(self.on_spinBox_value)
-
+		self.time.timeout.connect(self.emit_letter)
 
 	def on_wheel_scrolled(self, delta):
 		"""Processing the signal wheelScrolled"""
@@ -88,36 +74,30 @@ class LetterWidget(QtWidgets.QWidget):
 		else:
 			self.pos_let_spinbox.setValue(current_value - step)
 
-
-
-
 	def on_slider_move_value(self, value):
 		self.pos_let_spinbox.setValue(value)
 
 	def on_spinBox_value(self, value):
 		value_slider = self.pos_let_slider.value()
-		# self.pos_let_slider.setValue(value)
 		self.itletPosition.emit(value, "letter")
 
+	def set_state_from_letter_mode(self, state):
+		self.mode_letter = state
+		self.setVisible(state)
+		self.parent().RenameButton.update_size_btn(state)
 
+		self.leter_lineEditor.setEnabled(state)
+		self.pos_let_slider.setEnabled(state)
+		self.pos_let_spinbox.setReadOnly(not state)
+		
+		self.resources.config.set_variable("startup", "mode_letter", state)
+		# self.itShowLetter.emit(state)
+		self.time.start(20)
+
+	def emit_letter(self):
+		self.time.stop()
+		self.itShowLetter.emit(self.mode_letter)
+	
 	def edit_letter(self, letter):
-
-		if letter:
-			if not self.mode_letter:
-				self.mode_letter = True
-				self.pos_let_slider.setEnabled(True)
-				self.pos_let_spinbox.setReadOnly(False)
-				self.QSettings.setValue("startup/mode_letter", True)
-				print(f"Letter Mode: {'checked' if self.mode_letter else 'unchecked'}: '{letter}'")
-
-		else:
-			self.mode_letter = False
-			self.pos_let_slider.setEnabled(False)
-			self.pos_let_spinbox.setReadOnly(True)
-			self.QSettings.setValue("startup/mode_letter", False)
-			print(f"Letter Mode: {'checked' if self.mode_letter else 'unchecked'}: '{letter}'")
-
-		self.QSettings.setValue("startup/letter", letter)
-		self.itEditLetter.emit(letter,self.mode_letter)
-
-
+		self.resources.config.set_variable("startup", "letter", letter)
+		self.itEditLetter.emit(letter)

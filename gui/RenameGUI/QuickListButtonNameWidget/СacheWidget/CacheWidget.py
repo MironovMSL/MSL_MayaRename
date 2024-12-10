@@ -5,17 +5,21 @@ except:
     
 from MSL_MayaRename.gui.RenameGUI.QuickListButtonNameWidget.СacheWidget.CacheScrollArea import CacheScrollArea
 from MSL_MayaRename.gui.RenameGUI.QuickListButtonNameWidget.СacheWidget.DeleteCacheButtonWidget import DeleteCacheButtonWidget
-
+from MSL_MayaRename.core.resources import Resources
 
 class CacheWidget(QtWidgets.QWidget):
     itClickedCache = QtCore.Signal(str)
     
     def __init__(self, parent = None):
         super(CacheWidget, self).__init__(parent)
-        
+        # Module----------------------
+        self.resources = Resources.get_instance()
+        # Attribute----------------------
+        self.show_cache = self.resources.config.get_variable("library", "show_cache", False, bool)
         # Attribute---------------------------
         # Setting---------------------------
         self.setFixedHeight(30)
+        self.setVisible(self.show_cache)
         # Run functions ---------------------------
         self.create_Widgets()
         self.create_layouts()
@@ -41,6 +45,4 @@ class CacheWidget(QtWidgets.QWidget):
         
     def on_clear(self):
         self.scroll_area.scroll_area_widget.clear_layout()
-
-        
         

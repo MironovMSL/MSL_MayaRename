@@ -35,23 +35,34 @@ class RenameButtonWidget(QtWidgets.QPushButton):
 	    }
 	"""
 
-	def __init__(self, name="", width=25, height=25, parent=None):
+	def __init__(self,name = "Rename", parent=None):
 		super(RenameButtonWidget, self).__init__(name, parent)
-
+		# Module----------------------
+		self.resources   = Resources.get_instance()
 		# Attribute---------------------------
-		self.width    = width
-		self.height   = height
-		self.tooltip = f"Rename objects"
+		self.mode_letter = self.resources.config.get_variable("startup", "mode_letter", False, bool)
+		self._width      = 50
+		self.tooltip     = f"Rename objects"
 		# Setting---------------------------
-		self.setFixedSize(self.width,self.height)
 		self.setToolTip(self.tooltip)
 		self.setStyleSheet(self.Style_btn)
+		self.setFixedWidth(50)
+		# self.setSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Expanding)
 		# Run functions ---------------------------
 		self.create_connections()
+		self.update_size_btn(self.mode_letter)
 
 	def create_connections(self):
 		pass
-
+	
+	def update_size_btn(self, state):
+		if state:
+			height = 75
+		else:
+			height = 50
+		
+		self.setFixedHeight(height)
+	
 	def enterEvent(self, event):
 		self.setCursor(QtCore.Qt.PointingHandCursor)
 		super(RenameButtonWidget, self).enterEvent(event)

@@ -28,10 +28,8 @@ class NumberWidget(QtWidgets.QWidget):
 		self.start       = self.QSettings.value("startup/start_number", 1, int)
 		self.pading      = self.QSettings.value("startup/padding_number", 2, int)
 		self.position    = self.QSettings.value("startup/position_number", 0, int)
-
 		# Setting ------------------------
 		self.setFixedHeight(self.FixedHeight)
-
 		# Run function ------------------------
 		self.create_widgets()
 		self.create_layouts()

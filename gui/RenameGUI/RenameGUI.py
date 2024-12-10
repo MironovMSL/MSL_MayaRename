@@ -75,7 +75,7 @@ class RenameGUI(QtWidgets.QWidget):
 
 		self.FunctionWidget      = FunctionWidget()
 		self.LabelWidget         = LabelWidget()
-		self.RenameButton        = RenameButtonWidget("Rename", 50, 75)
+		self.RenameButton        = RenameButtonWidget()
 		self.RenameWidget        = RenameWidget()
 		self.NumberWidget        = NumberWidget()
 		self.LetterWidget        = LetterWidget()
@@ -87,6 +87,7 @@ class RenameGUI(QtWidgets.QWidget):
 		self.main_layout = QtWidgets.QVBoxLayout(self)
 		self.main_layout.setContentsMargins(0, 0, 0, 0)
 		self.main_layout.setSpacing(0)
+		self.main_layout.setAlignment(QtCore.Qt.AlignTop)
 
 		# left and Right layout for widgets ---> RenameWidget, NumberWidget, LetterWidget,
 		self.main_rename_layout = QtWidgets.QHBoxLayout()
@@ -99,6 +100,7 @@ class RenameGUI(QtWidgets.QWidget):
 		self.Right_lyout = QtWidgets.QVBoxLayout()
 		self.Right_lyout.setContentsMargins(0, 0, 0, 0)
 		self.Right_lyout.setSpacing(0)
+		self.Right_lyout.setAlignment(QtCore.Qt.AlignTop)
 
 		self.main_rename_layout.addLayout(self.left_layout)
 		self.main_rename_layout.addLayout(self.Right_lyout)
@@ -114,7 +116,7 @@ class RenameGUI(QtWidgets.QWidget):
 		self.main_layout.addWidget(self.SuffixPrefixWidget)
 		self.main_layout.addWidget(self.QuickListButtonName)
 
-		self.main_layout.addStretch()
+		# self.main_layout.addStretch()
 
 	def create_connections(self):
 		self.RenameButton.clicked.connect(self.Rename)
@@ -122,8 +124,9 @@ class RenameGUI(QtWidgets.QWidget):
 		self.LabelWidget.number_mode.changeStateNumberMode.connect(self.on_click_number_mode_button)
 		self.LabelWidget.number_mode.itPrefixNumber.connect(self.update_prefixNumber)
 		self.LabelWidget.number_mode.itSuffixNumber.connect(self.update_suffixNumber)
+		self.LabelWidget.number_mode.pop_up_window.letter_mode.itShowLetter.connect(self.on_click_letter_mode)
 		self.LabelWidget.button_mode.changeStateButtonMode.connect(self.on_click_button_mode_button)
-		self.LetterWidget.itEditLetter.connect(self.on_click_letter_mode)
+		self.LetterWidget.itEditLetter.connect(self.update_letter_mode)
 		self.LetterWidget.itletPosition.connect(self.move_position_letter)
 		self.NumberWidget.new_position_Signal.connect(self.move_position_number)
 		self.NumberWidget.new_number_Signal.connect(self.update_number)
@@ -162,7 +165,7 @@ class RenameGUI(QtWidgets.QWidget):
 		self.num_cod     = "X"
 		# letter----------------------------------
 		self.pos_let     = 0  # position letter [pos:end]
-		self.let         = self.QSettings.value("startup/letter", "", str)  # letter  ~ [lettter]
+		self.let         = self.handel_letter() # letter  ~ [lettter]
 		self.let_cod     = "Y"
 		# Range and cursor-------------------------------
 		self.pos_cur     = 0  # cursor position for comparison
@@ -469,18 +472,26 @@ class RenameGUI(QtWidgets.QWidget):
 
 		return prefix, suffix
 
-	def handel_letter(self, letter):
+	def handel_letter(self, letter=None):
 		"""Procesing letter"""
+		if letter is None:
+			letter = self.resources.config.get_variable("startup", "letter", "", str)
+			
 		if self.mode_letter:
 			let = letter
 		else:
 			let = ""
 		return let
 
-	def on_click_letter_mode(self, letter, state):
-
-		dift             =len(letter)- len(self.let)  # Difference in the length of numerical values
+	def on_click_letter_mode(self, state):
 		self.mode_letter = state
+		letter = self.resources.config.get_variable("startup", "letter", "", str)
+		self.LetterWidget.set_state_from_letter_mode(state)
+		self.update_letter_mode(letter)
+		
+	def update_letter_mode(self, letter):
+
+		dift             = len(letter)- len(self.let)  # Difference in the length of numerical values
 		self.let         = self.handel_letter(letter)
 		pos_cur          = self.pos_cur
 		text             = self.get_text()
@@ -511,7 +522,7 @@ class RenameGUI(QtWidgets.QWidget):
 
 		# Updating text and interface
 		self.update_range()
-		self.info = f"Letter Mode: {'checked' if state else 'unchecked'}: '{self.let}'"
+		self.info = f"Letter Mode: {'checked' if self.mode_letter else 'unchecked'}: '{self.let}'"
 		self.update_ui_elements(new_text, new_cur)
 
 	def on_click_number_mode_button(self, state):
