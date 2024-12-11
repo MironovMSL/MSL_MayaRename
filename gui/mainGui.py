@@ -38,14 +38,9 @@ class MainToolWindow(QtWidgets.QDialog):
 			self.setFixedSize(self.window_geometry.width(), self.window_geometry.height())
 		else:
 			self.setFixedSize(305, 180)
-
-
 		self.setWindowTitle(self.WINDOW_TITLE)
 		self.setObjectName("MainRenameToolWindowID")
 		self.setWindowIcon(self.icon)  # crab-svgrepo-com  pen-svgrepo-com earth-svgrepo-com
-
-
-		
 		# On macOS make the window a Tool to keep it on top of Maya
 		if sys.platform == "darwin":
 			self.setWindowFlag(QtCore.Qt.Tool, True)
@@ -61,25 +56,15 @@ class MainToolWindow(QtWidgets.QDialog):
 
 		
 	def create_widgets(self):
-		FixedHeigt = 25
-		
 		self.RenameGUI = RenameGUI()
 		
-		self.conten2 = QtWidgets.QWidget()
-		self.conten2.setStyleSheet("background-color: #555580; border-radius: 10px;")
-		self.conten2.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
-		self.conten2.setFixedHeight(FixedHeigt)
-		
-		
 	def create_layouts(self):
-		# main layout
 		self.main_layout = QtWidgets.QVBoxLayout(self)
 		self.main_layout.setContentsMargins(0, 0, 0, 0)
 		self.main_layout.setSpacing(0)
 		self.main_layout.setAlignment(QtCore.Qt.AlignTop)
 		
 		self.main_layout.addWidget(self.RenameGUI)
-		self.main_layout.addWidget(self.conten2)
 		
 	def create_connections(self):
 		self.RenameGUI.QuickListButtonName.itShowCahe.connect(self.show_cache)

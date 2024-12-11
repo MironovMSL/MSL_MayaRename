@@ -61,6 +61,7 @@ class Configurator(object):
 			self.config.setValue("mode_number", False)
 			self.config.setValue("mode_button", False)
 			self.config.setValue("mode_letter", False)
+			self.config.setValue("mode_find_replace", False)
 			self.config.setValue("start_number", 1)
 			self.config.setValue("padding_number", 2)
 			self.config.setValue("position_number", 0)

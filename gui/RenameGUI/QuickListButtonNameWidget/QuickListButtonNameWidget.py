@@ -22,8 +22,10 @@ class QuickListButtonNameWidget(QtWidgets.QWidget):
     def __init__(self, parent=None):
         super(QuickListButtonNameWidget, self).__init__(parent)
         
+        # Module----------------------
         self.resources = Resources.get_instance()
-        # Attribute---------------------------
+        # Attribute----------------------
+        self.state_cache = self.resources.config.get_variable("library", "show_cache", False, bool)
         self.FixedHeight = 60
         # Setting---------------------------
         self.setObjectName("QuickListButtonNameID")
@@ -32,6 +34,7 @@ class QuickListButtonNameWidget(QtWidgets.QWidget):
         self.create_widgets()
         self.create_layouts()
         self.create_connections()
+        self.show_cache(self.state_cache)
 
     def create_widgets(self):
         self.library_BTN = LibraryButtonMode(25, 25)

@@ -8,6 +8,7 @@ from functools import partial
 from MSL_MayaRename.gui.RenameGUI.LabelWidget.NumberModeButton import NumberModeButton
 from MSL_MayaRename.gui.RenameGUI.LabelWidget.PushButtonModeBTN import PushButtonModeBTN
 from MSL_MayaRename.gui.RenameGUI.LabelWidget.CustomeLabelWidget import CustomeLabelWidget
+from MSL_MayaRename.gui.RenameGUI.LabelWidget.FindReplaceModeButton import FindReplaceModeButton
 from MSL_MayaRename.gui.RenameGUI.LabelWidget.SelectedObjectsViewerButton import SelectedObjectsViewerButton
 
 import maya.cmds as cmds
@@ -38,6 +39,8 @@ class LabelWidget(QtWidgets.QWidget):
         self.number_mode       = NumberModeButton("",25, 25,)
         # button mode ---------------------------
         self.button_mode       = PushButtonModeBTN("", 25, 25)
+        # find_relace mode ---------------------------
+        self.find_replace_mode = FindReplaceModeButton()
 
     def create_layouts(self):
         # main layout---------------------------
@@ -49,6 +52,7 @@ class LabelWidget(QtWidgets.QWidget):
         self.main_layout.addWidget(self.label_name)
         self.main_layout.addWidget(self.number_mode)
         self.main_layout.addWidget(self.button_mode)
+        self.main_layout.addWidget(self.find_replace_mode)
 
     def create_connections(self):
         pass

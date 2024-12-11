@@ -13,6 +13,7 @@ from MSL_MayaRename.gui.RenameGUI.LetterWidget.LetterWidget import LetterWidget
 from MSL_MayaRename.gui.RenameGUI.SuffixPrefixWidget.SuffixPrefixWidget import SuffixPrefixWidget
 from MSL_MayaRename.gui.RenameGUI.LabelWidget.LabelWidget import LabelWidget
 from MSL_MayaRename.gui.RenameGUI.QuickListButtonNameWidget.QuickListButtonNameWidget import QuickListButtonNameWidget
+from MSL_MayaRename.gui.RenameGUI.FindReplaceWidget.FindReplaceWidget import FindReplaceWidget
 
 import maya.cmds as cmds
 import maya.OpenMaya as om
@@ -25,7 +26,7 @@ class RenameGUI(QtWidgets.QWidget):
 		# Attribute----------------------
 		self.resources   = Resources.get_instance()
 		self.QSettings   = QtCore.QSettings(self.resources.config_path, QtCore.QSettings.IniFormat)
-		self.FixedHeigt  = 210
+		self.FixedHeigt  = 235
 		# mode----------------------------
 		self.mode_button = None # mode button for button and lineEdits
 		self.mode_number = None # mode number for Numeric
@@ -81,6 +82,7 @@ class RenameGUI(QtWidgets.QWidget):
 		self.LetterWidget        = LetterWidget()
 		self.SuffixPrefixWidget  = SuffixPrefixWidget()
 		self.QuickListButtonName = QuickListButtonNameWidget()
+		self.FindReplaceWidget   = FindReplaceWidget()
 
 	def create_layouts(self):
 		# main layout
@@ -115,6 +117,7 @@ class RenameGUI(QtWidgets.QWidget):
 		self.Right_lyout.addWidget(self.RenameButton)
 		self.main_layout.addWidget(self.SuffixPrefixWidget)
 		self.main_layout.addWidget(self.QuickListButtonName)
+		self.main_layout.addWidget(self.FindReplaceWidget)
 
 		# self.main_layout.addStretch()
 
@@ -126,6 +129,7 @@ class RenameGUI(QtWidgets.QWidget):
 		self.LabelWidget.number_mode.itSuffixNumber.connect(self.update_suffixNumber)
 		self.LabelWidget.number_mode.pop_up_window.letter_mode.itShowLetter.connect(self.on_click_letter_mode)
 		self.LabelWidget.button_mode.changeStateButtonMode.connect(self.on_click_button_mode_button)
+		self.LabelWidget.find_replace_mode.changeStateFindReplaceMode.connect(self.on_click_find_replace_mode_button)
 		self.LetterWidget.itEditLetter.connect(self.update_letter_mode)
 		self.LetterWidget.itletPosition.connect(self.move_position_letter)
 		self.NumberWidget.new_position_Signal.connect(self.move_position_number)
@@ -525,6 +529,9 @@ class RenameGUI(QtWidgets.QWidget):
 		self.info = f"Letter Mode: {'checked' if self.mode_letter else 'unchecked'}: '{self.let}'"
 		self.update_ui_elements(new_text, new_cur)
 
+	def on_click_find_replace_mode_button(self, state):
+		print(f"TODO: show find replece mode {state}")
+	
 	def on_click_number_mode_button(self, state):
 		self.NumberWidget.set_state_from_number_mode(state)
 		self._state_number(state)
