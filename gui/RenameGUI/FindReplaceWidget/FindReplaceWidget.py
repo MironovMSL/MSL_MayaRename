@@ -25,7 +25,8 @@ class FindReplaceWidget(QtWidgets.QWidget):
         # Setting ------------------------
         self.setObjectName("FindReplaceWidgetID")
         self.setFixedHeight(self.FixedHeight)
-        self.setVisible(self.state_find_replace)
+        if self.state_find_replace is not True:
+            self.setVisible(self.state_find_replace)
         # Run function ------------------------
         self.create_widgets()
         self.create_layouts()
