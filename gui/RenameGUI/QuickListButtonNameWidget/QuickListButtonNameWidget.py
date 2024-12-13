@@ -26,7 +26,10 @@ class QuickListButtonNameWidget(QtWidgets.QWidget):
         self.resources = Resources.get_instance()
         # Attribute----------------------
         self.state_cache = self.resources.config.get_variable("library", "show_cache", False, bool)
-        self.FixedHeight = 60
+        if self.state_cache:
+            self.FixedHeight = 60
+        else:
+            self.FixedHeight = 30
         # Setting---------------------------
         self.setObjectName("QuickListButtonNameID")
         self.setFixedHeight(self.FixedHeight)
@@ -34,9 +37,10 @@ class QuickListButtonNameWidget(QtWidgets.QWidget):
         self.create_widgets()
         self.create_layouts()
         self.create_connections()
-        self.show_cache(self.state_cache)
+        self.set_visibility_cache(self.state_cache)
 
     def create_widgets(self):
+        self.time = QtCore.QTimer()
         self.library_BTN = LibraryButtonMode(25, 25)
         self.Scroll_Area = CustomScrollArea()
         self.cache_area  = CacheWidget()
@@ -68,6 +72,7 @@ class QuickListButtonNameWidget(QtWidgets.QWidget):
         self.cache_area.itClickedCache.connect(lambda name: self.itClickedCache.emit(name))
         self.Scroll_Area.itClickedName.connect(lambda name: self.itClickedName.emit(name))
         self.Scroll_Area.itClickedName_alt.connect(lambda name: self.itClickedName_alt.emit(name))
+        self.time.timeout.connect(self.emit_itShowCahe)
         
     
     def add_cache(self, name):
@@ -97,15 +102,23 @@ class QuickListButtonNameWidget(QtWidgets.QWidget):
         self.library_BTN.Library_Win.save_library()
 
     def show_cache(self, state):
+        self.state_cache = state
         if state:
             self.FixedHeight = 60
         else:
             self.FixedHeight = 30
-            
-        self.cache_area.setVisible(state)
+        
+        self.set_visibility_cache(state)
         self.setFixedHeight(self.FixedHeight)
         
-        self.itShowCahe.emit(state)
+        self.time.start(20)
+        
+    def set_visibility_cache(self, state):
+        self.cache_area.setVisible(state)
+        
+    def emit_itShowCahe(self):
+        self.time.stop()
+        self.itShowCahe.emit(self.state_cache)
     
     def get_list_btn(self):
 

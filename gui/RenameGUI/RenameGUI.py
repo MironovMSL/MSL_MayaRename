@@ -530,7 +530,7 @@ class RenameGUI(QtWidgets.QWidget):
 		self.update_ui_elements(new_text, new_cur)
 
 	def on_click_find_replace_mode_button(self, state):
-		print(f"TODO: show find replece mode {state}")
+		self.FindReplaceWidget.show_find_replace(state)
 	
 	def on_click_number_mode_button(self, state):
 		self.NumberWidget.set_state_from_number_mode(state)

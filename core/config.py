@@ -71,6 +71,8 @@ class Configurator(object):
 			self.config.setValue("suffix", "")
 			self.config.setValue("prefix_number", "")
 			self.config.setValue("suffix_number", "")
+			self.config.setValue("type_find", "selected")
+			
 
 			self.config.endGroup()  # End the group
 

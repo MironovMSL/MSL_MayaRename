@@ -37,7 +37,7 @@ class MainToolWindow(QtWidgets.QDialog):
 			self.setGeometry(self.window_geometry)
 			self.setFixedSize(self.window_geometry.width(), self.window_geometry.height())
 		else:
-			self.setFixedSize(305, 180)
+			self.setFixedSize(305, 155)
 		self.setWindowTitle(self.WINDOW_TITLE)
 		self.setObjectName("MainRenameToolWindowID")
 		self.setWindowIcon(self.icon)  # crab-svgrepo-com  pen-svgrepo-com earth-svgrepo-com
@@ -69,6 +69,7 @@ class MainToolWindow(QtWidgets.QDialog):
 	def create_connections(self):
 		self.RenameGUI.QuickListButtonName.itShowCahe.connect(self.show_cache)
 		self.RenameGUI.LetterWidget.itShowLetter.connect(self.show_letter_mode)
+		self.RenameGUI.FindReplaceWidget.itShowFindReplace.connect(self.show_find_replace_mode)
 		
 	def show_cache(self, state):
 		if state:
@@ -79,6 +80,14 @@ class MainToolWindow(QtWidgets.QDialog):
 		self.save_geometry()
 		
 	def show_letter_mode(self, state):
+		if state:
+			widget_height = self.height() + 25
+		else:
+			widget_height = self.height() - 25
+		self.setFixedHeight(widget_height)
+		self.save_geometry()
+	
+	def show_find_replace_mode(self, state):
 		if state:
 			widget_height = self.height() + 25
 		else:

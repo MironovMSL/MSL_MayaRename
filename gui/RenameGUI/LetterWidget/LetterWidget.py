@@ -39,6 +39,7 @@ class LetterWidget(QtWidgets.QWidget):
 		self.create_widgets()
 		self.create_layouts()
 		self.create_connections()
+		
 
 	def create_widgets(self):
 		self.time = QtCore.QTimer()
@@ -91,7 +92,7 @@ class LetterWidget(QtWidgets.QWidget):
 		self.pos_let_spinbox.setReadOnly(not state)
 		
 		self.resources.config.set_variable("startup", "mode_letter", state)
-		# self.itShowLetter.emit(state)
+
 		self.time.start(20)
 
 	def emit_letter(self):
