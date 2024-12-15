@@ -212,11 +212,13 @@ class RenameGUI(QtWidgets.QWidget):
 	
 	def _handle_click_btn(self, name):
 		selection = cmds.ls(selection=1, long=1)
-		sortName = sorted(selection, key=len, reverse=True)
+		# sortName = sorted(selection, key=len, reverse=True)
 		
-		if selection:
+		filtered_list = self.FindReplaceWidget.remove_shapes_from_transforms(selection)
+		
+		if filtered_list:
 			if name:
-				for obj in sortName:
+				for obj in filtered_list:
 					
 					path_to_obj, obj_short_name = self.get_short_name(obj)
 					
@@ -266,10 +268,12 @@ class RenameGUI(QtWidgets.QWidget):
 		selection = cmds.ls(selection=True, l=True)
 		name_in_LineEdit = self.get_text()
 		
-		if selection:
+		filtered_list = self.FindReplaceWidget.remove_shapes_from_transforms(selection)
+		
+		if filtered_list:
 			if name_in_LineEdit:
 				if self.mode_number:
-					for start, obj in enumerate(selection, start=self.start_num):
+					for start, obj in enumerate(filtered_list, start=self.start_num):
 						number = self.handle_number(start)
 						
 						if self.num_cod == "X":
@@ -282,17 +286,17 @@ class RenameGUI(QtWidgets.QWidget):
 						new_path_to_obj, new_obj_short_name = self.get_short_name(obj_rename)
 						new_obj = path_to_obj + new_obj_short_name
 						
-						selection = self.renameObjectsInHierarchy(selection, obj, new_obj)
+						filtered_list = self.renameObjectsInHierarchy(filtered_list, obj, new_obj)
 	
 				else:
-					for obj in selection:
+					for obj in filtered_list:
 						
 						path_to_obj, obj_short_name         = self.get_short_name(obj)
 						obj_rename = cmds.rename(obj, name_in_LineEdit)
 						new_path_to_obj, new_obj_short_name = self.get_short_name(obj_rename)
 						new_obj    = path_to_obj + new_obj_short_name
 						
-						selection = self.renameObjectsInHierarchy(selection, obj, new_obj)
+						filtered_list = self.renameObjectsInHierarchy(filtered_list, obj, new_obj)
 						
 				self.LabelWidget.update_selection()
 				# -------------Add cashe button-------------
@@ -361,11 +365,13 @@ class RenameGUI(QtWidgets.QWidget):
 	def add_prefix(self):
 		prefix = self.SuffixPrefixWidget.prefix_Editline.AutoComplete_line_edit.text()
 		selection = cmds.ls(selection=1, long=1)
-		sortName = sorted(selection, key=len, reverse=True)
+		# sortName = sorted(selection, key=len, reverse=True)
+		
+		filtered_list = self.FindReplaceWidget.remove_shapes_from_transforms(selection)
 
-		if selection:
+		if filtered_list:
 			if prefix:
-				for obj in sortName:
+				for obj in filtered_list:
 	
 					path_to_obj, obj_short_name = self.get_short_name(obj)
 	
@@ -386,11 +392,13 @@ class RenameGUI(QtWidgets.QWidget):
 	def add_suffix(self):
 		suffix = self.SuffixPrefixWidget.suffix_Editline.AutoComplete_line_edit.text()
 		selection = cmds.ls(selection=1, long=1)
-		sortName = sorted(selection, key=len, reverse=True)
+		# sortName = sorted(selection, key=len, reverse=True)
 		
-		if selection:
+		filtered_list = self.FindReplaceWidget.remove_shapes_from_transforms(selection)
+		
+		if filtered_list:
 			if suffix:
-				for obj in sortName:
+				for obj in filtered_list:
 					
 					path_to_obj, obj_short_name = self.get_short_name(obj)
 					
@@ -449,7 +457,6 @@ class RenameGUI(QtWidgets.QWidget):
 	def update_prefixNumber(self, prefix):
 		self.prefix_num = prefix
 		self.update_number(self.start_num, self.padding_num)
-		
 		
 	def update_suffixNumber(self, suffix):
 		self.suffix_num = suffix

@@ -53,10 +53,84 @@ class FindReplaceWidget(QtWidgets.QWidget):
         self.main_layout.addWidget(self.replace_btn)
 
     def create_connections(self):
-        pass
+        self.find_btn.clicked.connect(self.Search_objects)
+        self.replace_btn.clicked.connect(self.Replace_objects)
     
     def show_find_replace(self, state):
         self.state_find_replace = state
         self.setVisible(state)
         
         self.itShowFindReplace.emit(state)
+    
+    def Replace_objects(self):
+        """Replaces text in the names of selected objects"""
+        replace_name = self.validate_input(self.replace_editline.AutoComplete_line_edit, "Replace")
+        search_name, list_obj = self.Search_objects()
+
+        if not list_obj:
+            return
+
+        if replace_name and search_name:
+            sorted_objects = sorted(list_obj, key=len, reverse=True)
+            for obj in sorted_objects:
+                obj_short_name = self.parent().get_short_name(obj)[1]
+                new_name = obj_short_name.replace(search_name, replace_name, 1)
+                cmds.rename(obj, new_name)
+
+        # Update the selection in the UI
+        self.parent().LabelWidget.update_selection()
+    
+    def Search_objects(self):
+        """Searches for objects by text in their names"""
+        search_name = self.validate_input(self.find_editline.AutoComplete_line_edit, "Search")
+        list_obj    = self.get_list_objects()
+        list_matching_objects = [ ]
+        
+        if not list_obj:
+            print("It is necessary to select an object.")
+            return search_name, list_matching_objects
+        
+        if search_name:
+            list_matching_objects = [
+                obj for obj in list_obj if search_name in self.parent().get_short_name(obj)[1]
+            ]
+            cmds.select(list_matching_objects)
+            
+        filtered_list = self.remove_shapes_from_transforms(list_matching_objects)
+        
+        return search_name, filtered_list
+        
+    def get_list_objects(self):
+        selection_type  = self.type_find_btn.type
+        
+        if selection_type  == "selected":
+            list_obj = cmds.ls(sl=1, l=1) or []
+        elif selection_type  == "hierarchy":
+            selected  = cmds.ls(sl=1, l=1) or []
+            hierarchy = cmds.ls(sl=1, dag=1, l=1) or []
+            list_obj  = list(dict.fromkeys(selected + hierarchy))
+        elif selection_type  == "all":
+            list_obj = cmds.ls() or []
+            
+        return list_obj
+    
+    def validate_input(self, field, field_name):
+        """Validates a text input field"""
+        text = field.text()
+        if not text:
+            print(f"The {field_name} input field is empty. Please enter some text.")
+        return text
+    
+    def remove_shapes_from_transforms(self, object_list):
+        filtered_list = []
+
+        for obj in object_list:
+            if not cmds.objectType(obj, isType="transform"):
+                parent_transform = cmds.listRelatives(obj, parent=True, fullPath=True)
+                if parent_transform and parent_transform[0] in object_list:
+                    continue
+            
+            filtered_list.append(obj)
+        
+        return filtered_list
+    
