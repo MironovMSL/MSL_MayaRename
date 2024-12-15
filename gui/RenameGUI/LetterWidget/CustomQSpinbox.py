@@ -50,11 +50,11 @@ class CustomQSpinbox(QtWidgets.QSpinBox):
 
 	def __init__(self, width=55, height=25, start_Value=int,range=[], prefix="", tooltip="", parent=None):
 		super(CustomQSpinbox, self).__init__(parent)
-
+		
+		# Module----------------------
+		self.resources = Resources.get_instance()
 		# Attribute----------------------
-		self.resources   = Resources.get_instance()
-		self.QSettings   = QtCore.QSettings(self.resources.config_path, QtCore.QSettings.IniFormat)
-		self.mode_number = self.QSettings.value("startup/mode_number", False, bool)
+		self.letter      = self.resources.config.get_variable("startup", "letter", "", str)
 		self.width       = width
 		self.height      = height
 		self.prefix      = prefix
@@ -62,10 +62,6 @@ class CustomQSpinbox(QtWidgets.QSpinBox):
 		self.start_Value = start_Value
 		self.tooltip     = tooltip
 		self.name        = ""
-
-
-		self.mode_letter = self.QSettings.value("startup/mode_letter", str)
-
 		# Check tooltip----------------------
 		if self.tooltip == "Position of letters":
 			self.name = self.tooltip
@@ -87,9 +83,10 @@ class CustomQSpinbox(QtWidgets.QSpinBox):
 		self.setButtonSymbols(QtWidgets.QAbstractSpinBox.ButtonSymbols.NoButtons)
 		self.setValue(self.start_Value)
 		self.setRange(self.range[0], self.range[1])
-		self.setReadOnly(not self.mode_letter)
+		self.setReadOnly(not bool(self.letter))
 		self.setStyleSheet(self.Style_spinBox)
 		self.setToolTip(self.tooltip)
+		
 		# Run function ------------------------
 		self.create_connections()
 

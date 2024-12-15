@@ -75,6 +75,7 @@ class CustomQSpinbox(QtWidgets.QSpinBox):
 		elif  self.tooltip == "Position of number":
 			self.name = self.tooltip
 			self.tooltip = f"{self.tooltip} : {start_Value}"
+			# self.setVisible(False)
 
 		# Setting ------------------------
 		self.setFixedSize(width, height)

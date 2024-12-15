@@ -7,7 +7,6 @@ except:
 
 
 from MSL_MayaRename.core.resources import Resources
-from MSL_MayaRename.core.config import Configurator
 import os
 import maya.cmds as cmds
 
@@ -19,23 +18,21 @@ class CustomQSliderWidget(QtWidgets.QSlider):
 
 	def __init__(self, position, range=[], parent=None):
 		super(CustomQSliderWidget, self).__init__(parent)
-
+		
+		# Module----------------------
+		self.resources = Resources.get_instance()
 		# Attribute----------------------
-		self.resources     = Resources.get_instance()
-		self.QSettings     = QtCore.QSettings(self.resources.config_path, QtCore.QSettings.IniFormat)
-
+		self.letter        = self.resources.config.get_variable("startup", "letter", "", str)
+		print(bool(self.letter))
 		self.range         = range
 		self.position      = position
 		self.current_value = self.value()
 		self.tooltip = f"Position of letters: {self.current_value}"
-
-		self.mode_letter = self.QSettings.value("startup/mode_letter", False, bool)
-
 		# Setting ------------------------
 		self.setOrientation(QtCore.Qt.Horizontal)
 		self.setRange(self.range[0], self.range[1])
 		self.setVisible(True)
-		self.setEnabled(self.mode_letter)
+		self.setEnabled(bool(self.letter))
 		self.setToolTip(self.tooltip)
 		self.setValue(self.position)
 

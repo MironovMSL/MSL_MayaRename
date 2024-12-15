@@ -33,7 +33,8 @@ class LetterWidget(QtWidgets.QWidget):
 		self.position    = 0
 		# Setting---------------------------
 		self.setFixedHeight(self.FixedHeight)
-		self.setVisible(self.mode_letter)
+		if not self.mode_letter:
+			self.setVisible(self.mode_letter)
 
 		# Run functions ---------------------------
 		self.create_widgets()
@@ -56,7 +57,7 @@ class LetterWidget(QtWidgets.QWidget):
 		self.main_layout.addWidget(self.leter_lineEditor)
 		self.main_layout.addWidget(self.pos_let_slider)
 		self.main_layout.addWidget(self.pos_let_spinbox)
-		self.main_layout.addWidget(self.pos_let_spinbox)
+
 
 	def create_connections(self):
 		self.leter_lineEditor.AutoComplete_line_edit.textEdited.connect(self.edit_letter)
@@ -88,9 +89,7 @@ class LetterWidget(QtWidgets.QWidget):
 		self.parent().RenameButton.update_size_btn(state)
 
 		self.leter_lineEditor.setEnabled(state)
-		self.pos_let_slider.setEnabled(state)
-		self.pos_let_spinbox.setReadOnly(not state)
-		
+
 		self.resources.config.set_variable("startup", "mode_letter", state)
 
 		self.time.start(20)
@@ -101,4 +100,10 @@ class LetterWidget(QtWidgets.QWidget):
 	
 	def edit_letter(self, letter):
 		self.resources.config.set_variable("startup", "letter", letter)
+		if letter:
+			self.pos_let_slider.setEnabled(True)
+			self.pos_let_spinbox.setReadOnly(False)
+		else:
+			self.pos_let_slider.setEnabled(False)
+			self.pos_let_spinbox.setReadOnly(True)
 		self.itEditLetter.emit(letter)
