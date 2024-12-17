@@ -23,7 +23,6 @@ class CustomQSliderWidget(QtWidgets.QSlider):
 		self.resources = Resources.get_instance()
 		# Attribute----------------------
 		self.letter        = self.resources.config.get_variable("startup", "letter", "", str)
-		print(bool(self.letter))
 		self.range         = range
 		self.position      = position
 		self.current_value = self.value()

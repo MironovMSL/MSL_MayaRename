@@ -48,8 +48,11 @@ class Vector:
     def __bool__(self):
         return bool(self.x or self.y)
 
+colors = ['black', 'white']
+sizes = ['S', 'M', 'L']
+tshirts = [(color, size) for color in colors for size in sizes]
+
 
 
 if __name__ == "__main__":
-    v = Vector()
-    print(bool(v))
+    print(tshirts)

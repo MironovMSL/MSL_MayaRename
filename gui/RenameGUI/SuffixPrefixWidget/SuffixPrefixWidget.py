@@ -5,6 +5,7 @@ except:
 
 from MSL_MayaRename.gui.RenameGUI.SuffixPrefixWidget.LineEditorPrefSufWidget import LineEditorPrefSufWidget
 from MSL_MayaRename.gui.RenameGUI.SuffixPrefixWidget.AddByttonWidget import AddByttonWidget
+from MSL_MayaRename.gui.RenameGUI.SuffixPrefixWidget.AutoSuffixButton import AutoSuffixButton
 
 from MSL_MayaRename.core.resources import Resources
 from MSL_MayaRename.core.config import Configurator
@@ -46,21 +47,23 @@ class SuffixPrefixWidget(QtWidgets.QWidget):
         self.prefix_Editline = LineEditorPrefSufWidget(self.PrefixHolder, Width)
         self.prefix_Editline.AutoComplete_line_edit.setText(self.prefix)
         # ---------------------------------
-        # label type of selection
-        self.typeSelection = QtWidgets.QLabel()
-        svg_path = os.path.join(new_root, "resources", "icon", "crab-svgrepo-com.svg")
-        svg_renderer = QtSvg.QSvgRenderer(svg_path)
-
-        pixmap = QtGui.QPixmap(25, 25)
-        pixmap.fill(QtCore.Qt.transparent)
-
-        painter = QtGui.QPainter(pixmap)
-        svg_renderer.render(painter)
-        painter.end()
-
-        # Устанавливаем QPixmap в QLabel
-        self.typeSelection.setPixmap(pixmap)
-        self.typeSelection.resize(25, 25)
+        # # label type of selection
+        # self.typeSelection = QtWidgets.QLabel()
+        # svg_path = os.path.join(new_root, "resources", "icon", "crab-svgrepo-com.svg")
+        # svg_renderer = QtSvg.QSvgRenderer(svg_path)
+        #
+        # pixmap = QtGui.QPixmap(25, 25)
+        # pixmap.fill(QtCore.Qt.transparent)
+        #
+        # painter = QtGui.QPainter(pixmap)
+        # svg_renderer.render(painter)
+        # painter.end()
+        #
+        # # Устанавливаем QPixmap в QLabel
+        # self.typeSelection.setPixmap(pixmap)
+        # self.typeSelection.resize(25, 25)
+        
+        self.AutoSuffixButton = AutoSuffixButton()
         #---------------------------------
         # button add suffix
         self.suffix_add_btn = AddByttonWidget("+", 25,25, "suffix")
@@ -75,7 +78,7 @@ class SuffixPrefixWidget(QtWidgets.QWidget):
 
         self.main_layout.addWidget(self.prefix_add_btn)
         self.main_layout.addWidget(self.prefix_Editline)
-        self.main_layout.addWidget(self.typeSelection)
+        self.main_layout.addWidget(self.AutoSuffixButton)
         self.main_layout.addWidget(self.suffix_Editline)
         self.main_layout.addWidget(self.suffix_add_btn)
 

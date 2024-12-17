@@ -37,9 +37,9 @@ class FunctionWidget(QtWidgets.QWidget):
         self.aa_BTN = QtWidgets.QPushButton("aa")
         self.aa_BTN.setFixedWidth(25)
 
-        # button AS - auto Suffix --> Name_geo
-        self.AS_BTN = QtWidgets.QPushButton("AS")
-        self.AS_BTN.setFixedWidth(25)
+        # # button AS - auto Suffix --> Name_geo
+        # self.AS_BTN = QtWidgets.QPushButton("AS")
+        # self.AS_BTN.setFixedWidth(25)
 
         # button AP - auto prefix --> lt_Name rt_Name mid_Name
         self.AP_BTN = QtWidgets.QPushButton("AP")
@@ -73,7 +73,7 @@ class FunctionWidget(QtWidgets.QWidget):
         self.main_layout.addWidget(self.AA_BTN)
         self.main_layout.addWidget(self.Aa_BTN)
         self.main_layout.addWidget(self.aa_BTN)
-        self.main_layout.addWidget(self.AS_BTN)
+        # self.main_layout.addWidget(self.AS_BTN)
         self.main_layout.addWidget(self.AP_BTN)
         self.main_layout.addStretch()
         self.main_layout.addWidget(self.RP_BTN)
