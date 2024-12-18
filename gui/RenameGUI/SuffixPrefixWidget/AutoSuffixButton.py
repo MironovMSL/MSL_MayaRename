@@ -1,3 +1,5 @@
+from maya.cmds import iconTextButton
+
 try:
 	from PySide2 import QtWidgets, QtGui, QtCore
 except:
@@ -46,8 +48,6 @@ class AutoSuffixButton(QtWidgets.QPushButton):
 		self.setToolTip(self.toolTip)
 		self.setStyleSheet(self.Style_btn)
 		self.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
-		self.setIcon(self.icon)
-		self.setIconSize(QtCore.QSize(25, 25))
 		# Run functions ---------------------------
 		self.create_widgets()
 		self.create_connections()
@@ -71,79 +71,72 @@ class AutoSuffixButton(QtWidgets.QPushButton):
 		self.pop_up_window.show()
 	
 	def set_auto_suffix(self):
-		print("TODO: set  auto suffix all selected objects ")
+		print(f"TODO: set  auto suffix all selected objects\n{self.type_list}")
+		
 	
 	def update_selection(self):
 		"""
 		Updates the current selection of objects in the scene and reflects this in the UI.
 		"""
 		selection = cmds.ls(selection=True, l=True)
-		icon = None
 		
+		self.icon_list = [ ]
+		self.size_list = [ ]
+		self.type_list = [ ]
+
 		if selection:
-			# Проверяем тип первого выбранного объекта
-			type_obj = cmds.objectType(selection[0])
+			for index, obj in enumerate(selection):
+				icon, size, type_obj = self.get_icon(obj)
+				if type_obj not in self.type_list:
+					self.icon_list.append(icon)
+					self.size_list.append(size)
+					self.type_list.append(type_obj)
+				if index == 0:
+					self.set_icon(icon, size)
+		else:
+			obj = None
+			icon, size, type_obj = self.get_icon(obj)
+			self.set_icon(icon, size)
+
+	def set_icon(self,icon, size):
+		self.setIcon(icon)
+		self.setIconSize(QtCore.QSize(size, size))
+		
+	def get_icon(self, obj = None):
+		"""
+		Determines the appropriate icon and size for a given Maya object.
+		"""
+		if obj:
+			type_obj = cmds.objectType(obj)
 			if type_obj == "transform":
-				# Ищем шейпы, связанные с трансформом
-				shapes = cmds.listRelatives(selection[0], shapes=True, fullPath=True)
+				shapes = cmds.listRelatives(obj, shapes=True, fullPath=True)
 				if shapes:
 					for shape in shapes:
-						# Определяем тип шейпа
-						shape_type = cmds.objectType(shape)
-						print(f"Шейп: {shape}, Тип: {shape_type}")
-
-						if shape_type == "camera":
+						type_obj = cmds.objectType(shape)
+						
+						if type_obj == "camera":
 							icon = QtGui.QIcon(f":Camera")
 						else:
-							icon = QtGui.QIcon(f":{shape_type}")
-						
+							icon = QtGui.QIcon(f":{type_obj}")
+						break
 				else:
-					print(f"У трансформа {selection[0]} нет связанных шейпов.")
 					icon = QtGui.QIcon(f":{type_obj}")
 			else:
-				print(f"Тип выбранного объекта: {type_obj}")
 				if type_obj == "joint":
 					icon = QtGui.QIcon(f":kinJoint")
 				elif type_obj == "camera":
 					icon = QtGui.QIcon(f":Camera")
 				else:
 					icon = QtGui.QIcon(f":{type_obj}")
+					if not icon.availableSizes(): # icon empty
+						icon = QtGui.QIcon(f":mayaIcon")
+			size = 20
 		else:
-			print("Ничего не выделено.")
-			
-		if icon:
-			print(icon)
-			self.setIcon(icon)
-			self.setIconSize(QtCore.QSize(20, 20))
-		else:
-			self.setIcon(self.icon)
-			self.setIconSize(QtCore.QSize(25, 25))
-			
-		
-		# for obj in object_list:
-		# 	if not cmds.objectType(obj, isType="transform"):
-		# 		parent_transform = cmds.listRelatives(obj, parent=True, fullPath=True)
-		# 		if parent_transform and parent_transform[0] in object_list:
-		# 			continue
-		#
-		# 	filtered_list.append(obj)
+			type_obj = ""
+			icon     = self.icon
+			size     = 25
 
-	
-	# def create_icons(self):
-	# 	self.transform_icon = QtGui.QIcon(":transform.svg")
-	# 	self.camera_icon = QtGui.QIcon(":Camera.png")
-	# 	self.mesh_icon = QtGui.QIcon(":mesh.svg")
-	#
-	#
-	# def update_icon(self, item):
-	# 	object_type = "transform"
-	#
-	# 	if object_type == "transform":
-	# 		item.setIcon(0, self.transform_icon)
-	# 	elif object_type == "camera":
-	# 		item.setIcon(0, self.camera_icon)
-	# 	elif object_type == "mesh":
-	# 		item.setIcon(0, self.mesh_icon)
+		return icon, size, type_obj
 	
 	def set_script_job_enabled(self, enabled):
 		"""
@@ -176,9 +169,9 @@ class PopUpWindow(QtWidgets.QWidget):
 		# Module---------------------------
 		self.resoures = Resources.get_instance()
 		# Attribute---------------------------
-		self.type = self.resoures.config.get_variable("startup", "type_find", "selected", str)
+
 		# Setting---------------------------
-		self.setObjectName("PopUpWindow")
+		self.setObjectName("AutoSuffixPopUpWindowID")
 		self.setWindowTitle(f"Type options")
 		self.setWindowFlags(QtCore.Qt.Popup)
 		self.setFixedSize(180, 25)
@@ -187,7 +180,6 @@ class PopUpWindow(QtWidgets.QWidget):
 		self.create_widgets()
 		self.create_layout()
 		self.create_connections()
-		self.set_checked_btn(self.type)
 	
 	def create_widgets(self):
 		self.sel = QtWidgets.QRadioButton("selected")
