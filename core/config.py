@@ -91,6 +91,17 @@ class Configurator(object):
 			self.config.setValue("show_cache", False)
 
 			self.config.endGroup()  # End the group
+			
+			self.config.beginGroup("auto_suffix")  # auto siffix group
+			
+			self.config.setValue("transform", "grp")
+			self.config.setValue("locator", "loc")
+			self.config.setValue("mesh", "geo")
+			self.config.setValue("joint", "jnt")
+			self.config.setValue("nurbsCurve", "crv")
+			self.config.setValue("nurbsSurface", "srf")
+			
+			self.config.endGroup()  # End the group
 
 	def get_info_all_keys(self):
 			# print config.ini

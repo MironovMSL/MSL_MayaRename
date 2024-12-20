@@ -97,6 +97,9 @@ class AutoSuffixButton(QtWidgets.QPushButton):
 			obj = None
 			icon, size, type_obj = self.get_icon(obj)
 			self.set_icon(icon, size)
+			
+		print(self.type_list)
+		self.pop_up_window.add_content_selected_type(self.type_list, self.icon_list, self.size_list)
 
 	def set_icon(self,icon, size):
 		self.setIcon(icon)
@@ -118,6 +121,8 @@ class AutoSuffixButton(QtWidgets.QPushButton):
 							icon = QtGui.QIcon(f":Camera")
 						else:
 							icon = QtGui.QIcon(f":{type_obj}")
+						if not icon.availableSizes():  # icon empty
+							icon = QtGui.QIcon(f":default")
 						break
 				else:
 					icon = QtGui.QIcon(f":{type_obj}")
@@ -129,7 +134,7 @@ class AutoSuffixButton(QtWidgets.QPushButton):
 				else:
 					icon = QtGui.QIcon(f":{type_obj}")
 					if not icon.availableSizes(): # icon empty
-						icon = QtGui.QIcon(f":mayaIcon")
+						icon = QtGui.QIcon(f":default")
 			size = 20
 		else:
 			type_obj = ""
@@ -163,6 +168,41 @@ class PopUpWindow(QtWidgets.QWidget):
 	"""
 	Class for creating a pop-up window with options.
 	"""
+	scroll_style = """
+QScrollBar:vertical {
+    background: rgb(10, 10, 10); /* Очень тёмный фон */
+    width: 8px; /* Ширина вертикального скроллбара */
+    margin: 0px; /* Нет отступов вокруг скроллбара */
+}
+
+QScrollBar::handle:vertical {
+    background: rgb(50, 50, 50); /* Тёмно-серый, соответствующий фону кнопок */
+    border: 1px solid rgb(30, 30, 30); /* Тёмная рамка */
+    border-radius: 3px; /* Скругление углов для сглаженности */
+    min-height: 20px; /* Минимальная высота */
+}
+
+QScrollBar::handle:vertical:hover {
+    background: rgb(80, 80, 80); /* Светло-серый при наведении */
+    border: 1px solid rgb(70, 70, 70); /* Светлая рамка при наведении */
+}
+
+QScrollBar::handle:vertical:pressed {
+    background: rgb(30, 30, 30); /* Почти чёрный при нажатии */
+    border: 1px solid rgb(20, 20, 20); /* Тёмная рамка при нажатии */
+}
+
+QScrollBar::add-line:vertical,
+QScrollBar::sub-line:vertical {
+    width: 0px; /* Нет кнопок "вверх" и "вниз" */
+    height: 0px;
+}
+
+QScrollBar::add-page:vertical,
+QScrollBar::sub-page:vertical {
+    background: none; /* Нет дополнительных страниц (не перекрашивать фон) */
+}
+	"""
 	
 	def __init__(self, parent=None):
 		super(PopUpWindow, self).__init__(parent)
@@ -172,9 +212,10 @@ class PopUpWindow(QtWidgets.QWidget):
 
 		# Setting---------------------------
 		self.setObjectName("AutoSuffixPopUpWindowID")
-		self.setWindowTitle(f"Type options")
+		self.setWindowTitle(f"auto suffix options")
 		self.setWindowFlags(QtCore.Qt.Popup)
-		self.setFixedSize(180, 25)
+		self.setMaximumWidth(190)
+		self.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
 		
 		# Run functions ---------------------------
 		self.create_widgets()
@@ -182,40 +223,142 @@ class PopUpWindow(QtWidgets.QWidget):
 		self.create_connections()
 	
 	def create_widgets(self):
-		self.sel = QtWidgets.QRadioButton("selected")
-		self.hi = QtWidgets.QRadioButton("hierarchy")
-		self.all = QtWidgets.QRadioButton("all")
+		self.scroll_area   = QtWidgets.QScrollArea()
+		self.scroll_widget = QtWidgets.QWidget()
+		self.scroll_area.setStyleSheet(self.scroll_style)
 		
-		self.btn_grp = QtWidgets.QButtonGroup()
-		self.btn_grp.addButton(self.sel)
-		self.btn_grp.addButton(self.hi)
-		self.btn_grp.addButton(self.all)
+		self.scroll_area.setWidgetResizable(True)
+		self.scroll_area.setFocusPolicy(QtCore.Qt.NoFocus)
+		self.scroll_area.setFrameShape(QtWidgets.QFrame.NoFrame)
+		self.scroll_area.setWidget(self.scroll_widget)
 	
 	def create_layout(self):
-		self.grp_layout = QtWidgets.QHBoxLayout()
-		self.grp_layout.addWidget(self.sel)
-		self.grp_layout.addWidget(self.hi)
-		self.grp_layout.addWidget(self.all)
-		self.grp_layout.setContentsMargins(0, 0, 0, 0)
-		self.grp_layout.setSpacing(2)
-		# self.grp_layout.addStretch()
-		
-		self.main_layout = QtWidgets.QFormLayout(self)
-		self.main_layout.setContentsMargins(2, 2, 2, 2)
+		self.main_layout = QtWidgets.QVBoxLayout(self)
+		self.main_layout.setContentsMargins(0, 0, 0, 0)
 		self.main_layout.setSpacing(0)
 		
-		self.main_layout.addRow("", self.grp_layout)
-	
+		self.main_layout.addWidget(self.scroll_area)
+
+		self.scroll_widget_layout = QtWidgets.QFormLayout(self.scroll_widget)
+		self.scroll_widget_layout.setContentsMargins(5, 5, 5, 5)
+		self.scroll_widget_layout.setSpacing(0)
+		
+		
 	def create_connections(self):
 		pass
 	
-	def set_checked_btn(self, type):
-		self.type = type
+	def add_content_selected_type(self, type_list = [ ], icon_list = [ ], size_list = [ ]):
+		self.clear_form_layout(self.scroll_widget_layout)
 		
-		if type == "selected":
-			self.sel.setChecked(True)
-		elif type == "hierarchy":
-			self.hi.setChecked(True)
-		elif type == "all":
-			self.all.setChecked(True)
+		if type_list:
+			for index, obj in enumerate(type_list):
+				grp_layout = QtWidgets.QHBoxLayout()
+				icon       = CustomLabelIconPopUP(icon_list[index], size_list[index])
+				editline   = CustomQLineEditAutoSuffixPopUP(type_list[index])
+				
+				grp_layout.addWidget(icon)
+				grp_layout.addWidget(editline)
+				
+				self.scroll_widget_layout.addRow(f"{type_list[index]}: ", grp_layout)
+	
+	def clear_form_layout(self, layout):
+		while layout.count():
+			item = layout.takeAt(0)  # Извлекаем элемент
+			
+			# Удаляем виджет, если он есть
+			if item.widget():
+				item.widget().deleteLater()
+			
+			# Если это вложенный макет, очищаем его и удаляем
+			elif item.layout():
+				self.clear_form_layout(item.layout())  # Рекурсивно очищаем вложенный макет
+				item.layout().deleteLater() # Удаляем макет вручную
+	
 
+class CustomQLineEditAutoSuffixPopUP(QtWidgets.QLineEdit):
+	"""
+	Class for creating a customizable input field.
+	"""
+	
+	Style_lineEdit = """
+		    QLineEdit {
+		        background-color: rgb(40, 40, 40);  /* Темно-серый фон */
+		        border: 2px solid rgb(100, 100, 100);  /* Серо-черная граница */
+		        border-radius: 10px;
+		        padding: 0 4px;
+		        color: rgb(220, 220, 220);          /* Светло-серый текст */
+		        selection-background-color: rgb(88, 88, 120); /* Темно-серый фон для выделения */
+		        selection-color: rgb(255, 255, 255);  /* Белый текст при выделении */
+		    }
+
+		    QLineEdit:hover {
+		        border: 2px solid rgb(100, 100, 100);  /* Светло-серая граница при наведении */
+		        background-color: rgb(45, 45, 45);     /* Немного светлее при наведении */
+		    }
+
+		    QLineEdit:focus {
+		        color: rgb(255, 255, 255);           /* Белый текст при фокусе */
+		        border: 2px solid rgb(120, 120, 120); /* Ярче серый при фокусе */
+		        background-color: rgb(50, 50, 50);    /* Более светлый серый при фокусе */
+		    }
+
+		    QLineEdit:hover:focus {
+		        border: 2px solid rgb(150, 150, 150); /* Светлая граница при наведении и фокусе */
+		        background-color: rgb(55, 55, 55);    /* Еще более светлый фон при наведении и фокусе */
+		    }
+		"""
+	
+	def __init__(self, type_obj, parent=None):
+		super(CustomQLineEditAutoSuffixPopUP, self).__init__(parent)
+		# Modul---------------------------
+		self.resources = Resources.get_instance()
+		# Attribute---------------------------
+		self.type_obj = type_obj
+		self.suffix = self.resources.config.get_variable("auto_suffix", self.type_obj, "", str)
+		self.toolTip = f"{self.suffix} The auto suffix is for [{self.type_obj}]"
+		# Setting---------------------------
+		self.setText(self.suffix)
+		self.setFixedSize(60, 25)
+		self.setStyleSheet(self.Style_lineEdit)
+		self.setToolTip(self.toolTip)
+		self.setAlignment(QtCore.Qt.AlignHCenter)
+		self.setPlaceholderText("suffix")
+		# Run functions ---------------------------
+		self.create_connections()
+	
+	def create_connections(self):
+		self.textEdited.connect(self.set_suffix)
+	
+	def set_suffix(self, suffix):
+		if suffix != self.suffix:
+			self.suffix = suffix
+			self.toolTip = f"{self.suffix} The auto suffix is for [{self.type_obj}]"
+			self.setToolTip(self.toolTip)
+			self.resources.config.set_variable("auto_suffix", self.type_obj, suffix)
+	
+	def contextMenuEvent(self, event):
+		pass
+
+
+class CustomLabelIconPopUP(QtWidgets.QLabel):
+	"""
+	Display show the icon of the object type.
+	"""
+
+	def __init__(self, icon, size, parent=None):
+		super(CustomLabelIconPopUP, self).__init__(parent)
+		
+		# Modul---------------------------
+		self.resources = Resources.get_instance()
+		# Attribute---------------------------
+		self.icon = icon
+		self.size = size
+		pixmap    = self.icon.pixmap(self.size, self.size)
+		# Setting---------------------------
+		self.setPixmap(pixmap)
+		self.setFixedSize(self.size, self.size)
+		# Run functions ---------------------------
+		self.create_connections()
+	
+	def create_connections(self):
+		pass
