@@ -329,16 +329,12 @@ QScrollBar::sub-page:vertical {
 		
 	def clear_form_layout(self, layout):
 		while layout.count():
-			item = layout.takeAt(0)  # Извлекаем элемент
-			
-			# Удаляем виджет, если он есть
+			item = layout.takeAt(0)
 			if item.widget():
 				item.widget().deleteLater()
-			
-			# Если это вложенный макет, очищаем его и удаляем
 			elif item.layout():
-				self.clear_form_layout(item.layout())  # Рекурсивно очищаем вложенный макет
-				item.layout().deleteLater() # Удаляем макет вручную
+				self.clear_form_layout(item.layout())
+				item.layout().deleteLater()
 	
 
 class CustomQLineEditAutoSuffixPopUP(QtWidgets.QLineEdit):
