@@ -122,15 +122,13 @@ class FindReplaceWidget(QtWidgets.QWidget):
         return text
     
     def remove_shapes_from_transforms(self, object_list):
-        filtered_list = []
 
         for obj in object_list:
-            if not cmds.objectType(obj, isType="transform"):
-                parent_transform = cmds.listRelatives(obj, parent=True, fullPath=True)
-                if parent_transform and parent_transform[0] in object_list:
-                    continue
-            
-            filtered_list.append(obj)
+            if cmds.objectType(obj, isType="transform"):
+                shapes = cmds.listRelatives(obj, children=True, shapes=True, fullPath=True)
+                if shapes:
+                    for shape in shapes:
+                        if shape in object_list:
+                            object_list.remove(shape)
         
-        return filtered_list
-    
+        return object_list

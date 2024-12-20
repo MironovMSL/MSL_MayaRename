@@ -1,4 +1,6 @@
-from maya.cmds import iconTextButton
+from cProfile import label
+
+from maya.cmds import iconTextButton, select
 
 try:
 	from PySide2 import QtWidgets, QtGui, QtCore
@@ -65,15 +67,44 @@ class AutoSuffixButton(QtWidgets.QPushButton):
 		"""
 		Displays the pop-up window at the position of the button.
 		"""
-		pop_up_pos = self.mapToGlobal(QtCore.QPoint(0, 25))
-		
-		self.pop_up_window.move(pop_up_pos)
-		self.pop_up_window.show()
+		count = self.pop_up_window.scroll_widget_layout.count()
+		if count:
+			pop_up_pos = self.mapToGlobal(QtCore.QPoint(0, 25))
+			
+			self.pop_up_window.move(pop_up_pos)
+			self.pop_up_window.show()
 	
 	def set_auto_suffix(self):
-		print(f"TODO: set  auto suffix all selected objects\n{self.type_list}")
+		selection = cmds.ls(selection=True, l=True)
+		if selection:
+			filtered_list = self.parent().parent().FindReplaceWidget.remove_shapes_from_transforms(selection)
+			
+			for obj in filtered_list:
+				type_obj = self.get_type_object(obj)
+				suffix   = self.resources.config.get_variable("auto_suffix", type_obj, "", str)
+				path_to_obj, obj_short_name = self.parent().parent().get_short_name(obj)
+				
+				print(f"{type_obj:<20}: {obj_short_name:<20}: {suffix}")
+				
+				if not suffix:
+					continue
+
+				if obj_short_name[len(obj_short_name) - len(suffix):] == suffix:
+					continue
+				
+				new_obj_short_name = obj_short_name + suffix
+				obj_rename         = cmds.rename(obj, new_obj_short_name)
+				
+				new_path_to_obj, new_obj_short_name = self.parent().parent().get_short_name(obj_rename)
+				new_obj            = path_to_obj + new_obj_short_name
+				
+				filtered_list =  self.parent().parent().renameObjectsInHierarchy(filtered_list, obj, new_obj)
+			
+			self.parent().parent().LabelWidget.update_selection()
+			
+		else:
+			print("It is necessary to select an object.")
 		
-	
 	def update_selection(self):
 		"""
 		Updates the current selection of objects in the scene and reflects this in the UI.
@@ -98,13 +129,23 @@ class AutoSuffixButton(QtWidgets.QPushButton):
 			icon, size, type_obj = self.get_icon(obj)
 			self.set_icon(icon, size)
 			
-		print(self.type_list)
 		self.pop_up_window.add_content_selected_type(self.type_list, self.icon_list, self.size_list)
 
 	def set_icon(self,icon, size):
 		self.setIcon(icon)
 		self.setIconSize(QtCore.QSize(size, size))
 		
+	def get_type_object(self, obj):
+		type_obj = cmds.objectType(obj)
+		if type_obj == "transform":
+			shapes = cmds.listRelatives(obj, shapes=True, fullPath=True)
+			if shapes:
+				for shape in shapes:
+					type_obj = cmds.objectType(shape)
+					break
+		return type_obj
+
+	
 	def get_icon(self, obj = None):
 		"""
 		Determines the appropriate icon and size for a given Maya object.
@@ -209,14 +250,12 @@ QScrollBar::sub-page:vertical {
 		# Module---------------------------
 		self.resoures = Resources.get_instance()
 		# Attribute---------------------------
-
+		self.font_metrics = QtGui.QFontMetrics(QtWidgets.QLabel().font())
 		# Setting---------------------------
 		self.setObjectName("AutoSuffixPopUpWindowID")
 		self.setWindowTitle(f"auto suffix options")
 		self.setWindowFlags(QtCore.Qt.Popup)
-		self.setMaximumWidth(190)
 		self.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
-		
 		# Run functions ---------------------------
 		self.create_widgets()
 		self.create_layout()
@@ -240,7 +279,7 @@ QScrollBar::sub-page:vertical {
 		self.main_layout.addWidget(self.scroll_area)
 
 		self.scroll_widget_layout = QtWidgets.QFormLayout(self.scroll_widget)
-		self.scroll_widget_layout.setContentsMargins(5, 5, 5, 5)
+		self.scroll_widget_layout.setContentsMargins(5, 0, 0, 0)
 		self.scroll_widget_layout.setSpacing(0)
 		
 		
@@ -260,7 +299,34 @@ QScrollBar::sub-page:vertical {
 				grp_layout.addWidget(editline)
 				
 				self.scroll_widget_layout.addRow(f"{type_list[index]}: ", grp_layout)
+		
+		text_width = self.get_text_width(type_list)
+		self.set_resize_popup(text_width, len(type_list))
+		
+		
+	def get_text_width(self, list_name = [ ]):
+		if list_name:
+			longest_name = max(list_name, key=len)
+			text_width   = self.font_metrics.horizontalAdvance(longest_name)
+		else:
+			text_width   = 0
+		
+		return text_width
 	
+	def set_resize_popup(self, width, count):
+		if count > 10:
+			Y = 250
+			X = width + 25 + 60 + 20
+		elif count == 0:
+			Y = 25
+			X = 50
+		else:
+			Y = count*25
+			X = width + 25 + 60 + 15
+			
+		self.setFixedSize(X,Y)
+		self.resize(X,Y)
+		
 	def clear_form_layout(self, layout):
 		while layout.count():
 			item = layout.takeAt(0)  # Извлекаем элемент

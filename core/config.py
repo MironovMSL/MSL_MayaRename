@@ -94,12 +94,12 @@ class Configurator(object):
 			
 			self.config.beginGroup("auto_suffix")  # auto siffix group
 			
-			self.config.setValue("transform", "grp")
-			self.config.setValue("locator", "loc")
-			self.config.setValue("mesh", "geo")
-			self.config.setValue("joint", "jnt")
-			self.config.setValue("nurbsCurve", "crv")
-			self.config.setValue("nurbsSurface", "srf")
+			self.config.setValue("transform", "_grp")
+			self.config.setValue("locator", "_loc")
+			self.config.setValue("mesh", "_geo")
+			self.config.setValue("joint", "_jnt")
+			self.config.setValue("nurbsCurve", "_crv")
+			self.config.setValue("nurbsSurface", "_srf")
 			
 			self.config.endGroup()  # End the group
 

@@ -46,22 +46,6 @@ class SuffixPrefixWidget(QtWidgets.QWidget):
         # QlineEdit prefix
         self.prefix_Editline = LineEditorPrefSufWidget(self.PrefixHolder, Width)
         self.prefix_Editline.AutoComplete_line_edit.setText(self.prefix)
-        # ---------------------------------
-        # # label type of selection
-        # self.typeSelection = QtWidgets.QLabel()
-        # svg_path = os.path.join(new_root, "resources", "icon", "crab-svgrepo-com.svg")
-        # svg_renderer = QtSvg.QSvgRenderer(svg_path)
-        #
-        # pixmap = QtGui.QPixmap(25, 25)
-        # pixmap.fill(QtCore.Qt.transparent)
-        #
-        # painter = QtGui.QPainter(pixmap)
-        # svg_renderer.render(painter)
-        # painter.end()
-        #
-        # # Устанавливаем QPixmap в QLabel
-        # self.typeSelection.setPixmap(pixmap)
-        # self.typeSelection.resize(25, 25)
         
         self.AutoSuffixButton = AutoSuffixButton()
         #---------------------------------
