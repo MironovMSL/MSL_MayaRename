@@ -8,6 +8,7 @@ except:
 import os
 import maya.cmds as cmds
 from MSL_MayaRename.core.resources import Resources
+import re
 
 
 class FunctionWidget(QtWidgets.QWidget):
@@ -54,48 +55,60 @@ class FunctionWidget(QtWidgets.QWidget):
         # button AA --> NANE - upper
         self.AA_BTN = QtWidgets.QPushButton("AA")
         self.AA_BTN.setFixedSize(25, 25)
+        self.AA_BTN.setToolTip("Text converted to Upper.")
         # button Aa --> Name - capitalize
         self.Aa_BTN = QtWidgets.QPushButton("Aa")
         self.Aa_BTN.setFixedSize(25, 25)
+        self.Aa_BTN.setToolTip("Text converted to Capitalize.")
         # button aa --> Name - lower
         self.aa_BTN = QtWidgets.QPushButton("aa")
         self.aa_BTN.setFixedSize(25, 25)
+        self.aa_BTN.setToolTip("Text converted to Lower.")
         # button AP - auto prefix --> lt_Name rt_Name mid_Name
-        self.AP_BTN = QtWidgets.QPushButton("AP")
+        self.AP_BTN = QtWidgets.QPushButton("AP") # [(lf),(lf,mif),(lf, rf), (lf, mid, rt), (rt), (rt, mid), (mid)]
         self.AP_BTN.setFixedSize(25, 25)
 
         # button RP remove pref_  --> pref_Name --> Name
-        self.RP_BTN = QtWidgets.QPushButton("RP")
+        self.RP_BTN = QtWidgets.QPushButton("RP_")
         self.RP_BTN.setFixedSize(25, 25)
+        self.RP_BTN.setToolTip("Remove prefix in name.")
         # button RS remove _suffix  --> Name_suffix --> Name
-        self.RS_BTN = QtWidgets.QPushButton("RS")
+        self.RS_BTN = QtWidgets.QPushButton("R_S")
         self.RS_BTN.setFixedSize(25, 25)
-        # button DE delet end number --> Name01 --> Name
+        self.RS_BTN.setToolTip("Remove suffix in name.")
+        # button DT remove trail number --> Name01 --> Name
         self.DE_BTN = QtWidgets.QPushButton("DE")
         self.DE_BTN.setFixedSize(25, 25)
-        # button DA delet all number --> 01Name01 --> Name
+        self.DE_BTN.setToolTip("Remove the numerical tail.")
+        # button DA remove all number --> 01Name01 --> Name
         self.DA_BTN = QtWidgets.QPushButton("DA")
         self.DA_BTN.setFixedSize(25, 25)
+        self.DA_BTN.setToolTip("Remove all numbers.")
 
     def create_layouts(self):
         self.main_layout = QtWidgets.QHBoxLayout(self)
         self.main_layout.setContentsMargins(0, 0, 0, 0)
         self.main_layout.setSpacing(0)
+        self.main_layout.setAlignment(QtCore.Qt.AlignLeft)
 
         self.main_layout.addWidget(self.AA_BTN)
         self.main_layout.addWidget(self.Aa_BTN)
         self.main_layout.addWidget(self.aa_BTN)
         self.main_layout.addWidget(self.AP_BTN)
-        self.main_layout.addStretch()
         self.main_layout.addWidget(self.RP_BTN)
         self.main_layout.addWidget(self.RS_BTN)
         self.main_layout.addWidget(self.DE_BTN)
         self.main_layout.addWidget(self.DA_BTN)
+        # self.main_layout.addStretch()
 
     def create_connections(self):
         self.AA_BTN.clicked.connect(lambda: self.rename_selected_objects_case(mode="upper"))
         self.Aa_BTN.clicked.connect(lambda: self.rename_selected_objects_case(mode="capitalize"))
         self.aa_BTN.clicked.connect(lambda: self.rename_selected_objects_case(mode="lower"))
+        self.RP_BTN.clicked.connect(lambda: self.rename_selected_objects_case(mode="remove_prefix"))
+        self.RS_BTN.clicked.connect(lambda: self.rename_selected_objects_case(mode="remove_suffix"))
+        self.DE_BTN.clicked.connect(lambda: self.rename_selected_objects_case(mode="remove_trailing_numbers"))
+        self.DA_BTN.clicked.connect(lambda: self.rename_selected_objects_case(mode="remove_all_numbers"))
     
     def rename_selected_objects_case(self, mode="capitalize"):
         """
@@ -108,12 +121,21 @@ class FunctionWidget(QtWidgets.QWidget):
             for obj in filtered_list:
   
                 path_to_obj, obj_short_name = self.parent().get_short_name(obj)
+                
                 if mode == "capitalize":
                     new_name = obj_short_name.capitalize()
                 elif mode == "lower":
                     new_name = obj_short_name.lower()
                 elif mode == "upper":
                     new_name = obj_short_name.upper()
+                elif mode == "remove_prefix":
+                    new_name = self.remove_prefix(obj_short_name)
+                elif mode == "remove_suffix":
+                    new_name = self.remove_suffix(obj_short_name)
+                elif mode == "remove_trailing_numbers":
+                    new_name = self.remove_trailing_numbers(obj_short_name)
+                elif mode == "remove_all_numbers":
+                    new_name = self.remove_all_numbers(obj_short_name)
                 
                 obj_rename = cmds.rename(obj, new_name)
                 new_path_to_obj, new_obj_short_name = self.parent().get_short_name(obj_rename)
@@ -125,3 +147,33 @@ class FunctionWidget(QtWidgets.QWidget):
 
         else:
             print("It is necessary to select an object.")
+            
+    def remove_prefix(self, name):
+        parts = name.split("_")
+
+        if len(parts) == 1:
+            new_name = name
+        else:
+            new_name = "_".join(parts[1:])
+            
+        return new_name
+    
+    def remove_suffix(self, name):
+        parts = name.rsplit("_", 1)
+        
+        if len(parts) == 1:
+            new_name = name
+        else:
+            new_name = parts[0]
+            
+        return  new_name
+    
+    def remove_trailing_numbers(self, name):
+        new_name = re.sub(r'_?\d+$', '', name).rstrip('_')
+        return  new_name
+    
+    def remove_all_numbers(self, name):
+        new_name = re.sub(r'\d+', '', name).rstrip('_')
+        new_name = re.sub(r'__+', '_', new_name)
+        return new_name
+        
