@@ -157,6 +157,9 @@
             "object",
             "squash",
             "stretch"
+        ],
+        "Cache": [
+            "qwef_01"
         ]
     },
     "fast_accessDefault": [

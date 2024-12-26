@@ -1,5 +1,3 @@
-from os import rename
-
 try:
     from PySide2 import QtWidgets, QtGui, QtCore, QtSvg
 except:
@@ -8,6 +6,7 @@ except:
 import os
 import maya.cmds as cmds
 from MSL_MayaRename.core.resources import Resources
+from MSL_MayaRename.gui.RenameGUI.FunctionWidget.CustomPushButton import CustomPushButton
 import re
 
 
@@ -53,36 +52,25 @@ class FunctionWidget(QtWidgets.QWidget):
 
     def create_widgets(self):
         # button AA --> NANE - upper
-        self.AA_BTN = QtWidgets.QPushButton("AA")
-        self.AA_BTN.setFixedSize(25, 25)
+        self.AA_BTN = CustomPushButton("AA")
         self.AA_BTN.setToolTip("Text converted to Upper.")
         # button Aa --> Name - capitalize
-        self.Aa_BTN = QtWidgets.QPushButton("Aa")
-        self.Aa_BTN.setFixedSize(25, 25)
+        self.Aa_BTN = CustomPushButton("Aa")
         self.Aa_BTN.setToolTip("Text converted to Capitalize.")
         # button aa --> Name - lower
-        self.aa_BTN = QtWidgets.QPushButton("aa")
-        self.aa_BTN.setFixedSize(25, 25)
+        self.aa_BTN = CustomPushButton("aa")
         self.aa_BTN.setToolTip("Text converted to Lower.")
-        # button AP - auto prefix --> lt_Name rt_Name mid_Name
-        self.AP_BTN = QtWidgets.QPushButton("AP") # [(lf),(lf,mif),(lf, rf), (lf, mid, rt), (rt), (rt, mid), (mid)]
-        self.AP_BTN.setFixedSize(25, 25)
-
         # button RP remove pref_  --> pref_Name --> Name
-        self.RP_BTN = QtWidgets.QPushButton("RP_")
-        self.RP_BTN.setFixedSize(25, 25)
+        self.RP_BTN = CustomPushButton("RP_")
         self.RP_BTN.setToolTip("Remove prefix in name.")
         # button RS remove _suffix  --> Name_suffix --> Name
-        self.RS_BTN = QtWidgets.QPushButton("R_S")
-        self.RS_BTN.setFixedSize(25, 25)
+        self.RS_BTN = CustomPushButton("R_S")
         self.RS_BTN.setToolTip("Remove suffix in name.")
         # button DT remove trail number --> Name01 --> Name
-        self.DE_BTN = QtWidgets.QPushButton("DE")
-        self.DE_BTN.setFixedSize(25, 25)
+        self.DE_BTN = CustomPushButton("DE")
         self.DE_BTN.setToolTip("Remove the numerical tail.")
         # button DA remove all number --> 01Name01 --> Name
-        self.DA_BTN = QtWidgets.QPushButton("DA")
-        self.DA_BTN.setFixedSize(25, 25)
+        self.DA_BTN = CustomPushButton("DA")
         self.DA_BTN.setToolTip("Remove all numbers.")
 
     def create_layouts(self):
@@ -94,7 +82,6 @@ class FunctionWidget(QtWidgets.QWidget):
         self.main_layout.addWidget(self.AA_BTN)
         self.main_layout.addWidget(self.Aa_BTN)
         self.main_layout.addWidget(self.aa_BTN)
-        self.main_layout.addWidget(self.AP_BTN)
         self.main_layout.addWidget(self.RP_BTN)
         self.main_layout.addWidget(self.RS_BTN)
         self.main_layout.addWidget(self.DE_BTN)

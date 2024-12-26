@@ -1,7 +1,3 @@
-from cProfile import label
-
-from maya.cmds import iconTextButton, select
-
 try:
 	from PySide2 import QtWidgets, QtGui, QtCore
 except:
@@ -84,7 +80,7 @@ class AutoSuffixButton(QtWidgets.QPushButton):
 				suffix   = self.resources.config.get_variable("auto_suffix", type_obj, "", str)
 				path_to_obj, obj_short_name = self.parent().parent().get_short_name(obj)
 				
-				print(f"{type_obj:<20}: {obj_short_name:<20}: {suffix}")
+				# print(f"{type_obj:<20}: {obj_short_name:<20}: {suffix}")
 				
 				if not suffix:
 					continue
@@ -111,6 +107,7 @@ class AutoSuffixButton(QtWidgets.QPushButton):
 		"""
 		selection = cmds.ls(selection=True, l=True)
 		
+		
 		self.icon_list = [ ]
 		self.size_list = [ ]
 		self.type_list = [ ]
@@ -128,8 +125,10 @@ class AutoSuffixButton(QtWidgets.QPushButton):
 			obj = None
 			icon, size, type_obj = self.get_icon(obj)
 			self.set_icon(icon, size)
-			
+		
+		# self.parent().AutoPrefixButton.check_position_object(list = selection)
 		self.pop_up_window.add_content_selected_type(self.type_list, self.icon_list, self.size_list)
+		
 
 	def set_icon(self,icon, size):
 		self.setIcon(icon)
@@ -145,7 +144,6 @@ class AutoSuffixButton(QtWidgets.QPushButton):
 					break
 		return type_obj
 
-	
 	def get_icon(self, obj = None):
 		"""
 		Determines the appropriate icon and size for a given Maya object.

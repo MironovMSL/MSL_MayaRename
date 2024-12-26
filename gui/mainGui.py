@@ -101,10 +101,12 @@ class MainToolWindow(QtWidgets.QDialog):
 		
 	def showEvent(self, e):
 		self.RenameGUI.LabelWidget.set_script_job_enabled(True)
+		self.RenameGUI.SuffixPrefixWidget.AutoPrefixButton.set_script_job_enabled(True)
 		self.RenameGUI.SuffixPrefixWidget.AutoSuffixButton.set_script_job_enabled(True)
 
 	def closeEvent(self, e):
 		self.RenameGUI.LabelWidget.set_script_job_enabled(False)
+		self.RenameGUI.SuffixPrefixWidget.AutoPrefixButton.set_script_job_enabled(False)
 		self.RenameGUI.SuffixPrefixWidget.AutoSuffixButton.set_script_job_enabled(False)
 		self.save_geometry()
 		
