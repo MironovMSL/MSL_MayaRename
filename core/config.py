@@ -72,7 +72,6 @@ class Configurator(object):
 			self.config.setValue("prefix_number", "")
 			self.config.setValue("suffix_number", "")
 			self.config.setValue("type_find", "selected")
-			
 
 			self.config.endGroup()  # End the group
 
@@ -102,6 +101,16 @@ class Configurator(object):
 			self.config.setValue("nurbsSurface", "_srf")
 			
 			self.config.endGroup()  # End the group
+			
+			self.config.beginGroup("auto_prefix")  # auto prefix group
+			
+			self.config.setValue("mirror_across", "YZ")
+			self.config.setValue("left", "lf_")
+			self.config.setValue("right", "rt_")
+			self.config.setValue("center", "")
+			
+			self.config.endGroup()  # End the group
+			
 
 	def get_info_all_keys(self):
 			# print config.ini
