@@ -108,6 +108,9 @@ class Configurator(object):
 			self.config.setValue("left", "lf_")
 			self.config.setValue("right", "rt_")
 			self.config.setValue("center", "")
+			self.config.setValue("lf_color", "#8FD14F")
+			self.config.setValue("rt_color", "#FF6F61")
+			self.config.setValue("mid_color", "#FFD25A")
 			
 			self.config.endGroup()  # End the group
 			
