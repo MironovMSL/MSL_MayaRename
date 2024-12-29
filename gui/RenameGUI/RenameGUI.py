@@ -212,9 +212,9 @@ class RenameGUI(QtWidgets.QWidget):
 	
 	def _handle_click_btn(self, name):
 		selection = cmds.ls(selection=1, long=1)
-		# sortName = sorted(selection, key=len, reverse=True)
+		sortName = sorted(selection, key=len, reverse=True)
 		
-		filtered_list = self.FindReplaceWidget.remove_shapes_from_transforms(selection)
+		filtered_list = self.FindReplaceWidget.remove_shapes_from_transforms(sortName)
 		
 		if filtered_list:
 			if name:
@@ -324,9 +324,10 @@ class RenameGUI(QtWidgets.QWidget):
 	def remove_first_index(self):
 		selection = cmds.ls(selection=1, long=1)
 		sortName = sorted(selection, key=len, reverse=True)
-
-		if selection:
-			for obj in sortName:
+		filtered_list = self.FindReplaceWidget.remove_shapes_from_transforms(sortName)
+		
+		if filtered_list:
+			for obj in filtered_list:
 				path_to_obj, obj_short_name = self.get_short_name(obj)
 				if len(obj_short_name) <= 1:
 					om.MGlobal.displayWarning(f"The name cannot be less than one characters: {obj_short_name}")
@@ -347,9 +348,10 @@ class RenameGUI(QtWidgets.QWidget):
 
 		selection = cmds.ls(selection=1, long=1)
 		sortName = sorted(selection, key=len, reverse=True)
+		filtered_list = self.FindReplaceWidget.remove_shapes_from_transforms(sortName)
 		
-		if selection:
-			for obj in sortName:
+		if filtered_list:
+			for obj in filtered_list:
 				path_to_obj, obj_short_name = self.get_short_name(obj)
 				if len(obj_short_name) <= 1:
 					om.MGlobal.displayWarning(f"The name cannot be less than one characters: {obj_short_name}")
@@ -365,9 +367,9 @@ class RenameGUI(QtWidgets.QWidget):
 	def add_prefix(self):
 		prefix = self.SuffixPrefixWidget.prefix_Editline.AutoComplete_line_edit.text()
 		selection = cmds.ls(selection=1, long=1)
-		# sortName = sorted(selection, key=len, reverse=True)
+		sortName = sorted(selection, key=len, reverse=True)
 		
-		filtered_list = self.FindReplaceWidget.remove_shapes_from_transforms(selection)
+		filtered_list = self.FindReplaceWidget.remove_shapes_from_transforms(sortName)
 
 		if filtered_list:
 			if prefix:
@@ -392,9 +394,9 @@ class RenameGUI(QtWidgets.QWidget):
 	def add_suffix(self):
 		suffix = self.SuffixPrefixWidget.suffix_Editline.AutoComplete_line_edit.text()
 		selection = cmds.ls(selection=1, long=1)
-		# sortName = sorted(selection, key=len, reverse=True)
+		sortName = sorted(selection, key=len, reverse=True)
 		
-		filtered_list = self.FindReplaceWidget.remove_shapes_from_transforms(selection)
+		filtered_list = self.FindReplaceWidget.remove_shapes_from_transforms(sortName)
 		
 		if filtered_list:
 			if suffix:

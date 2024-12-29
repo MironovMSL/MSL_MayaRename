@@ -1,3 +1,5 @@
+from sys import prefix
+
 try:
 	from PySide2 import QtWidgets, QtGui, QtCore
 	from shiboken2 import wrapInstance
@@ -47,7 +49,7 @@ class AutoPrefixButton(QtWidgets.QPushButton):
 		self.resources = Resources.get_instance()
 		# Attribute---------------------------
 		self.icon              = self.resources.get_icon_from_resources("elk-svgrepo-com.svg")
-		self.toolTip           = "Automatically adds short form name prefix such as (lf, mid, rt)."
+		self.toolTip           = "Automatic prefix addition."
 		self.script_job_number = -1
 		self.combination       = None
 		# Setting---------------------------
@@ -84,6 +86,51 @@ class AutoPrefixButton(QtWidgets.QPushButton):
 	def create_connections(self):
 		self.customContextMenuRequested.connect(self.show_pop_up_window)
 		self.pop_up_window.change_color.connect(lambda : self.update_icon(self.combination))
+		self.clicked.connect(self.set_auto_prefix)
+		self.pop_up_window.itChangeMirror.connect(self.update_selection)
+		
+	def set_auto_prefix(self):
+		selection = cmds.ls(selection=True, l=True)
+		if selection:
+			filtered_list = self.parent().parent().FindReplaceWidget.remove_shapes_from_transforms(selection)
+			
+			for obj in filtered_list:
+				type_obj = cmds.objectType(obj)
+				if type_obj == "transform" or type_obj == "joint":
+					position = self.classify_object_position(obj)
+					if position == "lf":
+						prefix = self.resources.config.get_variable("auto_prefix", "left", "", str)
+					elif position == "rt":
+						prefix = self.resources.config.get_variable("auto_prefix", "right", "", str)
+					elif position == "mid":
+						prefix = self.resources.config.get_variable("auto_prefix", "center", "", str)
+				else:
+					continue
+
+				path_to_obj, obj_short_name = self.parent().parent().get_short_name(obj)
+				
+				print(f"{type_obj:<10}: {position:<5}: {obj_short_name:<20}: {prefix}")
+
+				if not prefix:
+					continue
+				
+				if obj_short_name[:len(prefix)] == prefix:
+					continue
+				
+				new_obj_short_name = prefix + obj_short_name
+				obj_rename = cmds.rename(obj, new_obj_short_name)
+				
+				new_path_to_obj, new_obj_short_name = self.parent().parent().get_short_name(obj_rename)
+				new_obj = path_to_obj + new_obj_short_name
+				
+				filtered_list = self.parent().parent().renameObjectsInHierarchy(filtered_list, obj, new_obj)
+			
+			self.parent().parent().LabelWidget.update_selection()
+		
+		else:
+			print("It is necessary to select an object.")
+		
+		
 	
 	def update_selection(self):
 		"""
@@ -129,13 +176,26 @@ class AutoPrefixButton(QtWidgets.QPushButton):
 		self.setIconSize(QtCore.QSize(size, size))
 	
 	def classify_object_position(self, obj_name):
-
-		position = cmds.xform(obj_name, q=True, t=True, ws=True)
-		x_pos = position[0]
-
-		if x_pos < 0:
+		"""
+		Determines the position of an object relative to a given mirror axis.
+		"""
+		try:
+			position = cmds.xform(obj_name, q=True, t=True, ws=True)
+		except Exception as e:
+			raise RuntimeError(f"Failed to get object position '{obj_name}': {e}")
+		
+		mirror_across = self.resources.config.get_variable("auto_prefix", "mirror_across", "YZ", str)
+		axis_mapping = {"YZ": 0,"XZ": 1, "XY": 2}
+		
+		if mirror_across not in axis_mapping:
+			raise ValueError(f"Invalid value 'mirror_across': {mirror_across}")
+		
+		axis_index = axis_mapping[mirror_across]
+		pos_value = position[axis_index]
+		
+		if pos_value < 0:
 			return "rt"
-		elif x_pos == 0:
+		elif pos_value == 0:
 			return "mid"
 		else:
 			return "lf"
@@ -206,6 +266,7 @@ class PopUpWindow(QtWidgets.QWidget):
 			"""
 	ColorDefault = {"lf": "#8FD14F", "rt": "#FF6F61", "mid": "#FFD25A" }
 	change_color = QtCore.Signal()
+	itChangeMirror = QtCore.Signal()
 	
 	def __init__(self, parent=None):
 		super(PopUpWindow, self).__init__(parent)
@@ -353,6 +414,7 @@ class PopUpWindow(QtWidgets.QWidget):
 	def update_current_mirror(self, type):
 		self.currentMirror = type
 		self.resources.config.set_variable("auto_prefix", "mirror_across", type)
+		self.itChangeMirror.emit()
 	
 	def run_create_svg(self):
 		# Colors for the combinations

@@ -38,7 +38,7 @@ class AutoSuffixButton(QtWidgets.QPushButton):
 		self.resources = Resources.get_instance()
 		# Attribute---------------------------
 		self.icon     = self.resources.get_icon_from_resources("crab-svgrepo-com.svg")
-		self.toolTip  = "Automatically adds a suffix of a short name shape."
+		self.toolTip  = "Automatically adds a suffix."
 		self.script_job_number = -1
 		# Setting---------------------------
 		self.setObjectName("AutoSuffixButtonID")
