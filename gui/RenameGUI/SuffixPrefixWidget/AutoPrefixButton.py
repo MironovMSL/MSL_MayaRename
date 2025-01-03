@@ -88,7 +88,21 @@ class AutoPrefixButton(QtWidgets.QPushButton):
 		self.pop_up_window.change_color.connect(lambda : self.update_icon(self.combination))
 		self.clicked.connect(self.set_auto_prefix)
 		self.pop_up_window.itChangeMirror.connect(self.update_selection)
+	
+	def check_prefix(self, name):
 		
+		lf = self.resources.config.get_variable("auto_prefix", "left", "", str)
+		rt = self.resources.config.get_variable("auto_prefix", "right", "", str)
+		mid = self.resources.config.get_variable("auto_prefix", "center", "", str)
+		
+		prefixes = tuple(prefix for prefix in (lf, rt, mid) if prefix) + ("lf_", "rt_", "mid_")
+		
+		if name.startswith(prefixes):
+			parts = name.split("_")
+			name = "_".join(parts[1:])
+			
+		return name
+	
 	def set_auto_prefix(self):
 		selection = cmds.ls(selection=True, l=True)
 		if selection:
@@ -107,15 +121,16 @@ class AutoPrefixButton(QtWidgets.QPushButton):
 				else:
 					continue
 
-				path_to_obj, obj_short_name = self.parent().parent().get_short_name(obj)
-				
-				print(f"{type_obj:<10}: {position:<5}: {obj_short_name:<20}: {prefix}")
-
 				if not prefix:
 					continue
 				
+				path_to_obj, obj_short_name = self.parent().parent().get_short_name(obj)
+				
 				if obj_short_name[:len(prefix)] == prefix:
 					continue
+					
+				obj_short_name = self.check_prefix(obj_short_name)
+				# print(f"{type_obj:<10}: {position:<5}: {obj_short_name:<20}: {prefix}")
 				
 				new_obj_short_name = prefix + obj_short_name
 				obj_rename = cmds.rename(obj, new_obj_short_name)
@@ -282,7 +297,7 @@ class PopUpWindow(QtWidgets.QWidget):
 		# Setting---------------------------
 		self.setWindowTitle(f"Number mode Options")
 		self.setWindowFlags(QtCore.Qt.Popup)
-		# self.setFixedSize(96, 79)
+		self.setFixedSize(150, 100)
 		self.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
 		# Run functions ---------------------------
 		self.create_widgets()

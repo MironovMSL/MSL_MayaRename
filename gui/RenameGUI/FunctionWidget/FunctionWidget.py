@@ -61,16 +61,16 @@ class FunctionWidget(QtWidgets.QWidget):
         self.aa_BTN = CustomPushButton("aa")
         self.aa_BTN.setToolTip("Text converted to Lower.")
         # button RP remove pref_  --> pref_Name --> Name
-        self.RP_BTN = CustomPushButton("RP_")
+        self.RP_BTN = CustomPushButton("A_")
         self.RP_BTN.setToolTip("Remove prefix in name.")
         # button RS remove _suffix  --> Name_suffix --> Name
-        self.RS_BTN = CustomPushButton("R_S")
+        self.RS_BTN = CustomPushButton("_A")
         self.RS_BTN.setToolTip("Remove suffix in name.")
         # button DT remove trail number --> Name01 --> Name
-        self.DE_BTN = CustomPushButton("DE")
+        self.DE_BTN = CustomPushButton("_1")
         self.DE_BTN.setToolTip("Remove the numerical tail.")
         # button DA remove all number --> 01Name01 --> Name
-        self.DA_BTN = CustomPushButton("DA")
+        self.DA_BTN = CustomPushButton("1_1")
         self.DA_BTN.setToolTip("Remove all numbers.")
 
     def create_layouts(self):
